@@ -1,0 +1,12 @@
+/other_pro/py_version
+/other_pro/WaveFunctionCollapse
+/other_pro/wfc
+/other_pro/wfc1
+/reference
+/temp
+/.idea
+*.exe
+**/cmake-build-debug/*
+*.mp4
+*.pdf
+*.pdb
