@@ -6,7 +6,7 @@
 #include <unordered_set>
 
 #include "time.h"
-#include "cmdline.h"
+#include "include/cmdline.h"
 #include "overlapping_wfc.hpp"
 #include "image.hpp"
 

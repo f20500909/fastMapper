@@ -13,10 +13,10 @@ endif ()
 
 include(GNUInstallDirs)
 include_directories(./src)
+include_directories(./include)
 
 aux_source_directory(SOURCE_FILES ./src)
 
 
-add_executable(wfc_demo src/main.cpp)
 add_executable(single src/single.cpp ${SOURCE_FILES})
 

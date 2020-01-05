@@ -3,8 +3,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image.h"
-#include "stb_image_write.h"
+#include "include/stb_image.h"
+#include "include/stb_image_write.h"
 
 #include "array2D.hpp"
 #include "color.hpp"

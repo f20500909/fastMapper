@@ -5,14 +5,14 @@
 #include <string>
 #include "time.h"
 
-#include "include/overlapping_wfc.hpp"
-#include "include/tiling_wfc.hpp"
-#include "include/utils/array3D.hpp"
-#include "include/wfc.hpp"
-#include "include/external/rapidxml.hpp"
-#include "include/image.hpp"
-#include "include/rapidxml_utils.hpp"
-#include "include/utils.hpp"
+#include "overlapping_wfc.hpp"
+#include "tiling_wfc.hpp"
+#include "array3D.hpp"
+#include "wfc.hpp"
+#include "rapidxml.hpp"
+#include "image.hpp"
+#include "rapidxml_utils.hpp"
+#include "utils.hpp"
 #include <unordered_set>
 
 using namespace rapidxml;
