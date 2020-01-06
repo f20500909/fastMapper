@@ -145,7 +145,6 @@ public:
                 wave.set(argmin, k, false);
             }
         }
-
         return to_continue;
     }
 

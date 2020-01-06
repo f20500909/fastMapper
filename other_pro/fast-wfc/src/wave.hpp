@@ -201,12 +201,10 @@ public:
 
         std::uniform_real_distribution<> dis(0, abs(half_min_plogp));
 
-        // The minimum entropy (plus a small noise)
         double min = std::numeric_limits<double>::infinity();
         int argmin = -1;
 
         for (unsigned i = 0; i < size; i++) {
-
             // If the cell is decided, we do not compute the entropy (which is equal to 0).
             // 如果cell被决定，我们不用再计算信息熵
             double nb_patterns = memoisation.nb_patterns[i];
