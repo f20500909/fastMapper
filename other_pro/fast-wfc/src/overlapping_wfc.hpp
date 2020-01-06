@@ -319,7 +319,6 @@ public:
     */
     OverlappingWFC(const Array2D<T> &input, const OverlappingWFCOptions &options, int seed) noexcept
             : OverlappingWFC(input, options, seed, get_patterns(input, options)) {}
-
     /**
     * Run the WFC algorithm, and return the result if the algorithm succeeded.
     * 运行wfc算法，如果成功返回结果

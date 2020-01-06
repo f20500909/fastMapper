@@ -48,6 +48,7 @@ int main(int argc, char *argv[]) {
 //    periodic_input, periodic_output, height, width, symmetry, ground, N
 //    -i 1 -o 1 -h 48 -w 48 -s 8 -g 0 -N 2 -n 3Bricks
 //    -i 1 -o 1 -h 20 -w 100 -s 1 -g 0 -N 3 -n 3Bricks
+//    -i 0 -o 1 -h 48  -w 50 -s 2 -g 0 -N 2 -n colored_city
 
     cmdline::parser a;
     a.add<bool>("periodic_input", 'i', "periodic_input", true);
