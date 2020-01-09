@@ -119,13 +119,14 @@ public:
               nb_patterns(patterns_frequencies.size()), data(width * height, nb_patterns, 1), width(width),
               height(height), size(height * width) {
         // Initialize the memoisation of entropy.
+        // 初始化基础的熵
         double base_entropy = 0;
         double base_s = 0;
         double half_min_plogp = std::numeric_limits<double>::infinity();
         for (unsigned i = 0; i < nb_patterns; i++) {
             half_min_plogp = std::min(half_min_plogp, plogp_patterns_frequencies[i] / 2.0);
-            base_entropy += plogp_patterns_frequencies[i];
-            base_s += patterns_frequencies[i];
+            base_entropy += plogp_patterns_frequencies[i];// plogp 的和
+            base_s += patterns_frequencies[i];// 频率的和
         }
         double log_base_s = log(base_s);
         double entropy_base = log_base_s - base_entropy / base_s;

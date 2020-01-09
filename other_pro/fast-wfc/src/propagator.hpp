@@ -100,6 +100,7 @@ public:
 
   /**
    * Propagate the information given with add_to_propagator.
+   * 核心部分，进行传递
    */
   void propagate(Wave &wave) noexcept {
 

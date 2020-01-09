@@ -129,6 +129,7 @@ public:
         double random_value = dis(gen);
         unsigned chosen_value = nb_patterns - 1;
 
+        //小于0时中断
         for (unsigned k = 0; k < nb_patterns; k++) {
             random_value -= wave.get(argmin, k) ? patterns_frequencies[k] : 0;
             if (random_value <= 0) {
@@ -140,8 +141,7 @@ public:
         // 根据图案定义网格
         for (unsigned k = 0; k < nb_patterns; k++) {
             if (wave.get(argmin, k) != (k == chosen_value)) {
-                propagator.add_to_propagator(argmin / wave.width, argmin % wave.width,
-                                             k);
+                propagator.add_to_propagator(argmin / wave.width, argmin % wave.width, k);
                 wave.set(argmin, k, false);
             }
         }
