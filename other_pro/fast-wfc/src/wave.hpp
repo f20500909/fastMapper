@@ -123,8 +123,7 @@ public:
         double base_s = 0;
         double half_min_plogp = std::numeric_limits<double>::infinity();
         for (unsigned i = 0; i < nb_patterns; i++) {
-            half_min_plogp =
-                    std::min(half_min_plogp, plogp_patterns_frequencies[i] / 2.0);
+            half_min_plogp = std::min(half_min_plogp, plogp_patterns_frequencies[i] / 2.0);
             base_entropy += plogp_patterns_frequencies[i];
             base_s += patterns_frequencies[i];
         }
