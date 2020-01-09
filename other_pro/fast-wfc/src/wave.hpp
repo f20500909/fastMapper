@@ -113,14 +113,11 @@ public:
     * Initialize the wave with every cell being able to have every pattern.
     * 初始化wave中每个cell
     */
-    Wave(unsigned height, unsigned width,
-         const std::vector<double> &patterns_frequencies) noexcept
-            : patterns_frequencies(patterns_frequencies),
-              plogp_patterns_frequencies(get_plogp(patterns_frequencies)),
-              half_min_plogp(get_half_min(plogp_patterns_frequencies)),
-              is_impossible(false), nb_patterns(patterns_frequencies.size()),
-              data(width * height, nb_patterns, 1), width(width), height(height),
-              size(height * width) {
+    Wave(unsigned height, unsigned width, const std::vector<double> &patterns_frequencies) noexcept
+            : patterns_frequencies(patterns_frequencies), plogp_patterns_frequencies(get_plogp(patterns_frequencies)),
+              half_min_plogp(get_half_min(plogp_patterns_frequencies)), is_impossible(false),
+              nb_patterns(patterns_frequencies.size()), data(width * height, nb_patterns, 1), width(width),
+              height(height), size(height * width) {
         // Initialize the memoisation of entropy.
         double base_entropy = 0;
         double base_s = 0;

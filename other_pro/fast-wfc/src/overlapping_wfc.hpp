@@ -104,13 +104,11 @@ private:
     * 被置于输出图中最底层，在其所有宽度上
     * 图案不能再用于输出中的其他部分
     */
-    static void init_ground(WFC &wfc, const Array2D<T> &input,
-                            const std::vector<Array2D<T>> &patterns,
+    static void init_ground(WFC &wfc, const Array2D<T> &input, const std::vector<Array2D<T>> &patterns,
                             const OverlappingWFCOptions &options) noexcept {
         unsigned ground_pattern_id =
                 get_ground_pattern_id(input, patterns, options);
 
-        // Place the pattern in the ground.
         // 置图案于底层
         for (unsigned j = 0; j < options.get_wave_width(); j++) {
             for (unsigned p = 0; p < patterns.size(); p++) {
@@ -120,7 +118,6 @@ private:
             }
         }
 
-        // Remove the pattern from the other positions.
         // 移除其他地方的图案
         for (unsigned i = 0; i < options.get_wave_height() - 1; i++) {
             for (unsigned j = 0; j < options.get_wave_width(); j++) {
@@ -319,6 +316,7 @@ public:
     */
     OverlappingWFC(const Array2D<T> &input, const OverlappingWFCOptions &options, int seed) noexcept
             : OverlappingWFC(input, options, seed, get_patterns(input, options)) {}
+
     /**
     * Run the WFC algorithm, and return the result if the algorithm succeeded.
     * 运行wfc算法，如果成功返回结果
