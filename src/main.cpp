@@ -5,9 +5,42 @@
 #include <unistd.h>
 #include <unordered_set>
 
-#include "cmdline.h"
+#include "time.h"
+#include "include/cmdline.h"
+#include "overlapping_wfc.hpp"
+#include "image.hpp"
 
 using namespace std;
+
+void
+single_run(bool periodic_input, bool periodic_output, unsigned height, unsigned width, unsigned symmetry, bool ground,
+           unsigned N, string name) {
+    const std::string image_path = "samples/" + name + ".png";
+    std::optional<Data<Color>> m = read_image(image_path);
+    if (!m.has_value()) {
+        throw "Error while loading " + image_path;
+    }
+    OverlappingWFCOptions options = {periodic_input, periodic_output, height, width, symmetry, ground, N};
+
+    srand((unsigned) time(NULL));
+
+    int seed = rand();
+
+    printf("========== init start ==========\n");
+    OverlappingWFC<Color> wfc(*m, options, seed);
+    printf("========== init down ==========\n");
+
+    printf("========== run start ==========\n");
+    std::optional<Data<Color>> success = wfc.run();
+    printf("========== run down  ==========\n");
+    if (success.has_value()) {
+        write_image_png("results/" + name + ".png", *success);
+        cout << name << " finished!" << endl;
+    } else {
+        cout << "failed!" << endl;
+    }
+}
+
 
 int main(int argc, char *argv[]) {
 //    1 1 48 48 8 0 2
@@ -15,6 +48,7 @@ int main(int argc, char *argv[]) {
 //    periodic_input, periodic_output, height, width, symmetry, ground, N
 //    -i 1 -o 1 -h 48 -w 48 -s 8 -g 0 -N 2 -n 3Bricks
 //    -i 1 -o 1 -h 20 -w 100 -s 1 -g 0 -N 3 -n 3Bricks
+//    -i 0 -o 1 -h 48  -w 50 -s 2 -g 0 -N 2 -n colored_city
 
     cmdline::parser a;
     a.add<bool>("periodic_input", 'i', "periodic_input", true);
@@ -48,6 +82,7 @@ int main(int argc, char *argv[]) {
          << "N               : " << a.get<unsigned>("N") << endl
          << "name            : " << a.get<string>("name") << endl;
 
+    single_run(periodic_input, periodic_output, height, width, symmetry, ground, N, name);
     return 0;
 }
 

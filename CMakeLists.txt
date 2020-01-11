@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.9)
-project(fastMapper)
+project(fastwfc VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
-set(SOURCE_FILES src/main.cpp src/cmdline.h)
 
-add_executable(fastMapper ${SOURCE_FILES})
+
+include_directories(./src)
+include_directories(./src/include)
+
+aux_source_directory(SOURCE_FILES ./src)
+add_executable(single src/main.cpp ${SOURCE_FILES})
 

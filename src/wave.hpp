@@ -1,7 +1,7 @@
 #ifndef FAST_WFC_WAVE_HPP_
 #define FAST_WFC_WAVE_HPP_
 
-#include "array2D.hpp"
+#include "Data.hpp"
 #include <iostream>
 #include <limits>
 #include <math.h>
@@ -73,7 +73,7 @@ private:
     * The actual wave. data.get(index, pattern) is equal to 0 if the pattern can
     * be placed in the cell index.
     */
-    Array2D<uint8_t> data;
+    Data<uint8_t> data;
 
     /**
     * Return distribution * log(distribution).

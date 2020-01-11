@@ -4,6 +4,7 @@
 /other_pro/wfc1
 /reference
 /temp
+/results
 /.idea
 *.exe
 **/cmake-build-debug/*
