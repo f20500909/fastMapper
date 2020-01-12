@@ -17,20 +17,20 @@ struct OverlappingWFCOptions {
     unsigned out_width;   // The width of the output in pixels.
     unsigned symmetry; // The number of symmetries (the order is defined in wfc).
     bool ground;       // True if the ground needs to be set (see init_ground).
-    unsigned pattern_size; // The width and height in pixel of the patterns.
+    unsigned N; // The width and height in pixel of the patterns.
 
     /**
     * Get the wave height given these options.
     */
     unsigned get_wave_height() const noexcept {
-        return periodic_output ? out_height : out_height - pattern_size + 1;
+        return periodic_output ? out_height : out_height - N + 1;
     }
 
     /**
     * Get the wave width given these options.
     */
     unsigned get_wave_width() const noexcept {
-        return periodic_output ? out_width : out_width - pattern_size + 1;
+        return periodic_output ? out_width : out_width - N + 1;
     }
 };
 
@@ -142,7 +142,7 @@ private:
         // 获得图案
         Array2D<T> ground_pattern =
                 input.get_sub_array(input.height - 1, input.width / 2,
-                                    options.pattern_size, options.pattern_size);
+                                    options.N, options.N);
 
         // Retrieve the id of the pattern.
         // 遍历，取得id
@@ -171,15 +171,15 @@ private:
         // 一个图案在输入中出现的次数
         std::vector<double> patterns_frequency;
 
-        std::vector<Array2D<T>> symmetries(8, Array2D<T>(options.pattern_size, options.pattern_size));
-        unsigned max_i = options.periodic_input ? input.height : input.height - options.pattern_size + 1;
-        unsigned max_j = options.periodic_input ? input.width : input.width - options.pattern_size + 1;
+        std::vector<Array2D<T>> symmetries(8, Array2D<T>(options.N, options.N));
+        unsigned max_i = options.periodic_input ? input.height : input.height - options.N + 1;
+        unsigned max_j = options.periodic_input ? input.width : input.width - options.N + 1;
 
         for (unsigned i = 0; i < max_i; i++) {
             for (unsigned j = 0; j < max_j; j++) {
                 // Compute the symmetries of every pattern in the image.
                 // 计算此图案的其他形式，旋转，对称
-                symmetries[0].data = input.get_sub_array(i, j, options.pattern_size, options.pattern_size).data;
+                symmetries[0].data = input.get_sub_array(i, j, options.N, options.N).data;
                 symmetries[1].data = symmetries[0].reflected().data;
                 symmetries[2].data = symmetries[0].rotated().data;
                 symmetries[3].data = symmetries[2].reflected().data;
@@ -284,22 +284,22 @@ private:
             for (unsigned y = 0; y < options.get_wave_height(); y++) {
                 const Array2D<T> &pattern =
                         patterns[output_patterns.get(y, options.get_wave_width() - 1)];
-                for (unsigned dx = 1; dx < options.pattern_size; dx++) {
+                for (unsigned dx = 1; dx < options.N; dx++) {
                     output.get(y, options.get_wave_width() - 1 + dx) = pattern.get(0, dx);
                 }
             }
             for (unsigned x = 0; x < options.get_wave_width(); x++) {
                 const Array2D<T> &pattern =
                         patterns[output_patterns.get(options.get_wave_height() - 1, x)];
-                for (unsigned dy = 1; dy < options.pattern_size; dy++) {
+                for (unsigned dy = 1; dy < options.N; dy++) {
                     output.get(options.get_wave_height() - 1 + dy, x) =
                             pattern.get(dy, 0);
                 }
             }
             const Array2D<T> &pattern = patterns[output_patterns.get(
                     options.get_wave_height() - 1, options.get_wave_width() - 1)];
-            for (unsigned dy = 1; dy < options.pattern_size; dy++) {
-                for (unsigned dx = 1; dx < options.pattern_size; dx++) {
+            for (unsigned dy = 1; dy < options.N; dy++) {
+                for (unsigned dx = 1; dx < options.N; dx++) {
                     output.get(options.get_wave_height() - 1 + dy,
                                options.get_wave_width() - 1 + dx) = pattern.get(dy, dx);
                 }

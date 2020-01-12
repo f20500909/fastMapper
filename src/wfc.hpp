@@ -69,13 +69,13 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC(bool periodic_output, int seed, std::vector<double> patterns_frequencies,
+    WFC( int seed, std::vector<double> patterns_frequencies,
         Propagator::PropagatorState propagator, unsigned wave_height, unsigned wave_width)
     noexcept
             : gen(seed), wave(wave_height, wave_width, patterns_frequencies),
               patterns_frequencies(patterns_frequencies),
               nb_patterns(propagator.size()),
-              propagator(wave.height, wave.width, periodic_output, propagator) {}
+              propagator(wave.height, wave.width,  propagator) {}
 
 //     运行算法，成功的话并返回一个结果
     std::optional<Data<unsigned>> run() noexcept {
@@ -89,7 +89,6 @@ public:
             } else if (result == success) {
                 return wave_to_output();
             }
-
             // 传递信息
             propagator.propagate(wave);
         }

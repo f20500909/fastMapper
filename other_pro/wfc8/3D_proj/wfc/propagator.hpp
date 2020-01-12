@@ -15,21 +15,21 @@ public:
 
 private:
 	/**
-	* Í¼ÐÎ´óÐ¡
+	* Í¼ï¿½Î´ï¿½Ð¡
 	*/
-	const unsigned pattern_size;
+	const unsigned N;
 
 	PropagatorState propagator_state;
 
 	/**
-	* waveµÄ³ß´ç
+	* waveï¿½Ä³ß´ï¿½
 	*/
 	const unsigned wave_width;
 	const unsigned wave_height;
 	const unsigned wave_depth;
 
 	/**
-	* ·µ»ØtrueÈç¹ûÊä³öÊÇÆ½ÆÌ
+	* ï¿½ï¿½ï¿½ï¿½trueï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½
 	*/
 	const bool periodic_output;
 
@@ -38,14 +38,14 @@ private:
 	Array4D<std::array<int, 6>> compatible;
 
 	/**
-	* ³õÊ¼»¯compatible
+	* ï¿½ï¿½Ê¼ï¿½ï¿½compatible
 	*/
 	void init_compatible() noexcept {
 		std::array<int, 6> value;
 		for (unsigned z = 0; z < wave_depth; z++){
 			for (unsigned y = 0; y < wave_height; y++){
 				for (unsigned x = 0; x < wave_width; x++){
-					for (unsigned pattern = 0; pattern < pattern_size; pattern++){
+					for (unsigned pattern = 0; pattern < N; pattern++){
 						for (int direction = 0; direction < 6; direction++){
 							value[direction] =
 								propagator_state[pattern][get_opposite_direction(direction)].size();
@@ -59,19 +59,19 @@ private:
 
 public:
 	/**
-	* ¹¹Ôì²¢³õÊ¼»¯
+	* ï¿½ï¿½ï¿½ì²¢ï¿½ï¿½Ê¼ï¿½ï¿½
 	*/
 	Propagator(unsigned wave_height, unsigned wave_width, unsigned wave_depth,
 		bool periodic_output, PropagatorState propagator_state) noexcept
-		: pattern_size(propagator_state.size()),
+		: N(propagator_state.size()),
 		propagator_state(propagator_state), wave_width(wave_width),
 		wave_height(wave_height), wave_depth(wave_depth),
-		periodic_output(periodic_output), compatible(wave_height, wave_width, wave_depth, pattern_size) {
+		periodic_output(periodic_output), compatible(wave_height, wave_width, wave_depth, N) {
 		init_compatible();
 	}
 
 	/**
-	* Ìí¼ÓÔªËØ
+	* ï¿½ï¿½ï¿½Ôªï¿½ï¿½
 	*/
 	void add_to_propagator(unsigned z, unsigned y, unsigned x, unsigned pattern) noexcept {
 		std::array<int, 6> temp = {};
@@ -80,7 +80,7 @@ public:
 	}
 
 	/**
-	* ´«µÝÐÅÏ¢
+	* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 	*/
 	void propagate(Wave &wave) noexcept {
 	
@@ -89,7 +89,7 @@ public:
 			std::tie(z1, y1, x1, pattern) = propagating.back();
 			propagating.pop_back();
 
-			//ÔÚÁù¸ö·½Ïò´«µÝ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò´«µï¿½
 			for (unsigned direction = 0; direction < 6; direction++){
 				int dx = direction_x[direction];
 				int dy = direction_y[direction];

@@ -76,7 +76,7 @@ public:
     /**
      * Constructor building the propagator and initializing compatible.
      */
-    Propagator(unsigned wave_height, unsigned wave_width, bool periodic_output,
+    Propagator(unsigned wave_height, unsigned wave_width,
                PropagatorState propagator_state) noexcept
             : patterns_size(propagator_state.size()), propagator_state(propagator_state), wave_width(wave_width),
               wave_height(wave_height), periodic_output(periodic_output),
