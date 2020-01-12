@@ -10,9 +10,6 @@
 #include "Data.hpp"
 #include "color.hpp"
 
-/**
-* Read an image. Returns nullopt if there was an error.
-*/
 std::optional<Data<Color>> read_image(const std::string &file_path) noexcept {
     int width;
     int height;
@@ -25,18 +22,14 @@ std::optional<Data<Color>> read_image(const std::string &file_path) noexcept {
     for (unsigned i = 0; i < (unsigned) height; i++) {
         for (unsigned j = 0; j < (unsigned) width; j++) {
             unsigned index = 3 * (i * width + j);
-//			m.data[i * width + j] = { data[index], data[index + 1], data[index + 2] };
             m.data[i * width + j] = Color(data[index], data[index + 1], data[index + 2]);
-//            m.data.push_back(Color(data));
         }
     }
     free(data);
     return m;
 }
 
-/**
-* Write an image in the png format.
-*/
+
 void write_image_png(const std::string &file_path, const Data<Color> &m) noexcept {
     stbi_write_png(file_path.c_str(), m.width, m.height, 3, (const unsigned char *) m.data.data(), 0);
 }
