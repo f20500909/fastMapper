@@ -69,10 +69,10 @@ public:
     * 构造函数
     */
     OverlappingWFC(const Data<T> &input, const OverlappingWFCOptions &options, const int &seed,
-                   const std::pair<std::vector<Data<T>>, std::vector<double>> &patterns,
+                   std::vector<Data<T>> &patterns_1, std::vector<double> &patterns_2,
                    const std::vector<std::array<std::vector<unsigned>, 4>> &propagator) noexcept
-            : input(input), options(options), patterns(patterns.first),
-              wfc(seed, patterns.second, propagator, options.get_wave_height(), options.get_wave_width()) {
+            : input(input), options(options), patterns(patterns_1),
+              wfc(seed, patterns_2, propagator, options.get_wave_height(), options.get_wave_width()) {
     }
 
 

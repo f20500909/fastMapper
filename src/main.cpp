@@ -47,9 +47,8 @@ static bool agrees(const Data<Color> &pattern1, const Data<Color> &pattern2,
 */
 static std::vector<std::array<std::vector<unsigned>, 4>>
 generate_compatible(const std::vector<Data<Color>> &patterns) noexcept {
-    std::vector<std::array<std::vector<unsigned>, 4>> compatible =
-            std::vector<std::array<std::vector<unsigned>, 4>>(patterns.size());
-
+    std::vector<std::array<std::vector<unsigned>, 4>> compatible = std::vector<std::array<std::vector<unsigned>, 4>>(
+            patterns.size());
     // Iterate on every dy, dx, pattern1 and pattern2
     for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
         for (unsigned direction = 0; direction < 4; direction++) {
@@ -68,7 +67,7 @@ generate_compatible(const std::vector<Data<Color>> &patterns) noexcept {
 * Return the list of patterns, as well as their probabilities of apparition.
 * 返回图案列表，以及它出现的概率
 */
-static std::pair<std::vector<Data<Color>>, std::vector<double>>
+static std::tuple<std::vector<Data<Color>>, std::vector<double>>
 get_patterns(const Data<Color> &input, const OverlappingWFCOptions &options) noexcept {
     std::unordered_map<Data<Color>, unsigned> patterns_id;
     std::vector<Data<Color>> patterns;
@@ -111,13 +110,10 @@ get_patterns(const Data<Color> &input, const OverlappingWFCOptions &options) noe
             }
         }
     }
-
     return {patterns, patterns_frequency};
 }
 
-void
-single_run(unsigned height, unsigned width, unsigned symmetry,
-           unsigned N, string name) {
+void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, string name) {
     const std::string image_path = "samples/" + name + ".png";
     std::optional<Data<Color>> m = read_image(image_path);
     if (!m.has_value()) {
@@ -129,11 +125,12 @@ single_run(unsigned height, unsigned width, unsigned symmetry,
 
     int seed = rand();
 
+    std::vector<Data<Color>> patterns;
+    std::vector<double> patterns_frequency;
+    std::tie(patterns, patterns_frequency) = get_patterns(*m, options);
 
-    const std::pair<std::vector<Data<Color>>, std::vector<double>> &patterns = get_patterns(*m, options);
-
-    const std::vector<std::array<std::vector<unsigned>, 4>> propagator =  generate_compatible(patterns.first);
-    OverlappingWFC<Color> wfc(*m, options, seed, patterns,propagator);
+    const std::vector<std::array<std::vector<unsigned>, 4>> propagator = generate_compatible(patterns);
+    OverlappingWFC<Color> wfc(*m, options, seed, patterns, patterns_frequency, propagator);
 
     printf("========== run start ==========\n");
     std::optional<Data<Color>> success = wfc.run();
@@ -148,12 +145,7 @@ single_run(unsigned height, unsigned width, unsigned symmetry,
 
 
 int main(int argc, char *argv[]) {
-//    1 1 48 48 8 0 2
-//    1 1 48 48 2 1 3
-//    periodic_input, periodic_output, height, width, symmetry,  N
-//    -i 1 -o 1 -h 48 -w 48 -s 8 -g 0 -N 2 -n 3Bricks
-//    -i 1 -o 1 -h 20 -w 100 -s 1 -g 0 -N 3 -n 3Bricks
-//    -i 0 -o 1 -h 48  -w 50 -s 2 -g 0 -N 2 -n colored_city
+//    -h 20 -w 100 -s 2  -N 2 -n colored_city
 
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);
@@ -161,7 +153,6 @@ int main(int argc, char *argv[]) {
     a.add<unsigned>("symmetry", 's', "symmetry", true);
     a.add<unsigned>("N", 'N', "N", true);
     a.add<string>("name", 'n', "name", true);
-
     a.parse_check(argc, argv);
 
 
