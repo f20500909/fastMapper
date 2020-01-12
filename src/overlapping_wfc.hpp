@@ -20,14 +20,14 @@ struct OverlappingWFCOptions {
     * Get the wave height given these options.
     */
     unsigned get_wave_height() const noexcept {
-        return  out_height - N + 1;
+        return out_height - N + 1;
     }
 
     /**
     * Get the wave width given these options.
     */
     unsigned get_wave_width() const noexcept {
-        return  out_width - N + 1;
+        return out_width - N + 1;
     }
 };
 
@@ -38,7 +38,7 @@ struct OverlappingWFCOptions {
 template<typename T>
 class OverlappingWFC {
 
-private:
+public:
     /**
     * The input image. T is usually a color.
     * 图像的输入，t通常是一个颜色
@@ -70,20 +70,11 @@ private:
     */
     OverlappingWFC(const Data<T> &input, const OverlappingWFCOptions &options, const int &seed,
                    const std::pair<std::vector<Data<T>>, std::vector<double>> &patterns,
-                   const std::vector<std::array<std::vector<unsigned>, 4>>
-                   &propagator) noexcept
+                   const std::vector<std::array<std::vector<unsigned>, 4>> &propagator) noexcept
             : input(input), options(options), patterns(patterns.first),
-              wfc( seed, patterns.second, propagator, options.get_wave_height(), options.get_wave_width()) {
+              wfc(seed, patterns.second, propagator, options.get_wave_height(), options.get_wave_width()) {
     }
 
-    /**
-    * Constructor used only to call the other constructor with more computed parameters.
-    * 构造函数，当有更多参数时调用其他构造函数
-    */
-    OverlappingWFC(const Data<T> &input, const OverlappingWFCOptions &options, const int &seed,
-                   const std::pair<std::vector<Data<T>>, std::vector<double>>
-                   &patterns) noexcept
-            : OverlappingWFC(input, options, seed, patterns, generate_compatible(patterns.first)) {}
 
     /**
     * Return the list of patterns, as well as their probabilities of apparition.
@@ -197,44 +188,38 @@ private:
         Data<T> output = Data<T>(options.out_height, options.out_width);
 
 
-            for (unsigned y = 0; y < options.get_wave_height(); y++) {
-                for (unsigned x = 0; x < options.get_wave_width(); x++) {
-                    output.get(y, x) = patterns[output_patterns.get(y, x)].get(0, 0);
-                }
-            }
-            for (unsigned y = 0; y < options.get_wave_height(); y++) {
-                const Data<T> &pattern =
-                        patterns[output_patterns.get(y, options.get_wave_width() - 1)];
-                for (unsigned dx = 1; dx < options.N; dx++) {
-                    output.get(y, options.get_wave_width() - 1 + dx) = pattern.get(0, dx);
-                }
-            }
+        for (unsigned y = 0; y < options.get_wave_height(); y++) {
             for (unsigned x = 0; x < options.get_wave_width(); x++) {
-                const Data<T> &pattern =
-                        patterns[output_patterns.get(options.get_wave_height() - 1, x)];
-                for (unsigned dy = 1; dy < options.N; dy++) {
-                    output.get(options.get_wave_height() - 1 + dy, x) =
-                            pattern.get(dy, 0);
-                }
+                output.get(y, x) = patterns[output_patterns.get(y, x)].get(0, 0);
             }
-            const Data<T> &pattern = patterns[output_patterns.get(
-                    options.get_wave_height() - 1, options.get_wave_width() - 1)];
+        }
+        for (unsigned y = 0; y < options.get_wave_height(); y++) {
+            const Data<T> &pattern =
+                    patterns[output_patterns.get(y, options.get_wave_width() - 1)];
+            for (unsigned dx = 1; dx < options.N; dx++) {
+                output.get(y, options.get_wave_width() - 1 + dx) = pattern.get(0, dx);
+            }
+        }
+        for (unsigned x = 0; x < options.get_wave_width(); x++) {
+            const Data<T> &pattern =
+                    patterns[output_patterns.get(options.get_wave_height() - 1, x)];
             for (unsigned dy = 1; dy < options.N; dy++) {
-                for (unsigned dx = 1; dx < options.N; dx++) {
-                    output.get(options.get_wave_height() - 1 + dy,
-                               options.get_wave_width() - 1 + dx) = pattern.get(dy, dx);
-                }
+                output.get(options.get_wave_height() - 1 + dy, x) =
+                        pattern.get(dy, 0);
             }
+        }
+        const Data<T> &pattern = patterns[output_patterns.get(
+                options.get_wave_height() - 1, options.get_wave_width() - 1)];
+        for (unsigned dy = 1; dy < options.N; dy++) {
+            for (unsigned dx = 1; dx < options.N; dx++) {
+                output.get(options.get_wave_height() - 1 + dy,
+                           options.get_wave_width() - 1 + dx) = pattern.get(dy, dx);
+            }
+        }
         return output;
     }
 
 public:
-    /**
-    * The constructor used by the user.
-    * 用户可调用的构造函数
-    */
-    OverlappingWFC(const Data<T> &input, const OverlappingWFCOptions &options, int seed) noexcept
-            : OverlappingWFC(input, options, seed, get_patterns(input, options)) {}
 
     /**
     * Run the WFC algorithm, and return the result if the algorithm succeeded.
