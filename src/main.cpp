@@ -15,13 +15,13 @@ using namespace std;
 /**
 * Return true if the pattern1 is compatible with pattern2
 * when pattern2 is at a distance (dy,dx) from pattern1.
-* 当两个图案距离dy，dx时检测是否匹配
+* 当两个图案距离dy，dx时检测是否匹配，在此距离下是否相等
 */
-static bool agrees(const Data<Color> &pattern1, const Data<Color> &pattern2,
-                   int dy, int dx) noexcept {
-    unsigned xmin = dx < 0 ? 0 : dx;
+static bool isEpual(const Data<Color> &pattern1, const Data<Color> &pattern2,
+                    int dy, int dx) noexcept {
+    unsigned xmin = max(0, dx);
     unsigned xmax = dx < 0 ? dx + pattern2.width : pattern1.width;
-    unsigned ymin = dy < 0 ? 0 : dy;
+    unsigned ymin = max(0, dy);
     unsigned ymax = dy < 0 ? dy + pattern2.height : pattern1.width;
 
     // Iterate on every pixel contained in the intersection of the two pattern.
@@ -39,22 +39,26 @@ static bool agrees(const Data<Color> &pattern1, const Data<Color> &pattern2,
 }
 
 /**
-* Precompute the function agrees(pattern1, pattern2, dy, dx).
-* If agrees(pattern1, pattern2, dy, dx), then compatible[pattern1][direction]
+* Precompute the function isEpual(pattern1, pattern2, dy, dx).
+* If isEpual(pattern1, pattern2, dy, dx), then compatible[pattern1][direction]
 * contains pattern2, where direction is the direction defined by (dy, dx) (see direction.hpp).
 * 先计算是否匹配
-* 如果匹配，则合并
+ 如果匹配，则合并
 */
 static std::vector<std::array<std::vector<unsigned>, 4>>
 generate_compatible(const std::vector<Data<Color>> &patterns) noexcept {
     std::vector<std::array<std::vector<unsigned>, 4>> compatible = std::vector<std::array<std::vector<unsigned>, 4>>(
             patterns.size());
     // Iterate on every dy, dx, pattern1 and pattern2
+    // 对每个图案
     for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
+        // 对上下左右四个方向
         for (unsigned direction = 0; direction < 4; direction++) {
+            // 对所需要比较的每个图案
             for (unsigned pattern2 = 0; pattern2 < patterns.size(); pattern2++) {
-                if (agrees(patterns[pattern1], patterns[pattern2], directions_y[direction],
-                           directions_x[direction])) {
+                //判断是否相等
+                if (isEpual(patterns[pattern1], patterns[pattern2], directions_y[direction], directions_x[direction])) {
+                    //判断是否相等，如果相等则赋值记录
                     compatible[pattern1][direction].push_back(pattern2);
                 }
             }
@@ -142,7 +146,6 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
         cout << "failed!" << endl;
     }
 }
-
 
 int main(int argc, char *argv[]) {
 //    -h 20 -w 100 -s 2  -N 2 -n colored_city

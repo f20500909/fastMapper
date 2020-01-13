@@ -31,13 +31,7 @@ public:
 		: height(height), width(width), depth(depth),
 		data(width * height * depth) {}
 
-	/**
-	* Build a 2D array given its height, width and depth.
-	* All the arrays elements are initialized to value
-	*/
-	Array3D(unsigned height, unsigned width, unsigned depth, T value) noexcept
-		: height(height), width(width), depth(depth),
-		data(width * height * depth, value) {}
+
 
 	/**
 	* Return a const reference to the element in the i-th line, j-th column, and
@@ -58,21 +52,6 @@ public:
 		return data[i * width * depth + j * depth + k];
 	}
 
-	/**
-	* Check if two 3D arrays are equals.
-	*/
-	bool operator==(const Array3D &a) const noexcept {
-		if (height != a.height || width != a.width || depth != a.depth) {
-			return false;
-		}
-
-		for (unsigned i = 0; i < data.size(); i++) {
-			if (a.data[i] != data[i]) {
-				return false;
-			}
-		}
-		return true;
-	}
 };
 
 #endif // FAST_WFC_UTILS_ARRAY3D_HPP_
