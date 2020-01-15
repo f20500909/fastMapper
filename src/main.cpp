@@ -11,6 +11,7 @@
 #include "image.hpp"
 
 using namespace std;
+//TODO shell脚本批量生成
 
 /**
 * Return true if the pattern1 is compatible with pattern2
