@@ -23,21 +23,17 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
     std::optional<Matrix<Color>> m = data.init(image_path);
 
-    if (!m.has_value()) {
-        throw "Error while loading " + image_path;
-    }
     OverlappingWFCOptions options = {height, width, symmetry, N};
 
     srand((unsigned) time(NULL));
 
     int seed = rand();
 
-    std::vector<Matrix<Color>> patterns;
-    std::vector<double> patterns_frequency;
-    std::tie(patterns, patterns_frequency) = data.get_patterns(*m, options);
+    data.get_patterns(*m, options);
 
-    const std::vector<std::array<std::vector<unsigned>, 4>> propagator = data.generate_compatible(patterns);
-    OverlappingWFC<Color> wfc(*m, options, seed, patterns, patterns_frequency, propagator);
+    data.generate_compatible();
+
+    OverlappingWFC<Color> wfc(*m, options, seed, data.patterns, data.patterns_frequency, data.propagator);
 
     printf("========== run start ==========\n");
     std::optional<Matrix<Color>> success = wfc.run();

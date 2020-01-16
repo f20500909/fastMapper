@@ -91,9 +91,8 @@ public:
 * 先计算是否匹配
  如果匹配，则合并
 */
-    static std::vector<std::array<std::vector<unsigned>, 4>>
-    generate_compatible(const std::vector<Matrix<Color>> &patterns) noexcept {
-        std::vector<std::array<std::vector<unsigned>, 4>> compatible = std::vector<std::array<std::vector<unsigned>, 4>>(
+    void generate_compatible() noexcept {
+        propagator = std::vector<std::array<std::vector<unsigned>, 4>>(
                 patterns.size());
         // Iterate on every dy, dx, pattern1 and pattern2
         // 对每个图案
@@ -106,26 +105,24 @@ public:
                     if (isEpual(patterns[pattern1], patterns[pattern2], directions_y[direction],
                                 directions_x[direction])) {
                         //判断是否相等，如果相等则赋值记录
-                        compatible[pattern1][direction].push_back(pattern2);
+                        propagator[pattern1][direction].push_back(pattern2);
                     }
                 }
             }
         }
-        return compatible;
     }
 
 /**
 * Return the list of patterns, as well as their probabilities of apparition.
 * 返回图案列表，以及它出现的概率
 */
-    static std::tuple<std::vector<Matrix<Color>>, std::vector<double>>
+    void
     get_patterns(const Matrix<Color> &input, const OverlappingWFCOptions &options) noexcept {
         std::unordered_map<Matrix<Color>, unsigned> patterns_id;
-        std::vector<Matrix<Color>> patterns;
+
 
         // The number of time a pattern is seen in the input image.
         // 一个图案在输入中出现的次数
-        std::vector<double> patterns_frequency;
 
         std::vector<Matrix<Color>> symmetries(8, Matrix<Color>(options.N, options.N));
         unsigned max_i = input.height - options.N + 1;
@@ -161,11 +158,9 @@ public:
                 }
             }
         }
-        return {patterns, patterns_frequency};
     }
 
 
-private:
     std::vector<T> _data;
     //维度
     int dim;
@@ -174,8 +169,12 @@ private:
     //图像是2维，三维物体是3维
     std::vector<int> dims;
 
+    std::vector<Matrix<Color>> patterns;
+
+    std::vector<double> patterns_frequency;
 
     Matrix<Color> m;
+    std::vector<std::array<std::vector<unsigned>, 4>> propagator;
 };
 
 #endif // INPUT_HPP

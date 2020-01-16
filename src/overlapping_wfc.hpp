@@ -70,7 +70,7 @@ public:
     */
     OverlappingWFC(const Matrix<T> &input, const OverlappingWFCOptions &options, const int &seed,
                    std::vector<Matrix<T>> &patterns_1, std::vector<double> &patterns_2,
-                   const std::vector<std::array<std::vector<unsigned>, 4>> &propagator) noexcept
+                   const std::vector<std::array<std::vector<unsigned>, 4>> propagator) noexcept
             : input(input), options(options), patterns(patterns_1),
               wfc(seed, patterns_2, propagator, options.get_wave_height(), options.get_wave_width()) {
     }
