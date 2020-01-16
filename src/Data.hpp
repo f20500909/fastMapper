@@ -1,146 +1,181 @@
-#ifndef FAST_WFC_UTILS_ARRAY2D_HPP_
-#define FAST_WFC_UTILS_ARRAY2D_HPP_
+#ifndef INPUT_HPP
+#define INPUT_HPP
 
-#include "assert.h"
 #include <vector>
+#include <string>
+#include <algorithm>
 
-/**
-* Represent a 2D array.
-* The 2D array is stored in a single array, to improve cache usage.
-*/
-template<typename T>
+#include "include/stb_image.h"
+#include "include/stb_image_write.h"
+
+#include "Matrix.hpp"
+#include "color.hpp"
+#include "overlapping_wfc.hpp"
+#include "image.hpp"
+
+using namespace std;
+
+template<class T>
 class Data {
-
 public:
-    /**
-    * Height and width of the 2D array.
-    */
-    unsigned height;
-    unsigned width;
+//    static struct type {
+//        int dim = 2;
+//    };
 
-    /**
-    * The array containing the data of the 2D array.
-    */
-    std::vector<T> data;
-
-    /**
-    * Build a 2D array given its height and width.
-    * All the array elements are initialized to default value.
-    */
     Data() {
 
-    };
-
-    Data(unsigned height, unsigned width) noexcept : height(height), width(width), data(width * height) {}
-
-    /**
-    * Build a 2D array given its height and width.
-    * All the array elements are initialized to value.
-    */
-    Data(unsigned height, unsigned width, T value) noexcept
-            : height(height), width(width), data(width * height, value) {}
-
-    /**
-    * Return a const reference to the element in the i-th line and j-th column.
-    * i must be lower than height and j lower than width.
-    */
-    const T &get(unsigned i, unsigned j) const noexcept {
-        assert(i < height && j < width);
-        return data[j + i * width];
     }
 
-    /**
-    * Return a reference to the element in the i-th line and j-th column.
-    * i must be lower than height and j lower than width.
-    */
-    T &get(unsigned i, unsigned j) noexcept {
-        assert(i < height && j < width);
-        return data[j + i * width];
+    void getData() {
+
     }
 
-    /**
-    * Return the current 2D array reflected along the x axis.
-    */
-    Data<T> reflected() const noexcept {
-        Data<T> result = Data<T>(width, height);
-        for (unsigned y = 0; y < height; y++) {
-            for (unsigned x = 0; x < width; x++) {
-                result.get(y, x) = get(y, width - 1 - x);
+    void parse() {
+
+    }
+
+    std::optional<Matrix<Color>> init(std::string image_path) {
+        int width;
+        int height;
+        int num_components;
+        unsigned char *data = stbi_load(image_path.c_str(), &width, &height, &num_components, 3);
+        if (data == nullptr) {
+            return std::nullopt;
+        }
+        m = Matrix<Color>(height, width);
+        for (unsigned i = 0; i < (unsigned) height; i++) {
+            for (unsigned j = 0; j < (unsigned) width; j++) {
+                unsigned index = 3 * (i * width + j);
+                m.data[i * width + j] = Color(data[index], data[index + 1], data[index + 2]);
             }
         }
-        return result;
+        free(data);
+        return m;
     }
 
-    /**
-    * Return the current 2D array rotated 90° anticlockwise
-    */
-    Data<T> rotated() const noexcept {
-        Data<T> result = Data<T>(width, height);
-        for (unsigned y = 0; y < width; y++) {
-            for (unsigned x = 0; x < height; x++) {
-                result.get(y, x) = get(x, width - 1 - y);
-            }
-        }
-        return result;
+    void write_image_png(const std::string &file_path, const Matrix<Color> &m) noexcept {
+        stbi_write_png(file_path.c_str(), m.width, m.height, 3, (const unsigned char *) m.data.data(), 0);
     }
 
-    /**
-    * Return the sub 2D array starting from (y,x) and with size (sub_width,
-    * sub_height). The current 2D array is considered toric for this operation.
-    */
-    Data<T> get_sub_array(unsigned y, unsigned x, unsigned sub_width,
-                          unsigned sub_height) const noexcept {
-        Data<T> sub_array_2d = Data<T>(sub_width, sub_height);
-        for (unsigned ki = 0; ki < sub_height; ki++) {
-            for (unsigned kj = 0; kj < sub_width; kj++) {
-                sub_array_2d.get(ki, kj) = get((y + ki) % height, (x + kj) % width);
-            }
-        }
-        return sub_array_2d;
-    }
 
-    /**
-    * Assign the matrix a to the current matrix.
-    */
-    Data<T> &operator=(const Data<T> &a) noexcept {
-        height = a.height;
-        width = a.width;
-        data = a.data;
-        return *this;
-    }
+/**
+* Return true if the pattern1 is compatible with pattern2
+* when pattern2 is at a distance (dy,dx) from pattern1.
+* 当两个图案距离dy，dx时检测是否匹配，在此距离下是否相等
+*/
+    static bool isEpual(const Matrix<Color> &pattern1, const Matrix<Color> &pattern2,
+                        int dy, int dx) noexcept {
+        unsigned xmin = max(0, dx);
+        unsigned xmax = dx < 0 ? dx + pattern2.width : pattern1.width;
+        unsigned ymin = max(0, dy);
+        unsigned ymax = dy < 0 ? dy + pattern2.height : pattern1.width;
 
-    /**
-    * Check if two 2D arrays are equals.
-    */
-    bool operator==(const Data<T> &a) const noexcept {
-        if (height != a.height || width != a.width) {
-            return false;
-        }
-
-        for (unsigned i = 0; i < data.size(); i++) {
-            if (a.data[i] != data[i]) {
-                return false;
+        // Iterate on every pixel contained in the intersection of the two pattern.
+        // 迭代两个图案中每个像素
+        for (unsigned y = ymin; y < ymax; y++) {
+            for (unsigned x = xmin; x < xmax; x++) {
+                // Check if the color is the same in the two patterns in that pixel.
+                // 检查是否颜色相同
+                if (pattern1.get(y, x) != pattern2.get(y - dy, x - dx)) {
+                    return false;
+                }
             }
         }
         return true;
     }
-};
 
 /**
-* Hash function.
+* Precompute the function isEpual(pattern1, pattern2, dy, dx).
+* If isEpual(pattern1, pattern2, dy, dx), then compatible[pattern1][direction]
+* contains pattern2, where direction is the direction defined by (dy, dx) (see direction.hpp).
+* 先计算是否匹配
+ 如果匹配，则合并
 */
-namespace std {
-    template<typename T>
-    class hash<Data<T>> {
-    public:
-        size_t operator()(const Data<T> &a) const noexcept {
-            std::size_t seed = a.data.size();
-            for (const T &i : a.data) {
-                seed ^= hash<T>()(i) + (size_t) 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    static std::vector<std::array<std::vector<unsigned>, 4>>
+    generate_compatible(const std::vector<Matrix<Color>> &patterns) noexcept {
+        std::vector<std::array<std::vector<unsigned>, 4>> compatible = std::vector<std::array<std::vector<unsigned>, 4>>(
+                patterns.size());
+        // Iterate on every dy, dx, pattern1 and pattern2
+        // 对每个图案
+        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
+            // 对上下左右四个方向
+            for (unsigned direction = 0; direction < 4; direction++) {
+                // 对所需要比较的每个图案
+                for (unsigned pattern2 = 0; pattern2 < patterns.size(); pattern2++) {
+                    //判断是否相等
+                    if (isEpual(patterns[pattern1], patterns[pattern2], directions_y[direction],
+                                directions_x[direction])) {
+                        //判断是否相等，如果相等则赋值记录
+                        compatible[pattern1][direction].push_back(pattern2);
+                    }
+                }
             }
-            return seed;
         }
-    };
-} // namespace std
+        return compatible;
+    }
 
-#endif // FAST_WFC_UTILS_ARRAY2D_HPP_
+/**
+* Return the list of patterns, as well as their probabilities of apparition.
+* 返回图案列表，以及它出现的概率
+*/
+    static std::tuple<std::vector<Matrix<Color>>, std::vector<double>>
+    get_patterns(const Matrix<Color> &input, const OverlappingWFCOptions &options) noexcept {
+        std::unordered_map<Matrix<Color>, unsigned> patterns_id;
+        std::vector<Matrix<Color>> patterns;
+
+        // The number of time a pattern is seen in the input image.
+        // 一个图案在输入中出现的次数
+        std::vector<double> patterns_frequency;
+
+        std::vector<Matrix<Color>> symmetries(8, Matrix<Color>(options.N, options.N));
+        unsigned max_i = input.height - options.N + 1;
+        unsigned max_j = input.width - options.N + 1;
+
+        for (unsigned i = 0; i < max_i; i++) {
+            for (unsigned j = 0; j < max_j; j++) {
+                // Compute the symmetries of every pattern in the image.
+                // 计算此图案的其他形式，旋转，对称
+                symmetries[0].data = input.get_sub_array(i, j, options.N, options.N).data;
+                symmetries[1].data = symmetries[0].reflected().data;
+                symmetries[2].data = symmetries[0].rotated().data;
+                symmetries[3].data = symmetries[2].reflected().data;
+                symmetries[4].data = symmetries[2].rotated().data;
+                symmetries[5].data = symmetries[4].reflected().data;
+                symmetries[6].data = symmetries[4].rotated().data;
+                symmetries[7].data = symmetries[6].reflected().data;
+
+                // The number of symmetries in the option class define which symetries will be used.
+                // 哪些对称将被使用
+                for (unsigned k = 0; k < options.symmetry; k++) {
+                    auto res = patterns_id.insert(
+                            std::make_pair(symmetries[k], patterns.size()));
+
+                    // If the pattern already exist, we just have to increase its number of appearance.
+                    // 如果图案已经存在，我们只需提高他的出现率
+                    if (!res.second) {
+                        patterns_frequency[res.first->second] += 1;
+                    } else {
+                        patterns.push_back(symmetries[k]);
+                        patterns_frequency.push_back(1);
+                    }
+                }
+            }
+        }
+        return {patterns, patterns_frequency};
+    }
+
+
+private:
+    std::vector<T> _data;
+    //维度
+    int dim;
+
+    //每个维度的尺寸大小
+    //图像是2维，三维物体是3维
+    std::vector<int> dims;
+
+
+    Matrix<Color> m;
+};
+
+#endif // INPUT_HPP

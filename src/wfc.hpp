@@ -6,7 +6,7 @@
 #include <random>
 #include <unordered_map>
 
-#include "Data.hpp"
+#include "Matrix.hpp"
 #include "propagator.hpp"
 #include "wave.hpp"
 #include <optional>
@@ -52,8 +52,8 @@ private:
      * 将波转换为有效的输出（一个不矛盾的2d阵列）
      * 此函数只有当波的所有格子都被定义
      */
-    Data<unsigned> wave_to_output() const noexcept {
-        Data<unsigned> output_patterns(wave.height, wave.width);
+    Matrix<unsigned> wave_to_output() const noexcept {
+        Matrix<unsigned> output_patterns(wave.height, wave.width);
         for (unsigned i = 0; i < wave.size; i++) {
             for (unsigned k = 0; k < nb_patterns; k++) {
                 if (wave.get(i, k)) {
@@ -78,7 +78,7 @@ public:
               propagator(wave.height, wave.width,  propagator) {}
 
 //     运行算法，成功的话并返回一个结果
-    std::optional<Data<unsigned>> run() noexcept {
+    std::optional<Matrix<unsigned>> run() noexcept {
         while (true) {
             // Define the value of an undefined cell.
             // 定义未定义的网格值

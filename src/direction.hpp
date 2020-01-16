@@ -4,6 +4,7 @@
  * A direction is represented by an unsigned integer in the range [0; 3].
  * The x and y values of the direction can be retrieved in these tables.
  */
+ // TODO 方向的遍历写成迭代器方式
 constexpr int directions_x[4] = {0, -1, 1, 0};
 constexpr int directions_y[4] = {-1, 0, 0, 1};
 
