@@ -53,18 +53,16 @@ public:
         return m;
     }
 
-    void write_image_png(const std::string &file_path, const Matrix<Color> &m) noexcept {
+    static void write_image_png(const std::string &file_path, const Matrix<Color> &m) noexcept {
         stbi_write_png(file_path.c_str(), m.width, m.height, 3, (const unsigned char *) m.data.data(), 0);
     }
-
 
 /**
 * Return true if the pattern1 is compatible with pattern2
 * when pattern2 is at a distance (dy,dx) from pattern1.
 * 当两个图案距离dy，dx时检测是否匹配，在此距离下是否相等
 */
-    static bool isEpual(const Matrix<Color> &pattern1, const Matrix<Color> &pattern2,
-                        int dy, int dx) noexcept {
+    static bool isEpual(const Matrix<Color> &pattern1, const Matrix<Color> &pattern2, int dy, int dx) noexcept {
         unsigned xmin = max(0, dx);
         unsigned xmax = dx < 0 ? dx + pattern2.width : pattern1.width;
         unsigned ymin = max(0, dy);
@@ -92,8 +90,9 @@ public:
  如果匹配，则合并
 */
     void generate_compatible() noexcept {
-        propagator = std::vector<std::array<std::vector<unsigned>, 4>>(
-                patterns.size());
+        propagator = std::vector<
+                std::array< std::vector<unsigned>, 4>
+        >(patterns.size());
         // Iterate on every dy, dx, pattern1 and pattern2
         // 对每个图案
         for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
@@ -116,10 +115,8 @@ public:
 * Return the list of patterns, as well as their probabilities of apparition.
 * 返回图案列表，以及它出现的概率
 */
-    void
-    get_patterns(const Matrix<Color> &input, const OverlappingWFCOptions &options) noexcept {
+    void get_patterns(const Matrix<Color> &input, const OverlappingWFCOptions &options) noexcept {
         std::unordered_map<Matrix<Color>, unsigned> patterns_id;
-
 
         // The number of time a pattern is seen in the input image.
         // 一个图案在输入中出现的次数

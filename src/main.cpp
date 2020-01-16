@@ -17,6 +17,7 @@ using namespace std;
  *
  */
 
+
 void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, string name) {
     const std::string image_path = "samples/" + name + ".png";
     Data<int> data;
@@ -26,7 +27,6 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
     OverlappingWFCOptions options = {height, width, symmetry, N};
 
     srand((unsigned) time(NULL));
-
     int seed = rand();
 
     data.get_patterns(*m, options);
@@ -35,9 +35,7 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
     OverlappingWFC<Color> wfc(*m, options, seed, data.patterns, data.patterns_frequency, data.propagator);
 
-    printf("========== run start ==========\n");
     std::optional<Matrix<Color>> success = wfc.run();
-    printf("========== run down  ==========\n");
     if (success.has_value()) {
         data.write_image_png("results/" + name + ".png", *success);
         cout << name << " finished!" << endl;

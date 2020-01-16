@@ -76,59 +76,6 @@ public:
     }
 
     /**
-    * Return true if the pattern1 is compatible with pattern2
-    * when pattern2 is at a distance (dy,dx) from pattern1.
-    * 当两个图案距离dy，dx时检测是否匹配
-    */
-    static bool agrees(const Matrix<T> &pattern1, const Matrix<T> &pattern2,
-                       int dy, int dx) noexcept {
-        unsigned xmin = dx < 0 ? 0 : dx;
-        unsigned xmax = dx < 0 ? dx + pattern2.width : pattern1.width;
-        unsigned ymin = dy < 0 ? 0 : dy;
-        unsigned ymax = dy < 0 ? dy + pattern2.height : pattern1.width;
-
-        // Iterate on every pixel contained in the intersection of the two pattern.
-        // 迭代两个图案中每个像素
-        for (unsigned y = ymin; y < ymax; y++) {
-            for (unsigned x = xmin; x < xmax; x++) {
-                // Check if the color is the same in the two patterns in that pixel.
-                // 检查是否颜色相同
-                if (pattern1.get(y, x) != pattern2.get(y - dy, x - dx)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-    * Precompute the function agrees(pattern1, pattern2, dy, dx).
-    * If agrees(pattern1, pattern2, dy, dx), then compatible[pattern1][direction]
-    * contains pattern2, where direction is the direction defined by (dy, dx) (see direction.hpp).
-    * 先计算是否匹配
-    * 如果匹配，则合并
-    */
-    static std::vector<std::array<std::vector<unsigned>, 4>>
-    generate_compatible(const std::vector<Matrix<T>> &patterns) noexcept {
-        std::vector<std::array<std::vector<unsigned>, 4>> compatible =
-                std::vector<std::array<std::vector<unsigned>, 4>>(patterns.size());
-
-        // Iterate on every dy, dx, pattern1 and pattern2
-        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
-            for (unsigned direction = 0; direction < 4; direction++) {
-                for (unsigned pattern2 = 0; pattern2 < patterns.size(); pattern2++) {
-                    if (agrees(patterns[pattern1], patterns[pattern2], directions_y[direction],
-                               directions_x[direction])) {
-                        compatible[pattern1][direction].push_back(pattern2);
-                    }
-                }
-            }
-        }
-
-        return compatible;
-    }
-
-    /**
     * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
     * 将包含2d图案的id数组转换为像素数组
     */
