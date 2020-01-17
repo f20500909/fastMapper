@@ -36,7 +36,7 @@ struct OverlappingWFCOptions {
 * 用wfc算法产生一个新的位图
 */
 template<typename T>
-class OverlappingWFC {
+class Model {
 
 public:
     /**
@@ -68,7 +68,7 @@ public:
     * This is necessary in order to initialize wfc only once.
     * 构造函数
     */
-    OverlappingWFC(const Matrix<T> &input, const OverlappingWFCOptions &options, const int &seed,
+    Model(const Matrix<T> &input, const OverlappingWFCOptions &options, const int &seed,
                    std::vector<Matrix<T>> &patterns_1, std::vector<double> &patterns_2,
                    const std::vector<std::array<std::vector<unsigned>, 4>> propagator) noexcept
             : input(input), options(options), patterns(patterns_1),

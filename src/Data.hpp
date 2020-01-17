@@ -34,7 +34,8 @@ public:
 
     }
 
-    std::optional<Matrix<Color>> init(std::string image_path) {
+    std::optional<Matrix<Color>> init(std::string image_path, OverlappingWFCOptions _options) {
+        options = _options;
         int width;
         int height;
         int num_components;
@@ -42,15 +43,15 @@ public:
         if (data == nullptr) {
             return std::nullopt;
         }
-        m = Matrix<Color>(height, width);
+        _data = Matrix<Color>(height, width);
         for (unsigned i = 0; i < (unsigned) height; i++) {
             for (unsigned j = 0; j < (unsigned) width; j++) {
                 unsigned index = 3 * (i * width + j);
-                m.data[i * width + j] = Color(data[index], data[index + 1], data[index + 2]);
+                _data.data[i * width + j] = Color(data[index], data[index + 1], data[index + 2]);
             }
         }
         free(data);
-        return m;
+        return _data;
     }
 
     static void write_image_png(const std::string &file_path, const Matrix<Color> &m) noexcept {
@@ -91,7 +92,7 @@ public:
 */
     void generate_compatible() noexcept {
         propagator = std::vector<
-                std::array< std::vector<unsigned>, 4>
+                std::array<std::vector<unsigned>, 4>
         >(patterns.size());
         // Iterate on every dy, dx, pattern1 and pattern2
         // 对每个图案
@@ -115,21 +116,21 @@ public:
 * Return the list of patterns, as well as their probabilities of apparition.
 * 返回图案列表，以及它出现的概率
 */
-    void get_patterns(const Matrix<Color> &input, const OverlappingWFCOptions &options) noexcept {
+    void init_patterns() noexcept {
         std::unordered_map<Matrix<Color>, unsigned> patterns_id;
 
         // The number of time a pattern is seen in the input image.
         // 一个图案在输入中出现的次数
 
         std::vector<Matrix<Color>> symmetries(8, Matrix<Color>(options.N, options.N));
-        unsigned max_i = input.height - options.N + 1;
-        unsigned max_j = input.width - options.N + 1;
+        unsigned max_i = _data.height - options.N + 1;
+        unsigned max_j = _data.width - options.N + 1;
 
         for (unsigned i = 0; i < max_i; i++) {
             for (unsigned j = 0; j < max_j; j++) {
                 // Compute the symmetries of every pattern in the image.
                 // 计算此图案的其他形式，旋转，对称
-                symmetries[0].data = input.get_sub_array(i, j, options.N, options.N).data;
+                symmetries[0].data = _data.get_sub_array(i, j, options.N, options.N).data;
                 symmetries[1].data = symmetries[0].reflected().data;
                 symmetries[2].data = symmetries[0].rotated().data;
                 symmetries[3].data = symmetries[2].reflected().data;
@@ -158,7 +159,6 @@ public:
     }
 
 
-    std::vector<T> _data;
     //维度
     int dim;
 
@@ -172,6 +172,9 @@ public:
 
     Matrix<Color> m;
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;
+//    m = Matrix<Color>(height, width);
+    Matrix<Color> _data;
+    OverlappingWFCOptions options;
 };
 
 #endif // INPUT_HPP

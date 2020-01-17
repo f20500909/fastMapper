@@ -21,19 +21,15 @@ using namespace std;
 void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, string name) {
     const std::string image_path = "samples/" + name + ".png";
     Data<int> data;
-
-    std::optional<Matrix<Color>> m = data.init(image_path);
+    srand((unsigned) time(NULL));
 
     OverlappingWFCOptions options = {height, width, symmetry, N};
 
-    srand((unsigned) time(NULL));
-    int seed = rand();
-
-    data.get_patterns(*m, options);
-
+    data.init(image_path, options);
+    data.init_patterns();
     data.generate_compatible();
 
-    OverlappingWFC<Color> wfc(*m, options, seed, data.patterns, data.patterns_frequency, data.propagator);
+    Model<Color> wfc(data._data, options, rand(), data.patterns, data.patterns_frequency, data.propagator);
 
     std::optional<Matrix<Color>> success = wfc.run();
     if (success.has_value()) {
