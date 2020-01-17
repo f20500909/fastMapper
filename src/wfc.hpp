@@ -11,6 +11,7 @@
 #include "wave.hpp"
 #include <optional>
 
+#include "Data.hpp"
 /**
  * Class containing the generic WFC algorithm.
  */
@@ -69,13 +70,13 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC( int seed, std::vector<double> patterns_frequencies,
-        Propagator::PropagatorState propagator, unsigned wave_height, unsigned wave_width)
-    noexcept
-            : gen(seed), wave(wave_height, wave_width, patterns_frequencies),
-              patterns_frequencies(patterns_frequencies),
-              nb_patterns(propagator.size()),
-              propagator(wave.height, wave.width,  propagator) {}
+    WFC(std::vector<double> patterns_frequencies, Propagator::PropagatorState propagator,
+        unsigned wave_height, unsigned wave_width) noexcept
+            :gen(rand()),  wave(wave_height, wave_width, patterns_frequencies),
+              patterns_frequencies(patterns_frequencies), nb_patterns(propagator.size()),
+              propagator(wave.height, wave.width, propagator) {
+
+    }
 
 //     运行算法，成功的话并返回一个结果
     std::optional<Matrix<unsigned>> run() noexcept {

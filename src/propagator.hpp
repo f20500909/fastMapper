@@ -4,6 +4,7 @@
 #include "direction.hpp"
 #include "array3D.hpp"
 #include "wave.hpp"
+#include "time.h"
 #include <tuple>
 #include <vector>
 #include <array>

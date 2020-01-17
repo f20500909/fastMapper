@@ -13,6 +13,7 @@
 #include "overlapping_wfc.hpp"
 #include "image.hpp"
 
+
 using namespace std;
 
 template<class T>
@@ -34,15 +35,13 @@ public:
 
     }
 
-    std::optional<Matrix<Color>> init(std::string image_path, OverlappingWFCOptions _options) {
+   void init(std::string image_path, OverlappingWFCOptions _options) {
         options = _options;
         int width;
         int height;
         int num_components;
         unsigned char *data = stbi_load(image_path.c_str(), &width, &height, &num_components, 3);
-        if (data == nullptr) {
-            return std::nullopt;
-        }
+
         _data = Matrix<Color>(height, width);
         for (unsigned i = 0; i < (unsigned) height; i++) {
             for (unsigned j = 0; j < (unsigned) width; j++) {
@@ -51,7 +50,8 @@ public:
             }
         }
         free(data);
-        return _data;
+        init_patterns();
+        generate_compatible();
     }
 
     static void write_image_png(const std::string &file_path, const Matrix<Color> &m) noexcept {

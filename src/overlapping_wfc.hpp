@@ -6,7 +6,7 @@
 
 #include "Matrix.hpp"
 #include "wfc.hpp"
-
+#include "Data.hpp"
 /**
 * Options needed to use the overlapping wfc.
 */
@@ -68,12 +68,19 @@ public:
     * This is necessary in order to initialize wfc only once.
     * 构造函数
     */
-    Model(const Matrix<T> &input, const OverlappingWFCOptions &options, const int &seed,
+    Model(Matrix<Color> &input, const OverlappingWFCOptions &options,
                    std::vector<Matrix<T>> &patterns_1, std::vector<double> &patterns_2,
                    const std::vector<std::array<std::vector<unsigned>, 4>> propagator) noexcept
             : input(input), options(options), patterns(patterns_1),
-              wfc(seed, patterns_2, propagator, options.get_wave_height(), options.get_wave_width()) {
+              wfc( patterns_2, propagator, options.get_wave_height(), options.get_wave_width()) {
     }
+
+//    Model(const Matrix<T> &input, const OverlappingWFCOptions &options,
+//          std::vector<Matrix<T>> &patterns_1, std::vector<double> &patterns_2,
+//          const std::vector<std::array<std::vector<unsigned>, 4>> propagator) noexcept
+//            : input(input), options(options), patterns(patterns_1),
+//              wfc( patterns_2, propagator, options.get_wave_height(), options.get_wave_width()) {
+//    }
 
     /**
     * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
