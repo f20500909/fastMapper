@@ -40,12 +40,6 @@ class Model {
 
 public:
     /**
-    * The input image. T is usually a color.
-    * 图像的输入，t通常是一个颜色
-    */
-    Matrix<T> input;
-
-    /**
     * Options needed by the algorithm.
     */
     OverlappingWFCOptions options;
@@ -71,16 +65,10 @@ public:
     Model(Matrix<Color> &input, const OverlappingWFCOptions &options,
                    std::vector<Matrix<T>> &patterns_1, std::vector<double> &patterns_2,
                    const std::vector<std::array<std::vector<unsigned>, 4>> propagator) noexcept
-            : input(input), options(options), patterns(patterns_1),
+            : options(options), patterns(patterns_1),
               wfc( patterns_2, propagator, options.get_wave_height(), options.get_wave_width()) {
     }
 
-//    Model(const Matrix<T> &input, const OverlappingWFCOptions &options,
-//          std::vector<Matrix<T>> &patterns_1, std::vector<double> &patterns_2,
-//          const std::vector<std::array<std::vector<unsigned>, 4>> propagator) noexcept
-//            : input(input), options(options), patterns(patterns_1),
-//              wfc( patterns_2, propagator, options.get_wave_height(), options.get_wave_width()) {
-//    }
 
     /**
     * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
