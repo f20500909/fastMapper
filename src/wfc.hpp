@@ -148,22 +148,6 @@ public:
         return to_continue;
     }
 
-    /**
-     * Propagate the information of the wave.
-     * 传递波的信息
-     */
-    void propagate() noexcept { propagator.propagate(wave); }
-
-    /**
-     * Remove pattern from cell (i,j).
-     * 移除cell（i，j）的图案
-     */
-    void remove_wave_pattern(unsigned i, unsigned j, unsigned pattern) noexcept {
-        if (wave.get(i, j, pattern)) {
-            wave.set(i, j, pattern, false);
-            propagator.add_to_propagator(i, j, pattern);
-        }
-    }
 };
 
 #endif // FAST_WFC_WFC_HPP_
