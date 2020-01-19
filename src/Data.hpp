@@ -16,8 +16,6 @@
 
 using namespace std;
 
-
-
 /**
 * Options needed to use the overlapping wfc.
 */
@@ -41,16 +39,16 @@ struct OverlappingWFCOptions {
         return out_width - N + 1;
     }
 };
+
 template<class T>
 class Data {
 public:
 
-    Data() {
+    Data(const OverlappingWFCOptions &options) : options(options) {
 
     }
 
-   void init(std::string image_path, OverlappingWFCOptions _options) {
-        options = _options;
+    void init(std::string image_path) {
         int width;
         int height;
         int num_components;
@@ -126,16 +124,8 @@ public:
         }
     }
 
-/**
-* Return the list of patterns, as well as their probabilities of apparition.
-* 返回图案列表，以及它出现的概率
-*/
     void init_patterns() noexcept {
         std::unordered_map<Matrix<Cell>, unsigned> patterns_id;
-
-        // The number of time a pattern is seen in the input image.
-        // 一个图案在输入中出现的次数
-
         std::vector<Matrix<Cell>> symmetries(8, Matrix<Cell>(options.N, options.N));
         unsigned max_i = _data.height - options.N + 1;
         unsigned max_j = _data.width - options.N + 1;
@@ -188,7 +178,7 @@ public:
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;
 //    m = Matrix<Cell>(height, width);
     Matrix<Cell> _data;
-    OverlappingWFCOptions options;
+    const OverlappingWFCOptions options;
 };
 
 #endif // SRC_DATA_HPP

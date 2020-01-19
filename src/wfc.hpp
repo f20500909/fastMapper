@@ -13,7 +13,6 @@
 #include "wave.hpp"
 
 
-
 /**
  * Class containing the generic WFC algorithm.
  */
@@ -88,14 +87,15 @@ public:
     }
 
 //     运行算法，成功的话并返回一个结果
-    std::optional<Matrix<unsigned>> run() noexcept {
+    Matrix<unsigned> run() noexcept {
         while (true) {
             // Define the value of an undefined cell.
             // 定义未定义的网格值
             ObserveStatus result = observe();
             // 检查算法是否结束
             if (result == failure) {
-                return std::nullopt;
+                Matrix<unsigned> nullRes;
+                return nullRes;
             } else if (result == success) {
                 return wave_to_output();
             }
@@ -215,13 +215,15 @@ public:
 //        }
 //        return std::nullopt;
 
-            std::optional<Matrix<Cell>> doJob() noexcept {
-                std::optional<Matrix<unsigned>> result = run();
-                if (result.has_value()) {
-                    return to_image(*result);
-                }
-                return std::nullopt;
-            }
+    Matrix<Cell> doJob() noexcept {
+        Matrix<unsigned> result = run();
+        if (result.data.size() > 0) {
+            return to_image(result);
+        }else{
+            Matrix<Cell> nullRes;
+            return nullRes;
+        }
+    }
 
 //        std::optional<Matrix<T>> run() noexcept {
 //            std::optional<Matrix<unsigned>> result = wfc.run();

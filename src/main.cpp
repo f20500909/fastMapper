@@ -19,18 +19,17 @@ using namespace std;
 void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, string name) {
     srand((unsigned) time(NULL));
     const std::string image_path = "samples/" + name + ".png";
-    Data<int> data;
 
-    OverlappingWFCOptions options = {height, width, symmetry, N};
+    const OverlappingWFCOptions options = {height, width, symmetry, N};
+    Data<int> data(options);
 
-    data.init(image_path, options);
-
+    data.init(image_path);
 
     WFC  wfc(options, data.patterns, data.patterns_frequency, data.propagator, options.get_wave_height(), options.get_wave_width());
 
-    std::optional<Matrix<Cell>> success = wfc.doJob();
-    if (success.has_value()) {
-        data.write_image_png("results/" + name + ".png", *success);
+    Matrix<Cell> success = wfc.doJob();
+    if (success.data.size()>0) {
+        data.write_image_png("results/" + name + ".png", success);
         cout << name << " finished!" << endl;
     } else {
         cout << "failed!" << endl;
