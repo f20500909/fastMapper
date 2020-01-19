@@ -5,38 +5,14 @@
 #include <limits>
 #include <random>
 #include <unordered_map>
-
-#include "Matrix.hpp"
-#include "propagator.hpp"
-#include "wave.hpp"
 #include <optional>
 
 #include "Data.hpp"
+#include "Matrix.hpp"
+#include "propagator.hpp"
+#include "wave.hpp"
 
 
-/**
-* Options needed to use the overlapping wfc.
-*/
-struct OverlappingWFCOptions {
-    unsigned out_height;  // The height of the output in pixels.
-    unsigned out_width;   // The width of the output in pixels.
-    unsigned symmetry; // The number of symmetries (the order is defined in wfc).
-    unsigned N; // The width and height in pixel of the patterns.
-
-    /**
-    * Get the wave height given these options.
-    */
-    unsigned get_wave_height() const noexcept {
-        return out_height - N + 1;
-    }
-
-    /**
-    * Get the wave width given these options.
-    */
-    unsigned get_wave_width() const noexcept {
-        return out_width - N + 1;
-    }
-};
 
 /**
  * Class containing the generic WFC algorithm.

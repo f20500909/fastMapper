@@ -1,5 +1,5 @@
-#ifndef INPUT_HPP
-#define INPUT_HPP
+#ifndef SRC_DATA_HPP
+#define SRC_DATA_HPP
 
 #include <vector>
 #include <string>
@@ -12,30 +12,41 @@
 #include "color.hpp"
 #include "overlapping_wfc.hpp"
 #include "image.hpp"
+#include "direction.hpp"
 
 
 using namespace std;
 
 
 
+/**
+* Options needed to use the overlapping wfc.
+*/
+struct OverlappingWFCOptions {
+    unsigned out_height;  // The height of the output in pixels.
+    unsigned out_width;   // The width of the output in pixels.
+    unsigned symmetry; // The number of symmetries (the order is defined in wfc).
+    unsigned N; // The width and height in pixel of the patterns.
 
+    /**
+    * Get the wave height given these options.
+    */
+    unsigned get_wave_height() const noexcept {
+        return out_height - N + 1;
+    }
 
+    /**
+    * Get the wave width given these options.
+    */
+    unsigned get_wave_width() const noexcept {
+        return out_width - N + 1;
+    }
+};
 template<class T>
 class Data {
 public:
-//    static struct type {
-//        int dim = 2;
-//    };
 
     Data() {
-
-    }
-
-    void getData() {
-
-    }
-
-    void parse() {
 
     }
 
@@ -181,4 +192,4 @@ public:
     OverlappingWFCOptions options;
 };
 
-#endif // INPUT_HPP
+#endif // SRC_DATA_HPP

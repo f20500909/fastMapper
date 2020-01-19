@@ -6,27 +6,12 @@
 
 #include "Matrix.hpp"
 #include "wfc.hpp"
-#include "Data.hpp"
-
-
-/**
-* Class generating a new image with the overlapping WFC algorithm.
-* 用wfc算法产生一个新的位图
-*/
 template<typename T>
 class Model {
 
 public:
-    /**
-    * Options needed by the algorithm.
-    */
-    OverlappingWFCOptions options;
 
 
-    /**
-    * The underlying generic WFC algorithm.
-    * 底层的一般wfc算法
-    */
     WFC wfc;
 
     /**
@@ -35,10 +20,8 @@ public:
     * This is necessary in order to initialize wfc only once.
     * 构造函数
     */
-    Model(Matrix<Color> &input, const OverlappingWFCOptions &options, std::vector<Matrix<T>> &patterns_1,
-          std::vector<double> &patterns_2, const std::vector<std::array<std::vector<unsigned>, 4>> propagator) noexcept
-            : options(options),
-              wfc(options, patterns_1, patterns_2, propagator, options.get_wave_height(), options.get_wave_width()) {
+    Model(Data<int> data, const OverlappingWFCOptions &options)
+            : wfc(options, data.patterns, data.patterns_frequency, data.propagator, options.get_wave_height(), options.get_wave_width()) {
     }
 
 

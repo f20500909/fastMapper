@@ -6,8 +6,8 @@
 
 #include "include/cmdline.h"
 #include "image.hpp"
-#include "Data.hpp"
 
+#include "overlapping_wfc.hpp"
 using namespace std;
 /* TODO shell脚本批量生成
  * 数据输入模块，适配多种格式的数据
@@ -22,9 +22,9 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
     data.init(image_path, options);
 
-    Model<Color> wfc(data._data, options, data.patterns, data.patterns_frequency, data.propagator);
+    Model<Color> model(data, options);
 
-    std::optional<Matrix<Color>> success = wfc.run();
+    std::optional<Matrix<Color>> success = model.run();
     if (success.has_value()) {
         data.write_image_png("results/" + name + ".png", *success);
         cout << name << " finished!" << endl;
