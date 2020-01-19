@@ -103,9 +103,7 @@ public:
  如果匹配，则合并
 */
     void generate_compatible() noexcept {
-        propagator = std::vector<
-                std::array<std::vector<unsigned>, 4>
-        >(patterns.size());
+        propagator = std::vector< std::array<std::vector<unsigned>, 4> >(patterns.size());
         // Iterate on every dy, dx, pattern1 and pattern2
         // 对每个图案
         for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
@@ -146,8 +144,7 @@ public:
                 // The number of symmetries in the option class define which symetries will be used.
                 // 哪些对称将被使用
                 for (unsigned k = 0; k < options.symmetry; k++) {
-                    auto res = patterns_id.insert(
-                            std::make_pair(symmetries[k], patterns.size()));
+                    auto res = patterns_id.insert( std::make_pair(symmetries[k], patterns.size()));
 
                     // If the pattern already exist, we just have to increase its number of appearance.
                     // 如果图案已经存在，我们只需提高他的出现率
@@ -162,6 +159,43 @@ public:
         }
     }
 
+    /**
+    * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
+    * 将包含2d图案的id数组转换为像素数组
+    */
+    Matrix<Cell> to_image(const Matrix<unsigned> &output_patterns) const noexcept {
+        Matrix<Cell> output = Matrix<Cell>(options.out_height, options.out_width);
+
+        for (unsigned y = 0; y < options.get_wave_height(); y++) {
+            for (unsigned x = 0; x < options.get_wave_width(); x++) {
+                output.get(y, x) = patterns[output_patterns.get(y, x)].get(0, 0);
+            }
+        }
+        for (unsigned y = 0; y < options.get_wave_height(); y++) {
+            const Matrix<Cell> &pattern =
+                    patterns[output_patterns.get(y, options.get_wave_width() - 1)];
+            for (unsigned dx = 1; dx < options.N; dx++) {
+                output.get(y, options.get_wave_width() - 1 + dx) = pattern.get(0, dx);
+            }
+        }
+        for (unsigned x = 0; x < options.get_wave_width(); x++) {
+            const Matrix<Cell> &pattern =
+                    patterns[output_patterns.get(options.get_wave_height() - 1, x)];
+            for (unsigned dy = 1; dy < options.N; dy++) {
+                output.get(options.get_wave_height() - 1 + dy, x) =
+                        pattern.get(dy, 0);
+            }
+        }
+        const Matrix<Cell> &pattern = patterns[output_patterns.get(
+                options.get_wave_height() - 1, options.get_wave_width() - 1)];
+        for (unsigned dy = 1; dy < options.N; dy++) {
+            for (unsigned dx = 1; dx < options.N; dx++) {
+                output.get(options.get_wave_height() - 1 + dy,
+                           options.get_wave_width() - 1 + dx) = pattern.get(dy, dx);
+            }
+        }
+        return output;
+    }
 
     //维度
     int dim;

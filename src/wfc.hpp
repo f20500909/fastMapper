@@ -158,80 +158,8 @@ public:
     }
 
 
-    /**
-    * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
-    * 将包含2d图案的id数组转换为像素数组
-    */
-    Matrix<Cell> to_image(const Matrix<unsigned> &output_patterns) const noexcept {
-        Matrix<Cell> output = Matrix<Cell>(options.out_height, options.out_width);
 
-
-        for (unsigned y = 0; y < options.get_wave_height(); y++) {
-            for (unsigned x = 0; x < options.get_wave_width(); x++) {
-                output.get(y, x) = patterns[output_patterns.get(y, x)].get(0, 0);
-            }
-        }
-        for (unsigned y = 0; y < options.get_wave_height(); y++) {
-            const Matrix<Cell> &pattern =
-                    patterns[output_patterns.get(y, options.get_wave_width() - 1)];
-            for (unsigned dx = 1; dx < options.N; dx++) {
-                output.get(y, options.get_wave_width() - 1 + dx) = pattern.get(0, dx);
-            }
-        }
-        for (unsigned x = 0; x < options.get_wave_width(); x++) {
-            const Matrix<Cell> &pattern =
-                    patterns[output_patterns.get(options.get_wave_height() - 1, x)];
-            for (unsigned dy = 1; dy < options.N; dy++) {
-                output.get(options.get_wave_height() - 1 + dy, x) =
-                        pattern.get(dy, 0);
-            }
-        }
-        const Matrix<Cell> &pattern = patterns[output_patterns.get(
-                options.get_wave_height() - 1, options.get_wave_width() - 1)];
-        for (unsigned dy = 1; dy < options.N; dy++) {
-            for (unsigned dx = 1; dx < options.N; dx++) {
-                output.get(options.get_wave_height() - 1 + dy,
-                           options.get_wave_width() - 1 + dx) = pattern.get(dy, dx);
-            }
-        }
-        return output;
-    }
-
-
-    /**
-* Options needed by the algorithm.
-*/
     OverlappingWFCOptions options;
-
-
-
-    /**
-* Run the WFC algorithm, and return the result if the algorithm succeeded.
-* 运行wfc算法，如果成功返回结果
-*/
-//        std::optional<Matrix<unsigned>> result = run();
-//        if (result.has_value()) {
-//            return to_image(*result);
-//        }
-//        return std::nullopt;
-
-    Matrix<Cell> doJob() noexcept {
-        Matrix<unsigned> result = run();
-        if (result.data.size() > 0) {
-            return to_image(result);
-        }else{
-            Matrix<Cell> nullRes;
-            return nullRes;
-        }
-    }
-
-//        std::optional<Matrix<T>> run() noexcept {
-//            std::optional<Matrix<unsigned>> result = wfc.run();
-//            if (result.has_value()) {
-//                return wfc.to_image(*result);
-//            }
-//            return std::nullopt;
-//        }}
 
 };
 
