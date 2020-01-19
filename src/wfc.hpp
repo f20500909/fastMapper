@@ -12,6 +12,32 @@
 #include <optional>
 
 #include "Data.hpp"
+
+
+/**
+* Options needed to use the overlapping wfc.
+*/
+struct OverlappingWFCOptions {
+    unsigned out_height;  // The height of the output in pixels.
+    unsigned out_width;   // The width of the output in pixels.
+    unsigned symmetry; // The number of symmetries (the order is defined in wfc).
+    unsigned N; // The width and height in pixel of the patterns.
+
+    /**
+    * Get the wave height given these options.
+    */
+    unsigned get_wave_height() const noexcept {
+        return out_height - N + 1;
+    }
+
+    /**
+    * Get the wave width given these options.
+    */
+    unsigned get_wave_width() const noexcept {
+        return out_width - N + 1;
+    }
+};
+
 /**
  * Class containing the generic WFC algorithm.
  */
@@ -22,6 +48,12 @@ private:
      * 随机种子
      */
     std::minstd_rand gen;
+
+    /**
+    * The array of the different patterns extracted from the input.
+    * 从输入图案中提取出的不同图案
+    */
+    std::vector<Matrix<Color>> patterns;
 
     /**
      * The wave, indicating which patterns can be put in which cell.
@@ -70,9 +102,10 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC(std::vector<double> patterns_frequencies, Propagator::PropagatorState propagator,
+    WFC(const OverlappingWFCOptions &options, std::vector<Matrix<Color>> &patterns,
+        std::vector<double> patterns_frequencies, Propagator::PropagatorState propagator,
         unsigned wave_height, unsigned wave_width) noexcept
-            :gen(rand()),  wave(wave_height, wave_width, patterns_frequencies),
+            : options(options), patterns(patterns), gen(rand()), wave(wave_height, wave_width, patterns_frequencies),
               patterns_frequencies(patterns_frequencies), nb_patterns(propagator.size()),
               propagator(wave.height, wave.width, propagator) {
 
@@ -147,6 +180,53 @@ public:
         }
         return to_continue;
     }
+
+
+    /**
+    * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
+    * 将包含2d图案的id数组转换为像素数组
+    */
+    Matrix<Color> to_image(const Matrix<unsigned> &output_patterns) const noexcept {
+        Matrix<Color> output = Matrix<Color>(options.out_height, options.out_width);
+
+
+        for (unsigned y = 0; y < options.get_wave_height(); y++) {
+            for (unsigned x = 0; x < options.get_wave_width(); x++) {
+                output.get(y, x) = patterns[output_patterns.get(y, x)].get(0, 0);
+            }
+        }
+        for (unsigned y = 0; y < options.get_wave_height(); y++) {
+            const Matrix<Color> &pattern =
+                    patterns[output_patterns.get(y, options.get_wave_width() - 1)];
+            for (unsigned dx = 1; dx < options.N; dx++) {
+                output.get(y, options.get_wave_width() - 1 + dx) = pattern.get(0, dx);
+            }
+        }
+        for (unsigned x = 0; x < options.get_wave_width(); x++) {
+            const Matrix<Color> &pattern =
+                    patterns[output_patterns.get(options.get_wave_height() - 1, x)];
+            for (unsigned dy = 1; dy < options.N; dy++) {
+                output.get(options.get_wave_height() - 1 + dy, x) =
+                        pattern.get(dy, 0);
+            }
+        }
+        const Matrix<Color> &pattern = patterns[output_patterns.get(
+                options.get_wave_height() - 1, options.get_wave_width() - 1)];
+        for (unsigned dy = 1; dy < options.N; dy++) {
+            for (unsigned dx = 1; dx < options.N; dx++) {
+                output.get(options.get_wave_height() - 1 + dy,
+                           options.get_wave_width() - 1 + dx) = pattern.get(dy, dx);
+            }
+        }
+        return output;
+    }
+
+
+    /**
+* Options needed by the algorithm.
+*/
+    OverlappingWFCOptions options;
+
 
 };
 
