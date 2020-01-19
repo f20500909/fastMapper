@@ -10,7 +10,6 @@
 
 #include "Matrix.hpp"
 #include "color.hpp"
-#include "overlapping_wfc.hpp"
 #include "image.hpp"
 #include "direction.hpp"
 
@@ -57,11 +56,11 @@ public:
         int num_components;
         unsigned char *data = stbi_load(image_path.c_str(), &width, &height, &num_components, 3);
 
-        _data = Matrix<Color>(height, width);
+        _data = Matrix<Cell>(height, width);
         for (unsigned i = 0; i < (unsigned) height; i++) {
             for (unsigned j = 0; j < (unsigned) width; j++) {
                 unsigned index = 3 * (i * width + j);
-                _data.data[i * width + j] = Color(data[index], data[index + 1], data[index + 2]);
+                _data.data[i * width + j] = Cell(data[index], data[index + 1], data[index + 2]);
             }
         }
         free(data);
@@ -69,7 +68,7 @@ public:
         generate_compatible();
     }
 
-    static void write_image_png(const std::string &file_path, const Matrix<Color> &m) noexcept {
+    static void write_image_png(const std::string &file_path, const Matrix<Cell> &m) noexcept {
         stbi_write_png(file_path.c_str(), m.width, m.height, 3, (const unsigned char *) m.data.data(), 0);
     }
 
@@ -78,7 +77,7 @@ public:
 * when pattern2 is at a distance (dy,dx) from pattern1.
 * 当两个图案距离dy，dx时检测是否匹配，在此距离下是否相等
 */
-    static bool isEpual(const Matrix<Color> &pattern1, const Matrix<Color> &pattern2, int dy, int dx) noexcept {
+    static bool isEpual(const Matrix<Cell> &pattern1, const Matrix<Cell> &pattern2, int dy, int dx) noexcept {
         unsigned xmin = max(0, dx);
         unsigned xmax = dx < 0 ? dx + pattern2.width : pattern1.width;
         unsigned ymin = max(0, dy);
@@ -132,12 +131,12 @@ public:
 * 返回图案列表，以及它出现的概率
 */
     void init_patterns() noexcept {
-        std::unordered_map<Matrix<Color>, unsigned> patterns_id;
+        std::unordered_map<Matrix<Cell>, unsigned> patterns_id;
 
         // The number of time a pattern is seen in the input image.
         // 一个图案在输入中出现的次数
 
-        std::vector<Matrix<Color>> symmetries(8, Matrix<Color>(options.N, options.N));
+        std::vector<Matrix<Cell>> symmetries(8, Matrix<Cell>(options.N, options.N));
         unsigned max_i = _data.height - options.N + 1;
         unsigned max_j = _data.width - options.N + 1;
 
@@ -181,14 +180,14 @@ public:
     //图像是2维，三维物体是3维
     std::vector<int> dims;
 
-    std::vector<Matrix<Color>> patterns;
+    std::vector<Matrix<Cell>> patterns;
 
     std::vector<double> patterns_frequency;
 
-    Matrix<Color> m;
+    Matrix<Cell> m;
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;
-//    m = Matrix<Color>(height, width);
-    Matrix<Color> _data;
+//    m = Matrix<Cell>(height, width);
+    Matrix<Cell> _data;
     OverlappingWFCOptions options;
 };
 

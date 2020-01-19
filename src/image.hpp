@@ -10,7 +10,7 @@
 //#include "Matrix.hpp"
 //#include "color.hpp"
 
-//std::optional<Matrix<Color>> read_image(const std::string &file_path) noexcept {
+//std::optional<Matrix<Cell>> read_image(const std::string &file_path) noexcept {
 //    int width;
 //    int height;
 //    int num_components;
@@ -18,11 +18,11 @@
 //    if (data == nullptr) {
 //        return std::nullopt;
 //    }
-//    Matrix<Color> m = Matrix<Color>(height, width);
+//    Matrix<Cell> m = Matrix<Cell>(height, width);
 //    for (unsigned i = 0; i < (unsigned) height; i++) {
 //        for (unsigned j = 0; j < (unsigned) width; j++) {
 //            unsigned index = 3 * (i * width + j);
-//            m.data[i * width + j] = Color(data[index], data[index + 1], data[index + 2]);
+//            m.data[i * width + j] = Cell(data[index], data[index + 1], data[index + 2]);
 //        }
 //    }
 //    free(data);

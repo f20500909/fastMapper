@@ -29,7 +29,7 @@ private:
     * The array of the different patterns extracted from the input.
     * 从输入图案中提取出的不同图案
     */
-    std::vector<Matrix<Color>> patterns;
+    std::vector<Matrix<Cell>> patterns;
 
     /**
      * The wave, indicating which patterns can be put in which cell.
@@ -78,7 +78,7 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC(const OverlappingWFCOptions &options, std::vector<Matrix<Color>> &patterns,
+    WFC(const OverlappingWFCOptions &options, std::vector<Matrix<Cell>> &patterns,
         std::vector<double> patterns_frequencies, Propagator::PropagatorState propagator,
         unsigned wave_height, unsigned wave_width) noexcept
             : options(options), patterns(patterns), gen(rand()), wave(wave_height, wave_width, patterns_frequencies),
@@ -162,8 +162,8 @@ public:
     * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
     * 将包含2d图案的id数组转换为像素数组
     */
-    Matrix<Color> to_image(const Matrix<unsigned> &output_patterns) const noexcept {
-        Matrix<Color> output = Matrix<Color>(options.out_height, options.out_width);
+    Matrix<Cell> to_image(const Matrix<unsigned> &output_patterns) const noexcept {
+        Matrix<Cell> output = Matrix<Cell>(options.out_height, options.out_width);
 
 
         for (unsigned y = 0; y < options.get_wave_height(); y++) {
@@ -172,21 +172,21 @@ public:
             }
         }
         for (unsigned y = 0; y < options.get_wave_height(); y++) {
-            const Matrix<Color> &pattern =
+            const Matrix<Cell> &pattern =
                     patterns[output_patterns.get(y, options.get_wave_width() - 1)];
             for (unsigned dx = 1; dx < options.N; dx++) {
                 output.get(y, options.get_wave_width() - 1 + dx) = pattern.get(0, dx);
             }
         }
         for (unsigned x = 0; x < options.get_wave_width(); x++) {
-            const Matrix<Color> &pattern =
+            const Matrix<Cell> &pattern =
                     patterns[output_patterns.get(options.get_wave_height() - 1, x)];
             for (unsigned dy = 1; dy < options.N; dy++) {
                 output.get(options.get_wave_height() - 1 + dy, x) =
                         pattern.get(dy, 0);
             }
         }
-        const Matrix<Color> &pattern = patterns[output_patterns.get(
+        const Matrix<Cell> &pattern = patterns[output_patterns.get(
                 options.get_wave_height() - 1, options.get_wave_width() - 1)];
         for (unsigned dy = 1; dy < options.N; dy++) {
             for (unsigned dx = 1; dx < options.N; dx++) {
@@ -203,6 +203,33 @@ public:
 */
     OverlappingWFCOptions options;
 
+
+
+    /**
+* Run the WFC algorithm, and return the result if the algorithm succeeded.
+* 运行wfc算法，如果成功返回结果
+*/
+//        std::optional<Matrix<unsigned>> result = run();
+//        if (result.has_value()) {
+//            return to_image(*result);
+//        }
+//        return std::nullopt;
+
+            std::optional<Matrix<Cell>> doJob() noexcept {
+                std::optional<Matrix<unsigned>> result = run();
+                if (result.has_value()) {
+                    return to_image(*result);
+                }
+                return std::nullopt;
+            }
+
+//        std::optional<Matrix<T>> run() noexcept {
+//            std::optional<Matrix<unsigned>> result = wfc.run();
+//            if (result.has_value()) {
+//                return wfc.to_image(*result);
+//            }
+//            return std::nullopt;
+//        }}
 
 };
 
