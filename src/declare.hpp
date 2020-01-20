@@ -2,6 +2,8 @@
 #define SRC_DECLARE_HPP
 
 
+#include <string>
+#include <vector>
 enum ObserveStatus {
     success, // wfc完成并取得成功
     failure, // wfc完成并失败
@@ -37,8 +39,8 @@ struct Options {
     unsigned wave_width;   // The width of the output in pixels.
 
     Options() {
-
     }
+
 
     Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, std::string name,std::string image_path) :
             out_height(out_height),

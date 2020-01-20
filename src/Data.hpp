@@ -12,6 +12,7 @@
 #include "color.hpp"
 #include "image.hpp"
 #include "declare.hpp"
+#include "direction.hpp"
 
 
 using namespace std;
@@ -20,11 +21,14 @@ template<class T>
 class Data {
 public:
 
+    Data() {
+    }
+
     Data(const Options &options) : options(options) {
         init();
     }
 
-    void initData(){
+    void initData() {
         int width;
         int height;
         int num_components;
@@ -70,6 +74,33 @@ public:
         return true;
     }
 
+    void iterFunc(int pattern1, int direction) {
+        for (unsigned pattern2 = 0; pattern2 < patterns.size(); pattern2++) {
+            //判断是否相等
+            if (isEpual(patterns[pattern1], patterns[pattern2], directions_y[direction], directions_x[direction])) {
+                //判断是否相等，如果相等则赋值记录
+                propagator[pattern1][direction].push_back(pattern2);
+            }
+        }
+    }
+
+    std::function<void(int, int)> f1 = std::bind(&Data<int>::iterFunc, this, std::placeholders::_1,
+                                                 std::placeholders::_2);
+//    std::function<void(int)> f3 = std::bind(&Data<int>::patternsFunc, this, std::placeholders::_1);
+
+    void doDiretFunc(int pattern1) {
+        for (unsigned direction = 0; direction < 4; direction++) {
+            f1(pattern1, direction);
+        }
+    }
+
+    void doPatternFunc(std::function<void(int)> diretFunc) {
+        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
+            // 对上下左右四个方向
+            diretFunc(pattern1);
+        }
+    }
+
 /**
 * Precompute the function isEpual(pattern1, pattern2, dy, dx).
 * If isEpual(pattern1, pattern2, dy, dx), then compatible[pattern1][direction]
@@ -78,23 +109,11 @@ public:
  如果匹配，则合并
 */
     void generate_compatible() noexcept {
-        propagator = std::vector< std::array<std::vector<unsigned>, 4> >(patterns.size());
-        // Iterate on every dy, dx, pattern1 and pattern2
-        // 对每个图案
-        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
-            // 对上下左右四个方向
-            for (unsigned direction = 0; direction < 4; direction++) {
-                // 对所需要比较的每个图案
-                for (unsigned pattern2 = 0; pattern2 < patterns.size(); pattern2++) {
-                    //判断是否相等
-                    if (isEpual(patterns[pattern1], patterns[pattern2], directions_y[direction],
-                                directions_x[direction])) {
-                        //判断是否相等，如果相等则赋值记录
-                        propagator[pattern1][direction].push_back(pattern2);
-                    }
-                }
-            }
-        }
+        propagator = std::vector<std::array<std::vector<unsigned>, 4> >(patterns.size());
+
+        auto patternFunc = std::bind(&Data<int>::doPatternFunc, this, std::placeholders::_1);
+
+        patternFunc(std::bind(&Data<int>::doDiretFunc, this, std::placeholders::_1));
     }
 
     void init_patterns() noexcept {
@@ -115,7 +134,7 @@ public:
                 symmetries[7].data = symmetries[6].reflected().data;
 
                 for (unsigned k = 0; k < options.symmetry; k++) {
-                    auto res = patterns_id.insert( std::make_pair(symmetries[k], patterns.size()));
+                    auto res = patterns_id.insert(std::make_pair(symmetries[k], patterns.size()));
                     if (!res.second) {
                         patterns_frequency[res.first->second] += 1;
                     } else {
@@ -180,6 +199,7 @@ public:
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;
     Matrix<Cell> _data;
     const Options options;
+    Direction direct;
 };
 
 #endif // SRC_DATA_HPP
