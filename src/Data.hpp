@@ -28,6 +28,14 @@ public:
         init();
     }
 
+
+    void init() {
+        initData();
+        init_patterns();
+        generate_compatible();
+    }
+
+
     void initData() {
         int width;
         int height;
@@ -42,12 +50,6 @@ public:
             }
         }
         free(data);
-    }
-
-    void init() {
-        initData();
-        init_patterns();
-        generate_compatible();
     }
 
     static void write_image_png(const std::string &file_path, const Matrix<Cell> &m) noexcept {
