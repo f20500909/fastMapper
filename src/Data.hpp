@@ -76,27 +76,28 @@ public:
         return true;
     }
 
-
-    void realJob(int pattern2, int pattern1, int direction) {
-        //判断是否相等
-        if (isEpual(patterns[pattern1], patterns[pattern2], directions_y[direction], directions_x[direction])) {
-            //判断是否相等，如果相等则赋值记录
-            propagator[pattern1][direction].push_back(pattern2);
-        }
-
-    }
-
-    void iterFunc(int direction, int pattern1) {
-        doEveryPatternIdFunc_3(std::bind(&Data<int>::realJob, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), pattern1, direction);
-    }
-
-
     template<typename ...Ts>
     void doEveryPatternIdFunc_1(std::function<void(int)> doEveryPatternId, Ts...agv) {
         for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
             doEveryPatternId(pattern1, std::forward<Ts>(agv)...);
         }
     }
+
+
+    template<typename ...Ts>
+    void doEveryPatternIdFunc(std::function<void(int)> doEveryPatternId, Ts...agv) {
+        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
+            doEveryPatternId(pattern1, std::forward<Ts>(agv)...);
+        }
+    }
+
+
+//    template<typename ...Ts>
+//    void doEveryPatternIdFunc(std::function<void(int,int,int)> doEveryPatternId, Ts...agv) {
+//        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
+//            doEveryPatternId(pattern1, std::forward<Ts>(agv)...);
+//        }
+//    }
 
     template<typename ...Ts>
     void doEveryPatternIdFunc_3(std::function<void(int,int,int)> doEveryPatternId, Ts...agv) {
@@ -105,11 +106,13 @@ public:
         }
     }
 
+    template<typename Func,typename ...Ts>
+    void doEveryPatternIdFunc(Func fun, Ts...agv) {
+        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
+            fun(pattern1, std::forward<Ts>(agv)...);
+        }
+    }
 
-//    void doDiretFunc(int pattern1) {
-//
-//        Direction::doEveryDirectId_2(std::bind(&Data<int>::iterFunc, this, std::placeholders::_1, std::placeholders::_2), pattern1);
-//    }
 
     /**
 * Precompute the function isEpual(pattern1, pattern2, dy, dx).
@@ -122,18 +125,21 @@ public:
         propagator = std::vector<std::array<std::vector<unsigned>, 4> >(patterns.size());
 
         //对于每个个图案id ，均执行以下函数
-
-//        doEveryPatternIdFunc_3(std::bind(&Data<int>::realJob, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), pattern1, direction);
-        auto iterFunc = [this](int direction, int pattern1){
-            doEveryPatternIdFunc_3(std::bind(&Data<int>::realJob, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), pattern1, direction);
+        auto realJob = [&](int pattern2, int pattern1, int direction) {
+            if (isEpual(patterns[pattern1], patterns[pattern2], directions_y[direction], directions_x[direction])) {
+                propagator[pattern1][direction].push_back(pattern2);
+            }
         };
 
-
-        std:function<void(int)> doDiretFunc =[this,iterFunc](int pattern1) {
-            Direction::doEveryDirectId_2(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2), pattern1);
+        auto iterFunc = [&](int direction, int pattern1){
+            doEveryPatternIdFunc(std::bind(realJob,  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), pattern1, direction);
         };
 
-        doEveryPatternIdFunc_1(std::bind(doDiretFunc,  std::placeholders::_1));
+        auto doDiretFunc =[&](int pattern1) {
+            Direction::doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2), pattern1);
+        };
+
+        doEveryPatternIdFunc(std::bind(doDiretFunc,  std::placeholders::_1));
     }
 
     void init_patterns() noexcept {
