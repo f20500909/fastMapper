@@ -33,10 +33,6 @@ public:
     const Options option;
     const int dim = 2;
 
-    int operator+(Direction &d) {
-
-    }
-
 
     std::vector<int> direct;
     std::vector<std::vector<int>> direct_2d = {{0,  -1},
@@ -65,7 +61,7 @@ public:
 
 
     template<typename ...Ts>
-    static void doEveryDirectId(std::function<void(int, int, int)> Func, Ts...agv) {
+    static void doEveryDirectId_3(std::function<void(int, int, int)> Func, Ts...agv) {
         for (int i = 0; i < totalSize; i++) {
             Func(i, std::forward<Ts>(agv)...);
         }
@@ -73,7 +69,7 @@ public:
 
 
     template<typename ...Ts>
-    static void doEveryDirectId(std::function<void(int, int)> Func, Ts...agv) {
+    static void doEveryDirectId_2(std::function<void(int, int)> Func, Ts...agv) {
         for (int i = 0; i < totalSize; i++) {
             Func(i, std::forward<Ts>(agv)...);
         }
