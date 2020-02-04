@@ -15,6 +15,17 @@ public:
 
     Direction _direction;
     const Options option;
+    bool isVaildCoordinate(coordinate coor){
+        int  x=coor[0];
+        int  y=coor[0];
+        if (x < 0 || x >= (int) option.wave_width) {
+            return false;
+        }
+        if (y < 0 || y >= (int) option.wave_height) {
+            return false;
+        }
+        return true;
+    }
 
 public:
 

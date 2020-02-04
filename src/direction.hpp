@@ -26,11 +26,6 @@ public:
                                 {1,  0},
                                 {0,  1}};
 
-    int directions_x[4] = {0, -1, 1, 0};
-    int directions_y[4] = {-1, 0, 0, 1};
-
-//    std::vector<int> directions_x = {0, -1, 1, 0};
-//    std::vector<int> directions_y = {-1, 0, 0, 1};
     point getPoint(int directionId) {
         assert(directionId < _data.size());
         return _data[directionId];

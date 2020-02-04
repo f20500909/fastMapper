@@ -114,14 +114,14 @@ public:
             propagating.pop_back();
 
 //            对图案的四个方向进进行传播
-            for (unsigned direction = 0; direction < 4; direction++) {
-                // We get the next cell in the direction direction.
-                int dx = _direction.directions_x[direction];
-                int dy = _direction.directions_y[direction];
-                int x2, y2;
+            for (unsigned directionId = 0; directionId < 4; directionId++) {
+                // We get the next cell in the directionId directionId.
+                point po =  _direction.getPoint(directionId);
+                int dx = po[0];
+                int dy = po[1];
 
-                x2 = static_cast<int>(x1) + dx;
-                y2 = static_cast<int>(y1) + dy;
+                int x2 = static_cast<int>(x1) + dx;
+                int y2 = static_cast<int>(y1) + dy;
 
                 if (x2 < 0 || x2 >= (int) wave.width) {
                     continue;
@@ -132,21 +132,21 @@ public:
 
                 // The index of the second cell, and the patterns compatible
                 unsigned i2 = x2 + y2 * wave.width;
-                const std::vector<unsigned> &patterns = propagator_state[pattern][direction];
+                const std::vector<unsigned> &patterns = propagator_state[pattern][directionId];
 
                 // For every pattern that could be placed in that cell without being in
                 // contradiction with pattern1
                 for (auto it = patterns.begin(), it_end = patterns.end(); it < it_end; ++it) {
 
                     // We decrease the number of compatible patterns in the opposite
-                    // direction If the pattern was discarded from the wave, the element
+                    // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
                     std::array<int, 4> &value = compatible.get(y2, x2, *it);
-                    value[direction]--;
+                    value[directionId]--;
 
                     // If the element was set to 0 with this operation, we need to remove
                     // the pattern from the wave, and propagate the information
-                    if (value[direction] == 0) {
+                    if (value[directionId] == 0) {
                         add_to_propagator(y2, x2, *it);
                         wave.set(i2, *it, false);
                     }
