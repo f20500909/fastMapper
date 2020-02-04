@@ -10,12 +10,13 @@
 #include "time.h"
 #include "declare.hpp"
 #include "direction.hpp"
+#include "base.hpp"
 
 
 /**
  * Propagate information about patterns in the wave.
  */
-class Propagator {
+class Propagator:public Base {
 public:
     using PropagatorState = std::vector<std::array<std::vector<unsigned>, 4>>;
 
@@ -57,13 +58,18 @@ private:
      */
     void init_compatible() noexcept {
         std::array<int, 4> value;
+
+
+        auto iterFunc = [&](int direction, int pattern1){
+            value[direction] = propagator_state[pattern1][get_opposite_direction(direction)].size();
+        };
+
         // We compute the number of pattern compatible in all directions.
         for (unsigned y = 0; y < wave_height; y++) {
             for (unsigned x = 0; x < wave_width; x++) {
                 for (unsigned pattern = 0; pattern < patterns_size; pattern++) {
-                    for (int direction = 0; direction < 4; direction++) {
-                        value[direction] = propagator_state[pattern][get_opposite_direction(direction)].size();
-                    }
+
+                    _direction.doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2), pattern);
                     compatible.get(y, x, pattern) = value;
                 }
             }
@@ -71,14 +77,14 @@ private:
     }
 
 public:
+
     /**
      * Constructor building the propagator and initializing compatible.
      */
-    Propagator(unsigned wave_height, unsigned wave_width,
-               PropagatorState propagator_state) noexcept
+    Propagator(unsigned wave_height, unsigned wave_width, PropagatorState propagator_state,const Options& op) noexcept
             : patterns_size(propagator_state.size()), propagator_state(propagator_state), wave_width(wave_width),
               wave_height(wave_height),
-              compatible(wave_height, wave_width, patterns_size) {
+              compatible(wave_height, wave_width, patterns_size),Base(op){
         init_compatible();
     }
 
@@ -110,8 +116,8 @@ public:
 //            对图案的四个方向进进行传播
             for (unsigned direction = 0; direction < 4; direction++) {
                 // We get the next cell in the direction direction.
-                int dx = directions_x[direction];
-                int dy = directions_y[direction];
+                int dx = _direction.directions_x[direction];
+                int dy = _direction.directions_y[direction];
                 int x2, y2;
 
                 x2 = static_cast<int>(x1) + dx;

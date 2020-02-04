@@ -16,7 +16,7 @@
 * 包含网格信息熵
 */
 
-class Wave {
+class Wave : public Base {
 private:
     /**
     * The patterns frequencies p given to wfc.
@@ -92,11 +92,11 @@ public:
     * Initialize the wave with every cell being able to have every pattern.
     * 初始化wave中每个cell
     */
-    Wave(unsigned height, unsigned width, const std::vector<double> &patterns_frequency) noexcept
+    Wave(Options op, const std::vector<double> &patterns_frequency) noexcept
             : patterns_frequency(patterns_frequency), plogp_patterns_frequency(get_plogp(patterns_frequency)),
               half_min_plogp(get_half_min(plogp_patterns_frequency)), is_impossible(false),
-              nb_patterns(patterns_frequency.size()), data(width * height, nb_patterns, 1), width(width),
-              height(height), size(height * width) {
+              nb_patterns(patterns_frequency.size()), data(op.wave_width * op.wave_height, nb_patterns, 1), width(op.wave_width),
+              height(op.wave_height), size(height * width), Base(op) {
 
         double base_entropy = 0;
         double base_s = 0;

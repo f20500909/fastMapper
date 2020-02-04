@@ -2,6 +2,7 @@
 #define FAST_WFC_UTILS_ARRAY2D_HPP_
 
 #include "assert.h"
+#include "declare.hpp"
 #include <vector>
 
 /**
@@ -47,6 +48,12 @@ public:
     const T &get(unsigned i, unsigned j) const noexcept {
         assert(i < height && j < width);
         return data[j + i * width];
+    }
+
+    const T &getByPoint(point op) const noexcept {
+        unsigned  i=op[0];
+        unsigned  j=op[1];
+        return data[j+i*width];
     }
 
     /**

@@ -13,26 +13,22 @@
 #include "image.hpp"
 #include "declare.hpp"
 #include "direction.hpp"
-
+#include "base.hpp"
 
 using namespace std;
 
 template<class T>
-class Data {
+class Data :public Base {
 public:
 
-    Data() {
-    }
-
-    Data(const Options &options) : options(options) {
+    Data(const Options &op) : options(op),Base(op) {
         init();
     }
 
-
     void init() {
         initData();
-        init_patterns();
-        generate_compatible();
+        initPatterns();
+        generateCompatible();
     }
 
 
@@ -56,7 +52,11 @@ public:
         stbi_write_png(file_path.c_str(), m.width, m.height, 3, (const unsigned char *) m.data.data(), 0);
     }
 
-    static bool isEpual(const Matrix<Cell> &pattern1, const Matrix<Cell> &pattern2, int dy, int dx) noexcept {
+    static bool isEpual(const Matrix<Cell> &pattern1, const Matrix<Cell> &pattern2,point point) noexcept {
+        int dx=point[0];
+        int dy=point[1];
+//        _direction._data[];
+
         unsigned xmin = dx > 0 ? dx : 0;
         unsigned xmax = dx < 0 ? dx + pattern2.width : pattern1.width;
         unsigned ymin = dy > 0 ? dy : 0;
@@ -76,35 +76,7 @@ public:
         return true;
     }
 
-    template<typename ...Ts>
-    void doEveryPatternIdFunc_1(std::function<void(int)> doEveryPatternId, Ts...agv) {
-        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
-            doEveryPatternId(pattern1, std::forward<Ts>(agv)...);
-        }
-    }
 
-
-    template<typename ...Ts>
-    void doEveryPatternIdFunc(std::function<void(int)> doEveryPatternId, Ts...agv) {
-        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
-            doEveryPatternId(pattern1, std::forward<Ts>(agv)...);
-        }
-    }
-
-
-//    template<typename ...Ts>
-//    void doEveryPatternIdFunc(std::function<void(int,int,int)> doEveryPatternId, Ts...agv) {
-//        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
-//            doEveryPatternId(pattern1, std::forward<Ts>(agv)...);
-//        }
-//    }
-
-    template<typename ...Ts>
-    void doEveryPatternIdFunc_3(std::function<void(int,int,int)> doEveryPatternId, Ts...agv) {
-        for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
-            doEveryPatternId(pattern1, std::forward<Ts>(agv)...);
-        }
-    }
 
     template<typename Func,typename ...Ts>
     void doEveryPatternIdFunc(Func fun, Ts...agv) {
@@ -121,28 +93,29 @@ public:
 * 先计算是否匹配
  如果匹配，则合并
 */
-    void generate_compatible() noexcept {
+    void generateCompatible() noexcept {
         propagator = std::vector<std::array<std::vector<unsigned>, 4> >(patterns.size());
 
         //对于每个个图案id ，均执行以下函数
-        auto realJob = [&](int pattern2, int pattern1, int direction) {
-            if (isEpual(patterns[pattern1], patterns[pattern2], directions_y[direction], directions_x[direction])) {
-                propagator[pattern1][direction].push_back(pattern2);
+        auto realJob = [&](int pattern2, int pattern1, int directionId) {
+            auto point = _direction.getPoint(directionId);
+            if (isEpual(patterns[pattern1], patterns[pattern2], point)) {
+                propagator[pattern1][directionId].push_back(pattern2);
             }
         };
 
-        auto iterFunc = [&](int direction, int pattern1){
-            doEveryPatternIdFunc(std::bind(realJob,  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), pattern1, direction);
+        auto iterFunc = [&](int directionId, int pattern1){
+            doEveryPatternIdFunc(std::bind(realJob,  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), pattern1, directionId);
         };
 
         auto doDiretFunc =[&](int pattern1) {
-            Direction::doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2), pattern1);
+            _direction.doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2), pattern1);
         };
 
         doEveryPatternIdFunc(std::bind(doDiretFunc,  std::placeholders::_1));
     }
 
-    void init_patterns() noexcept {
+    void initPatterns() noexcept {
         std::unordered_map<Matrix<Cell>, unsigned> patterns_id;
         std::vector<Matrix<Cell>> symmetries(8, Matrix<Cell>(options.N, options.N));
         unsigned max_i = _data.height - options.N + 1;
@@ -225,7 +198,6 @@ public:
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;
     Matrix<Cell> _data;
     const Options options;
-    Direction direct;
 };
 
 #endif // SRC_DATA_HPP

@@ -12,6 +12,7 @@
 #include "propagator.hpp"
 #include "wave.hpp"
 #include "declare.hpp"
+#include "base.hpp"
 
 /**
  * Class containing the generic WFC algorithm.
@@ -79,13 +80,12 @@ public:
      */
     WFC(Data<int> data, const Options &options) noexcept
             : data(data), options(options), patterns(data.patterns), gen(rand()),
-              wave(options.wave_height, options.wave_width, data.patterns_frequency),
+              wave(options, data.patterns_frequency),
               patterns_frequency(data.patterns_frequency), nb_patterns(data.propagator.size()),
-              propagator(wave.height, wave.width, data.propagator) {
+              propagator(wave.height, wave.width, data.propagator,options) {
     }
 
     Data<int> data;
-
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
@@ -114,7 +114,6 @@ public:
             propagator.propagate(wave);
         }
     }
-
 
     /**
      * Define the value of the cell with lowest entropy.
@@ -164,7 +163,6 @@ public:
     }
 
     Options options;
-
 };
 
 #endif // FAST_WFC_WFC_HPP_

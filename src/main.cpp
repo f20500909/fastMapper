@@ -19,8 +19,9 @@ using namespace std;
 void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, string name) {
     srand((unsigned) time(NULL));
     const std::string image_path = "samples/" + name + ".png";
+    const int directionSize =4;
 
-    const Options options = {height, width, symmetry, N, name, image_path};
+    const Options options = {height, width, symmetry, N, name, image_path,directionSize};
 
     Data<int> data(options);
 
@@ -32,6 +33,7 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
 int main(int argc, char *argv[]) {
 //    -h 20 -w 100 -s 2  -N 2 -n colored_city
+//    -h 40 -w 40 -s 3  -N 2 -n City
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);
     a.add<unsigned>("width", 'w', "width", true);

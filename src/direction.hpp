@@ -12,48 +12,46 @@ class Options;
 class Direction {
 public:
 
-//    const Options option;
-
-
-
     Direction() {
     }
 
-    Direction(const Options &op) : option(op) {
+    Direction(const int _directionSize) {
 
     }
 
-    Direction(std::string type) {
-        if (type == "x") {
-//            directions_x
-
-        }
-    }
-
-    const Options option;
     const int dim = 2;
 
+    std::vector<point> _data = {{0,  -1},
+                                {-1, 0},
+                                {1,  0},
+                                {0,  1}};
 
-    std::vector<int> direct;
-    std::vector<std::vector<int>> direct_2d = {{0,  -1},
-                                               {-1, 0},
-                                               {1,  0},
-                                               {0,  0}};
+    int directions_x[4] = {0, -1, 1, 0};
+    int directions_y[4] = {-1, 0, 0, 1};
 
-    std::vector<int> directions_x = {0, -1, 1, 0};
-    std::vector<int> directions_y = {-1, 0, 0, 1};
+//    std::vector<int> directions_x = {0, -1, 1, 0};
+//    std::vector<int> directions_y = {-1, 0, 0, 1};
+    point getPoint(int directionId) {
+        assert(directionId < _data.size());
+        return _data[directionId];
+    }
 
-    template<class Fun,class ...Ts>
-    static void doEveryDirectId(Fun fun, Ts...agv) {
-        for (int i = 0; i < totalSize; i++) {
+    template<class Fun, class ...Ts>
+    void doEveryDirectId(Fun fun, Ts...agv) {
+        for (int i = 0; i < _data.size(); i++) {
             fun(i, std::forward<Ts>(agv)...);
         }
     }
 
+    template<class Fun, class ...Ts>
+    void doEveryDirectData(Fun fun, Ts...agv) {
+        for (int i = 0; i < _data.size(); i++) {
+            fun(_data[i], std::forward<Ts>(agv)...);
+        }
+    }
 
-    static int totalSize;
+
 };
 
-int Direction::totalSize = 4;
 
 #endif

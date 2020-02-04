@@ -9,14 +9,17 @@ enum ObserveStatus {
     failure, // wfc完成并失败
     to_continue // wfc没有完成
 };
+//具体的坐标值
+typedef std::vector<int> coordinate;
+
+//方向值
+typedef std::vector<int> point;
 
 /**
  * A direction is represented by an unsigned integer in the range [0; 3].
  * The x and y values of the direction can be retrieved in these tables.
  */
 // TODO 方向的遍历写成迭代器方式
-constexpr int directions_x[4] = {0, -1, 1, 0};
-constexpr int directions_y[4] = {-1, 0, 0, 1};
 
 /**
  * Return the opposite direction of direction.
@@ -38,11 +41,12 @@ struct Options {
 
     unsigned wave_width;   // The width of the output in pixels.
 
+    const int directionSize =4;
+
     Options() {
     }
 
-
-    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, std::string name,std::string image_path) :
+    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, std::string name,std::string image_path,const int _directionSize) :
             out_height(out_height),
             out_width(out_width),
             symmetry(symmetry),
@@ -50,9 +54,11 @@ struct Options {
             name(name),
             image_path(image_path),
             wave_height(out_height-N+1),
-            wave_width(out_width - N + 1) {
+            wave_width(out_width - N + 1),
+            directionSize(_directionSize)
+        {
 
-    }
+        }
 };
 
 
