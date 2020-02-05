@@ -77,27 +77,30 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC(const OverlappingWFCOptions &options, std::vector<Matrix<Cell>> &patterns,
+    WFC(Data<int> data, const OverlappingWFCOptions &options, std::vector<Matrix<Cell>> &patterns,
         std::vector<double> patterns_frequencies, Propagator::PropagatorState propagator,
         unsigned wave_height, unsigned wave_width) noexcept
-            : options(options), patterns(patterns), gen(rand()), wave(wave_height, wave_width, patterns_frequencies),
+            :data(data), options(options), patterns(patterns), gen(rand()), wave(wave_height, wave_width, patterns_frequencies),
               patterns_frequencies(patterns_frequencies), nb_patterns(propagator.size()),
               propagator(wave.height, wave.width, propagator) {
 
     }
 
+    Data<int> data;
+
+
 //     运行算法，成功的话并返回一个结果
-    Matrix<unsigned> run() noexcept {
+    Matrix<Cell> run() noexcept {
         while (true) {
             // Define the value of an undefined cell.
             // 定义未定义的网格值
             ObserveStatus result = observe();
             // 检查算法是否结束
             if (result == failure) {
-                Matrix<unsigned> nullRes;
+                Matrix<Cell> nullRes;
                 return nullRes;
             } else if (result == success) {
-                return wave_to_output();
+                return   data.to_image(wave_to_output());
             }
             // 传递信息
             propagator.propagate(wave);

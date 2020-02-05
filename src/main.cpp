@@ -25,11 +25,11 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
     data.init(image_path);
 
-    WFC  wfc(options, data.patterns, data.patterns_frequency, data.propagator, options.get_wave_height(), options.get_wave_width());
+    WFC  wfc( data,options, data.patterns, data.patterns_frequency, data.propagator, options.get_wave_height(), options.get_wave_width());
 
-    Matrix<unsigned> res = wfc.run();
+    Matrix<Cell> success = wfc.run();
 
-    Matrix<Cell> success =data.to_image(res);
+//    Matrix<Cell> success =data.to_image(res);
     if (success.data.size()>0) {
         data.write_image_png("results/" + name + ".png", success);
         cout << name << " finished!" << endl;
