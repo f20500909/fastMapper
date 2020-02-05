@@ -10,8 +10,8 @@
 #include "Matrix.hpp"
 #include "wfc.hpp"
 
-
 using namespace std;
+
 /* TODO shell脚本批量生成
  * 数据输入模块，适配多种格式的数据
  */
@@ -25,12 +25,12 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
     data.init(image_path);
 
-    WFC  wfc( data,options, data.patterns, data.patterns_frequency, data.propagator, options.get_wave_height(), options.get_wave_width());
+    WFC wfc(data, options);
 
     Matrix<Cell> success = wfc.run();
 
 //    Matrix<Cell> success =data.to_image(res);
-    if (success.data.size()>0) {
+    if (success.data.size() > 0) {
         data.write_image_png("results/" + name + ".png", success);
         cout << name << " finished!" << endl;
     } else {

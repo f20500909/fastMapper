@@ -12,7 +12,7 @@
 /**
 * Struct containing the values needed to compute the entropy of all the cells.
 * This struct is updated every time the wave is changed.
-* p'(pattern) is equal to patterns_frequencies[pattern] if wave.get(cell,
+* p'(pattern) is equal to patterns_frequency[pattern] if wave.get(cell,
 * pattern) is set to true, otherwise 0.
 * 结构包含计算所有网格的熵所需的值
 * 当波更改每次都会更新次结构
@@ -37,13 +37,13 @@ private:
     * The patterns frequencies p given to wfc.
     * 图案概率p
     */
-    const std::vector<double> patterns_frequencies;
+    const std::vector<double> patterns_frequency;
 
     /**
     * The precomputation of p * log(p).
     * p*log（p）的值
     */
-    const std::vector<double> plogp_patterns_frequencies;
+    const std::vector<double> plogp_patterns_frequency;
 
     /**
     * The precomputation of min (p * log(p)) / 2.
@@ -113,10 +113,10 @@ public:
     * Initialize the wave with every cell being able to have every pattern.
     * 初始化wave中每个cell
     */
-    Wave(unsigned height, unsigned width, const std::vector<double> &patterns_frequencies) noexcept
-            : patterns_frequencies(patterns_frequencies), plogp_patterns_frequencies(get_plogp(patterns_frequencies)),
-              half_min_plogp(get_half_min(plogp_patterns_frequencies)), is_impossible(false),
-              nb_patterns(patterns_frequencies.size()), data(width * height, nb_patterns, 1), width(width),
+    Wave(unsigned height, unsigned width, const std::vector<double> &patterns_frequency) noexcept
+            : patterns_frequency(patterns_frequency), plogp_patterns_frequency(get_plogp(patterns_frequency)),
+              half_min_plogp(get_half_min(plogp_patterns_frequency)), is_impossible(false),
+              nb_patterns(patterns_frequency.size()), data(width * height, nb_patterns, 1), width(width),
               height(height), size(height * width) {
         // Initialize the memoisation of entropy.
         // 初始化基础的熵
@@ -124,9 +124,9 @@ public:
         double base_s = 0;
         double half_min_plogp = std::numeric_limits<double>::infinity();
         for (unsigned i = 0; i < nb_patterns; i++) {
-            half_min_plogp = std::min(half_min_plogp, plogp_patterns_frequencies[i] / 2.0);
-            base_entropy += plogp_patterns_frequencies[i];// plogp 的和
-            base_s += patterns_frequencies[i];// 频率的和
+            half_min_plogp = std::min(half_min_plogp, plogp_patterns_frequency[i] / 2.0);
+            base_entropy += plogp_patterns_frequency[i];// plogp 的和
+            base_s += patterns_frequency[i];// 频率的和
         }
         double log_base_s = log(base_s);
         double entropy_base = log_base_s - base_entropy / base_s;
@@ -165,8 +165,8 @@ public:
 
         // Otherwise, the memoisation should be updated.
         data.get(index, pattern) = value;
-        memoisation.plogp_sum[index] -= plogp_patterns_frequencies[pattern];
-        memoisation.sum[index] -= patterns_frequencies[pattern];
+        memoisation.plogp_sum[index] -= plogp_patterns_frequency[pattern];
+        memoisation.sum[index] -= patterns_frequency[pattern];
         memoisation.log_sum[index] = log(memoisation.sum[index]);
         memoisation.nb_patterns[index]--;
         memoisation.entropy[index] = memoisation.log_sum[index] - memoisation.plogp_sum[index] / memoisation.sum[index];
