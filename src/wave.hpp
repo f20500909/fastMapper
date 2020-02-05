@@ -115,11 +115,13 @@ public:
         }
         double log_base_s = log(base_s);
         double entropy_base = log_base_s - base_entropy / base_s;
+
         memoisation.plogp_sum = std::vector<double>(width * height, base_entropy);
         memoisation.sum = std::vector<double>(width * height, base_s);
         memoisation.log_sum = std::vector<double>(width * height, log_base_s);
         memoisation.nb_patterns = std::vector<unsigned>(width * height, nb_patterns);
         memoisation.entropy = std::vector<double>(width * height, entropy_base);
+
     }
 
     /**

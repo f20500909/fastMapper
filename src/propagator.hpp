@@ -35,12 +35,6 @@ private:
      */
     const unsigned wave_width;
     const unsigned wave_height;
-
-    /**
-     * True if the wave and the output is toric.
-     */
-    const bool periodic_output;
-
     /**
      * All the tuples (y, x, pattern) that should be propagated.
      * The tuple should be propagated when wave.get(y, x, pattern) is set to
@@ -82,7 +76,7 @@ public:
     Propagator(unsigned wave_height, unsigned wave_width,
                PropagatorState propagator_state) noexcept
             : patterns_size(propagator_state.size()), propagator_state(propagator_state), wave_width(wave_width),
-              wave_height(wave_height), periodic_output(periodic_output),
+              wave_height(wave_height),
               compatible(wave_height, wave_width, patterns_size) {
         init_compatible();
     }
@@ -118,18 +112,14 @@ public:
                 int dx = directions_x[direction];
                 int dy = directions_y[direction];
                 int x2, y2;
-                if (periodic_output) {
-                    x2 = ((int) x1 + dx + (int) wave.width) % wave.width;
-                    y2 = ((int) y1 + dy + (int) wave.height) % wave.height;
-                } else {
-                    x2 = x1 + dx;
-                    y2 = y1 + dy;
-                    if (x2 < 0 || x2 >= (int) wave.width) {
-                        continue;
-                    }
-                    if (y2 < 0 || y2 >= (int) wave.height) {
-                        continue;
-                    }
+
+                x2 = x1 + dx;
+                y2 = y1 + dy;
+                if (x2 < 0 || x2 >= (int) wave.width) {
+                    continue;
+                }
+                if (y2 < 0 || y2 >= (int) wave.height) {
+                    continue;
                 }
 
                 // The index of the second cell, and the patterns compatible

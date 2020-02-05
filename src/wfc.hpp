@@ -116,7 +116,6 @@ public:
     }
 
 
-
     /**
      * Define the value of the cell with lowest entropy.
      * 定义具有最低熵的网格值
