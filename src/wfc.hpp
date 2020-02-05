@@ -87,7 +87,7 @@ public:
 
 
 //     运行算法，成功的话并返回一个结果
-    Matrix<Cell> run() noexcept {
+    void run() noexcept {
         while (true) {
             // Define the value of an undefined cell.
             // 定义未定义的网格值
@@ -95,9 +95,18 @@ public:
             // 检查算法是否结束
             if (result == failure) {
                 Matrix<Cell> nullRes;
-                return nullRes;
+                return ;
             } else if (result == success) {
-                return data.to_image(wave_to_output());
+                Matrix<Cell> res = data.to_image(wave_to_output());
+
+                if (res.data.size() > 0) {
+                    data.write_image_png("results/" + options.name + ".png", res);
+                    cout << options.name << " finished!" << endl;
+                } else {
+                    cout << "failed!" << endl;
+                }
+
+                return ;
             }
             // 传递信息
             propagator.propagate(wave);

@@ -20,22 +20,16 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
     srand((unsigned) time(NULL));
     const std::string image_path = "samples/" + name + ".png";
 
-    const OverlappingWFCOptions options = {height, width, symmetry, N};
+    const OverlappingWFCOptions options = {height, width, symmetry, N, name};
     Data<int> data(options);
 
     data.init(image_path);
 
     WFC wfc(data, options);
 
-    Matrix<Cell> success = wfc.run();
+    wfc.run();
 
-//    Matrix<Cell> success =data.to_image(res);
-    if (success.data.size() > 0) {
-        data.write_image_png("results/" + name + ".png", success);
-        cout << name << " finished!" << endl;
-    } else {
-        cout << "failed!" << endl;
-    }
+
 }
 
 int main(int argc, char *argv[]) {

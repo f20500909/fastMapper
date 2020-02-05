@@ -24,6 +24,7 @@ struct OverlappingWFCOptions {
     unsigned out_width;   // The width of the output in pixels.
     unsigned symmetry; // The number of symmetries (the order is defined in wfc).
     unsigned N; // The width and height in pixel of the patterns.
+    std::string name; // The width and height in pixel of the patterns.
 
     /**
     * Get the wave height given these options.
@@ -210,7 +211,6 @@ public:
 
     Matrix<Cell> m;
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;
-//    m = Matrix<Cell>(height, width);
     Matrix<Cell> _data;
     const OverlappingWFCOptions options;
 };
