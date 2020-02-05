@@ -1,13 +1,15 @@
 #ifndef FAST_WFC_PROPAGATOR_HPP_
 #define FAST_WFC_PROPAGATOR_HPP_
 
-#include "direction.hpp"
-#include "array3D.hpp"
-#include "wave.hpp"
-#include "time.h"
 #include <tuple>
 #include <vector>
 #include <array>
+
+#include "array3D.hpp"
+#include "wave.hpp"
+#include "time.h"
+#include "declare.hpp"
+
 
 /**
  * Propagate information about patterns in the wave.

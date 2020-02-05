@@ -11,6 +11,7 @@
 #include "Matrix.hpp"
 #include "propagator.hpp"
 #include "wave.hpp"
+#include "declare.hpp"
 
 /**
  * Class containing the generic WFC algorithm.
@@ -88,16 +89,17 @@ public:
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
+        Matrix<Cell> res ;
+
         while (true) {
             // Define the value of an undefined cell.
             // 定义未定义的网格值
             ObserveStatus result = observe();
             // 检查算法是否结束
             if (result == failure) {
-                Matrix<Cell> nullRes;
                 return ;
             } else if (result == success) {
-                Matrix<Cell> res = data.to_image(wave_to_output());
+                 res= data.to_image(wave_to_output());
 
                 if (res.data.size() > 0) {
                     data.write_image_png("results/" + options.name + ".png", res);
@@ -113,11 +115,7 @@ public:
         }
     }
 
-    enum ObserveStatus {
-        success, // wfc完成并取得成功
-        failure, // wfc完成并失败
-        to_continue // wfc没有完成
-    };
+
 
     /**
      * Define the value of the cell with lowest entropy.
