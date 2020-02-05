@@ -10,27 +10,12 @@
 #include <vector>
 
 /**
-* Struct containing the values needed to compute the entropy of all the cells.
-* This struct is updated every time the wave is changed.
-* p'(pattern) is equal to patterns_frequency[pattern] if wave.get(cell,
-* pattern) is set to true, otherwise 0.
-* 结构包含计算所有网格的熵所需的值
-* 当波更改每次都会更新次结构
-*/
-struct EntropyMemoisation {
-    std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
-    std::vector<double> sum;       // The sum of p'(pattern).
-    std::vector<double> log_sum;   // The log of sum.
-    std::vector<unsigned> nb_patterns; // The number of patterns present
-    std::vector<double> entropy;       // The entropy of the cell.
-};
-
-/**
 * Contains the pattern possibilities in every cell.
 * Also contains information about cell entropy.
 * 包含每个格子的图案可能性
 * 包含网格信息熵
 */
+
 class Wave {
 private:
     /**
@@ -55,7 +40,7 @@ private:
     * The memoisation of important values for the computation of entropy.
     * 计算信息熵所需要的关键值存储
     */
-    EntropyMemoisation memoisation;
+    Entropy memoisation;
 
     /**
     * This value is set to true if there is a contradiction in the wave (all elements set to false in a cell).
@@ -118,11 +103,11 @@ public:
               half_min_plogp(get_half_min(plogp_patterns_frequency)), is_impossible(false),
               nb_patterns(patterns_frequency.size()), data(width * height, nb_patterns, 1), width(width),
               height(height), size(height * width) {
-        // Initialize the memoisation of entropy.
-        // 初始化基础的熵
+
         double base_entropy = 0;
         double base_s = 0;
         double half_min_plogp = std::numeric_limits<double>::infinity();
+
         for (unsigned i = 0; i < nb_patterns; i++) {
             half_min_plogp = std::min(half_min_plogp, plogp_patterns_frequency[i] / 2.0);
             base_entropy += plogp_patterns_frequency[i];// plogp 的和
@@ -133,8 +118,7 @@ public:
         memoisation.plogp_sum = std::vector<double>(width * height, base_entropy);
         memoisation.sum = std::vector<double>(width * height, base_s);
         memoisation.log_sum = std::vector<double>(width * height, log_base_s);
-        memoisation.nb_patterns =
-                std::vector<unsigned>(width * height, nb_patterns);
+        memoisation.nb_patterns = std::vector<unsigned>(width * height, nb_patterns);
         memoisation.entropy = std::vector<double>(width * height, entropy_base);
     }
 

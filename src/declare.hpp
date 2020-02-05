@@ -51,4 +51,22 @@ struct Options {
 };
 
 
+/**
+* Struct containing the values needed to compute the entropy of all the cells.
+* This struct is updated every time the wave is changed.
+* p'(pattern) is equal to patterns_frequency[pattern] if wave.get(cell,
+* pattern) is set to true, otherwise 0.
+* 结构包含计算所有网格的熵所需的值
+* 当波更改每次都会更新次结构
+*/
+struct Entropy {
+    std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
+    std::vector<double> sum;       // The sum of p'(pattern).
+    std::vector<double> log_sum;   // The log of sum.
+    std::vector<unsigned> nb_patterns; // The number of patterns present
+    std::vector<double> entropy;       // The entropy of the cell.
+};
+
+
+
 #endif
