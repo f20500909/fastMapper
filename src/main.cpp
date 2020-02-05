@@ -21,6 +21,7 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
     const std::string image_path = "samples/" + name + ".png";
 
     const Options options = {height, width, symmetry, N, name, image_path};
+
     Data<int> data(options);
 
     WFC wfc(data, options);

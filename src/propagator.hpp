@@ -9,6 +9,7 @@
 #include "wave.hpp"
 #include "time.h"
 #include "declare.hpp"
+#include "direction.hpp"
 
 
 /**
