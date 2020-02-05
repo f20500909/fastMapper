@@ -36,7 +36,7 @@ public:
         int width;
         int height;
         int num_components;
-        unsigned char *data = stbi_load(options.image_path.c_str(), &width, &height, &num_components, 3);
+        unsigned char *data = stbi_load(options.image_path.c_str(), &width, &height, &num_components, options.desired_channels);
 
         _data = Matrix<Cell>(height, width);
         for (unsigned i = 0; i < (unsigned) height; i++) {
@@ -45,6 +45,7 @@ public:
                 _data.data[i * width + j] = Cell(data[index], data[index + 1], data[index + 2]);
             }
         }
+
         free(data);
     }
 

@@ -17,7 +17,7 @@ public:
     const Options option;
     bool isVaildCoordinate(coordinate coor){
         int  x=coor[0];
-        int  y=coor[0];
+        int  y=coor[1];
         if (x < 0 || x >= (int) option.wave_width) {
             return false;
         }

@@ -16,9 +16,9 @@
 /**
  * Propagate information about patterns in the wave.
  */
-class Propagator:public Base {
+class Propagator : public Base {
 public:
-    using PropagatorState = std::vector<std::array<std::vector<unsigned>, 4>>;
+    using PropagatorState = std::vector<std::array<std::vector<unsigned>, directionNumbers>>;
 
 private:
     /**
@@ -51,16 +51,15 @@ private:
      * placed in (y,x). If wave.get(y, x, pattern) is set to false, then
      * compatible.get(y, x, pattern) has every element negative or null
      */
-    Array3D<std::array<int, 4>> compatible;
+    Array3D<std::array<int, directionNumbers>> compatible;
 
     /**
      * Initialize compatible.
      */
     void init_compatible() noexcept {
-        std::array<int, 4> value;
+        std::array<int, directionNumbers> value;
 
-
-        auto iterFunc = [&](int direction, int pattern1){
+        auto iterFunc = [&](int direction, int pattern1) {
             value[direction] = propagator_state[pattern1][get_opposite_direction(direction)].size();
         };
 
@@ -68,8 +67,8 @@ private:
         for (unsigned y = 0; y < wave_height; y++) {
             for (unsigned x = 0; x < wave_width; x++) {
                 for (unsigned pattern = 0; pattern < patterns_size; pattern++) {
-
-                    _direction.doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2), pattern);
+                    _direction.doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2),
+                                               pattern);
                     compatible.get(y, x, pattern) = value;
                 }
             }
@@ -81,10 +80,10 @@ public:
     /**
      * Constructor building the propagator and initializing compatible.
      */
-    Propagator(unsigned wave_height, unsigned wave_width, PropagatorState propagator_state,const Options& op) noexcept
+    Propagator(unsigned wave_height, unsigned wave_width, PropagatorState propagator_state, const Options &op) noexcept
             : patterns_size(propagator_state.size()), propagator_state(propagator_state), wave_width(wave_width),
               wave_height(wave_height),
-              compatible(wave_height, wave_width, patterns_size),Base(op){
+              compatible(wave_height, wave_width, patterns_size), Base(op) {
         init_compatible();
     }
 
@@ -94,7 +93,7 @@ public:
      */
     void add_to_propagator(unsigned y, unsigned x, unsigned pattern) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
-        std::array<int, 4> temp = {};
+        std::array<int, directionNumbers> temp = {};
         compatible.get(y, x, pattern) = temp;
         propagating.emplace_back(y, x, pattern);
     }
@@ -114,19 +113,18 @@ public:
             propagating.pop_back();
 
 //            对图案的四个方向进进行传播
-            for (unsigned directionId = 0; directionId < 4; directionId++) {
+            for (unsigned directionId = 0; directionId < directionNumbers; directionId++) {
                 // We get the next cell in the directionId directionId.
-                point po =  _direction.getPoint(directionId);
+                point po = _direction.getPoint(directionId);
                 int dx = po[0];
                 int dy = po[1];
 
                 int x2 = static_cast<int>(x1) + dx;
                 int y2 = static_cast<int>(y1) + dy;
 
-                if (x2 < 0 || x2 >= (int) wave.width) {
-                    continue;
-                }
-                if (y2 < 0 || y2 >= (int) wave.height) {
+                coordinate coor2 = {x2, y2};
+
+                if (!isVaildCoordinate(coor2)) {
                     continue;
                 }
 
@@ -141,7 +139,7 @@ public:
                     // We decrease the number of compatible patterns in the opposite
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
-                    std::array<int, 4> &value = compatible.get(y2, x2, *it);
+                    std::array<int, directionNumbers> &value = compatible.get(y2, x2, *it);
                     value[directionId]--;
 
                     // If the element was set to 0 with this operation, we need to remove

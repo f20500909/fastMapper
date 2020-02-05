@@ -1,9 +1,14 @@
 #ifndef SRC_DECLARE_HPP
 #define SRC_DECLARE_HPP
 
-
 #include <string>
 #include <vector>
+
+
+//相关宏定义
+//一个数据单元的方向数量，4表示上下左右四个方向
+#define  directionNumbers 4
+
 enum ObserveStatus {
     success, // wfc完成并取得成功
     failure, // wfc完成并失败
@@ -42,11 +47,12 @@ struct Options {
     unsigned wave_width;   // The width of the output in pixels.
 
     const int directionSize =4;
+    int desired_channels;
 
     Options() {
     }
 
-    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, std::string name,std::string image_path,const int _directionSize) :
+    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, std::string name,std::string image_path,const int _directionSize,int _desired_channels) :
             out_height(out_height),
             out_width(out_width),
             symmetry(symmetry),
@@ -55,8 +61,9 @@ struct Options {
             image_path(image_path),
             wave_height(out_height-N+1),
             wave_width(out_width - N + 1),
-            directionSize(_directionSize)
-        {
+            directionSize(_directionSize),
+            desired_channels(_desired_channels)
+            {
 
         }
 };

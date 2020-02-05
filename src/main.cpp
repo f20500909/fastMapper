@@ -16,12 +16,12 @@ using namespace std;
  * 数据输入模块，适配多种格式的数据
  */
 
-void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, string name) {
+void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, string name, int desired_channels) {
     srand((unsigned) time(NULL));
-    const std::string image_path = "samples/" + name + ".png";
-    const int directionSize =4;
+    const std::string image_path = "samples/" + name;
+    const int directionSize = 4;
 
-    const Options options = {height, width, symmetry, N, name, image_path,directionSize};
+    const Options options = {height, width, symmetry, N, name, image_path, directionSize, desired_channels};
 
     Data<int> data(options);
 
@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
     a.add<unsigned>("symmetry", 's', "symmetry", true);
     a.add<unsigned>("N", 'N', "N", true);
     a.add<string>("name", 'n', "name", true);
+    a.add<int>("channels", 'c', "c", true);
     a.parse_check(argc, argv);
 
     unsigned height = a.get<unsigned>("height");
@@ -47,14 +48,16 @@ int main(int argc, char *argv[]) {
     unsigned symmetry = a.get<unsigned>("symmetry");
     unsigned N = a.get<unsigned>("N");
     string name = a.get<std::string>("name");
+    int channels = a.get<int>("channels");
 
     cout << "height          : " << a.get<unsigned>("height") << endl
          << "width           : " << a.get<unsigned>("width") << endl
          << "symmetry        : " << a.get<unsigned>("symmetry") << endl
          << "N               : " << a.get<unsigned>("N") << endl
-         << "name            : " << a.get<string>("name") << endl;
+         << "name            : " << a.get<string>("name") << endl
+         << "channels            : " << a.get<int>("channels") << endl;
 
-    single_run(height, width, symmetry, N, name);
+    single_run(height, width, symmetry, N, name,channels);
     return 0;
 }
 

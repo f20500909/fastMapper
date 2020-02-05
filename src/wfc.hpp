@@ -102,7 +102,7 @@ public:
                  res= data.to_image(wave_to_output());
 
                 if (res.data.size() > 0) {
-                    data.write_image_png("results/" + options.name + ".png", res);
+                    data.write_image_png("results/done.jpg", res);
                     cout << options.name << " finished!" << endl;
                 } else {
                     cout << "failed!" << endl;
