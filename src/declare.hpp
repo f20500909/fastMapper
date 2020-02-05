@@ -23,24 +23,32 @@ constexpr unsigned get_opposite_direction(unsigned direction) noexcept {
     return 3 - direction;
 }
 
-
-
-struct OverlappingWFCOptions {
+struct Options {
     unsigned out_height;  // The height of the output in pixels.
     unsigned out_width;   // The width of the output in pixels.
     unsigned symmetry; // The number of symmetries (the order is defined in wfc).
     unsigned N; // The width and height in pixel of the patterns.
     std::string name; // The width and height in pixel of the patterns.
+    std::string image_path; // The width and height in pixel of the patterns.
 
-    unsigned get_wave_height() const noexcept {
-        return out_height - N + 1;
-    }
 
-    unsigned get_wave_width() const noexcept {
-        return out_width - N + 1;
+    unsigned wave_height;  // The height of the output in pixels.
+
+    unsigned wave_width;   // The width of the output in pixels.
+
+
+    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, std::string name,std::string image_path) :
+            out_height(out_height),
+            out_width(out_width),
+            symmetry(symmetry),
+            N(N),
+            name(name),
+            image_path(image_path),
+            wave_height(out_height-N+1),
+            wave_width(out_width - N + 1) {
+
     }
 };
-
 
 
 #endif

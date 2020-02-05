@@ -77,9 +77,9 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC(Data<int> data, const OverlappingWFCOptions &options) noexcept
+    WFC(Data<int> data, const Options &options) noexcept
             : data(data), options(options), patterns(data.patterns), gen(rand()),
-              wave(options.get_wave_height(), options.get_wave_width(), data.patterns_frequency),
+              wave(options.wave_height, options.wave_width, data.patterns_frequency),
               patterns_frequency(data.patterns_frequency), nb_patterns(data.propagator.size()),
               propagator(wave.height, wave.width, data.propagator) {
     }
@@ -164,8 +164,7 @@ public:
         return to_continue;
     }
 
-
-    OverlappingWFCOptions options;
+    Options options;
 
 };
 

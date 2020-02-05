@@ -20,7 +20,7 @@ single_run(bool periodic_input, bool periodic_output, unsigned height, unsigned 
     if (!m.has_value()) {
         throw "Error while loading " + image_path;
     }
-    OverlappingWFCOptions options = {periodic_input, periodic_output, height, width, symmetry, ground, N};
+    Options options = {periodic_input, periodic_output, height, width, symmetry, ground, N};
 
     srand((unsigned) time(NULL));
 

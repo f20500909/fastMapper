@@ -10,7 +10,7 @@
 /**
 * Options needed to use the overlapping wfc.
 */
-struct OverlappingWFCOptions {
+struct Options {
     bool periodic_input;  // True if the input is toric.
     bool periodic_output; // True if the output is toric.
     unsigned out_height;  // The height of the output in pixels.
@@ -51,7 +51,7 @@ private:
     /**
     * Options needed by the algorithm.
     */
-    OverlappingWFCOptions options;
+    Options options;
 
     /**
     * The array of the different patterns extracted from the input.
@@ -71,7 +71,7 @@ private:
     * This is necessary in order to initialize wfc only once.
     * 构造函数
     */
-    OverlappingWFC(const Array2D<T> &input, const OverlappingWFCOptions &options, const int &seed,
+    OverlappingWFC(const Array2D<T> &input, const Options &options, const int &seed,
                    const std::pair<std::vector<Array2D<T>>, std::vector<double>> &patterns,
                    const std::vector<std::array<std::vector<unsigned>, 4>>
                    &propagator) noexcept
@@ -88,7 +88,7 @@ private:
     * Constructor used only to call the other constructor with more computed parameters.
     * 构造函数，当有更多参数时调用其他构造函数
     */
-    OverlappingWFC(const Array2D<T> &input, const OverlappingWFCOptions &options, const int &seed,
+    OverlappingWFC(const Array2D<T> &input, const Options &options, const int &seed,
                    const std::pair<std::vector<Array2D<T>>, std::vector<double>>
                    &patterns) noexcept
             : OverlappingWFC(input, options, seed, patterns, generate_compatible(patterns.first)) {}
@@ -105,7 +105,7 @@ private:
     * 图案不能再用于输出中的其他部分
     */
     static void init_ground(WFC &wfc, const Array2D<T> &input, const std::vector<Array2D<T>> &patterns,
-                            const OverlappingWFCOptions &options) noexcept {
+                            const Options &options) noexcept {
         unsigned ground_pattern_id =
                 get_ground_pattern_id(input, patterns, options);
 
@@ -137,7 +137,7 @@ private:
     static unsigned
     get_ground_pattern_id(const Array2D<T> &input,
                           const std::vector<Array2D<T>> &patterns,
-                          const OverlappingWFCOptions &options) noexcept {
+                          const Options &options) noexcept {
         // Get the pattern.
         // 获得图案
         Array2D<T> ground_pattern =
@@ -163,7 +163,7 @@ private:
     * 返回图案列表，以及它出现的概率
     */
     static std::pair<std::vector<Array2D<T>>, std::vector<double>>
-    get_patterns(const Array2D<T> &input, const OverlappingWFCOptions &options) noexcept {
+    get_patterns(const Array2D<T> &input, const Options &options) noexcept {
         std::unordered_map<Array2D<T>, unsigned> patterns_id;
         std::vector<Array2D<T>> patterns;
 
@@ -314,7 +314,7 @@ public:
     * The constructor used by the user.
     * 用户可调用的构造函数
     */
-    OverlappingWFC(const Array2D<T> &input, const OverlappingWFCOptions &options, int seed) noexcept
+    OverlappingWFC(const Array2D<T> &input, const Options &options, int seed) noexcept
             : OverlappingWFC(input, options, seed, get_patterns(input, options)) {}
 
     /**

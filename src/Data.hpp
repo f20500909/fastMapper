@@ -20,15 +20,15 @@ template<class T>
 class Data {
 public:
 
-    Data(const OverlappingWFCOptions &options) : options(options) {
-
+    Data(const Options &options) : options(options) {
+        init();
     }
 
-    void init(std::string image_path) {
+    void initData(){
         int width;
         int height;
         int num_components;
-        unsigned char *data = stbi_load(image_path.c_str(), &width, &height, &num_components, 3);
+        unsigned char *data = stbi_load(options.image_path.c_str(), &width, &height, &num_components, 3);
 
         _data = Matrix<Cell>(height, width);
         for (unsigned i = 0; i < (unsigned) height; i++) {
@@ -38,6 +38,10 @@ public:
             }
         }
         free(data);
+    }
+
+    void init() {
+        initData();
         init_patterns();
         generate_compatible();
     }
@@ -130,32 +134,32 @@ public:
     Matrix<Cell> to_image(const Matrix<unsigned> &output_patterns) const noexcept {
         Matrix<Cell> output = Matrix<Cell>(options.out_height, options.out_width);
 
-        for (unsigned y = 0; y < options.get_wave_height(); y++) {
-            for (unsigned x = 0; x < options.get_wave_width(); x++) {
+        for (unsigned y = 0; y < options.wave_height; y++) {
+            for (unsigned x = 0; x < options.wave_width; x++) {
                 output.get(y, x) = patterns[output_patterns.get(y, x)].get(0, 0);
             }
         }
-        for (unsigned y = 0; y < options.get_wave_height(); y++) {
+        for (unsigned y = 0; y < options.wave_height; y++) {
             const Matrix<Cell> &pattern =
-                    patterns[output_patterns.get(y, options.get_wave_width() - 1)];
+                    patterns[output_patterns.get(y, options.wave_width - 1)];
             for (unsigned dx = 1; dx < options.N; dx++) {
-                output.get(y, options.get_wave_width() - 1 + dx) = pattern.get(0, dx);
+                output.get(y, options.wave_width - 1 + dx) = pattern.get(0, dx);
             }
         }
-        for (unsigned x = 0; x < options.get_wave_width(); x++) {
+        for (unsigned x = 0; x < options.wave_width; x++) {
             const Matrix<Cell> &pattern =
-                    patterns[output_patterns.get(options.get_wave_height() - 1, x)];
+                    patterns[output_patterns.get(options.wave_height - 1, x)];
             for (unsigned dy = 1; dy < options.N; dy++) {
-                output.get(options.get_wave_height() - 1 + dy, x) =
+                output.get(options.wave_height - 1 + dy, x) =
                         pattern.get(dy, 0);
             }
         }
         const Matrix<Cell> &pattern = patterns[output_patterns.get(
-                options.get_wave_height() - 1, options.get_wave_width() - 1)];
+                options.wave_height - 1, options.wave_width - 1)];
         for (unsigned dy = 1; dy < options.N; dy++) {
             for (unsigned dx = 1; dx < options.N; dx++) {
-                output.get(options.get_wave_height() - 1 + dy,
-                           options.get_wave_width() - 1 + dx) = pattern.get(dy, dx);
+                output.get(options.wave_height - 1 + dy,
+                           options.wave_width - 1 + dx) = pattern.get(dy, dx);
             }
         }
         return output;
@@ -175,7 +179,7 @@ public:
     Matrix<Cell> m;
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;
     Matrix<Cell> _data;
-    const OverlappingWFCOptions options;
+    const Options options;
 };
 
 #endif // SRC_DATA_HPP

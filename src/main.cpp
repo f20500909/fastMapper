@@ -20,15 +20,12 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
     srand((unsigned) time(NULL));
     const std::string image_path = "samples/" + name + ".png";
 
-    const OverlappingWFCOptions options = {height, width, symmetry, N, name};
+    const Options options = {height, width, symmetry, N, name, image_path};
     Data<int> data(options);
-
-    data.init(image_path);
 
     WFC wfc(data, options);
 
     wfc.run();
-
 
 }
 

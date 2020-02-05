@@ -56,7 +56,7 @@ void read_overlapping_instance(xml_node<> *node) {
   if (!m.has_value()) {
     throw "Error while loading " + image_path;
   }
-  OverlappingWFCOptions options = {
+  Options options = {
       periodic_input, periodic_output, height, width, symmetry, ground, N};
   for (unsigned i = 0; i < screenshots; i++) {
     for (unsigned test = 0; test < 10; test++) {
