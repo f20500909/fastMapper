@@ -68,7 +68,7 @@ struct Entropy {
     std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
     std::vector<double> sum;       // The sum of p'(pattern).
     std::vector<double> log_sum;   // The log of sum.
-    std::vector<unsigned> nb_patterns; // The number of patterns present
+    std::vector<unsigned> nb_patterns_vec; // The number of patterns present
     std::vector<double> entropy;       // The entropy of the cell.
 };
 

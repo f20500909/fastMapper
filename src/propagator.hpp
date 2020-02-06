@@ -114,8 +114,9 @@ public:
                 int dy = directions_y[direction];
                 int x2, y2;
 
-                x2 = x1 + dx;
-                y2 = y1 + dy;
+                x2 = static_cast<int>(x1) + dx;
+                y2 = static_cast<int>(y1) + dy;
+
                 if (x2 < 0 || x2 >= (int) wave.width) {
                     continue;
                 }

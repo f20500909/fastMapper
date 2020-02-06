@@ -84,7 +84,6 @@ public:
         }
     }
 
-
     void doDiretFunc(int pattern1) {
 
         std::function<void(int, int)> func = std::bind(&Data<int>::iterFunc, this, std::placeholders::_1, std::placeholders::_2);
@@ -109,7 +108,10 @@ public:
     void generate_compatible() noexcept {
         propagator = std::vector<std::array<std::vector<unsigned>, 4> >(patterns.size());
 
-        doEveryPatternIdFunc(std::bind(&Data<int>::doDiretFunc, this, std::placeholders::_1));
+        //对于每个个图案id ，均执行以下函数
+        doEveryPatternIdFunc(
+                std::bind(&Data<int>::doDiretFunc, this, std::placeholders::_1)
+                );
     }
 
     void init_patterns() noexcept {

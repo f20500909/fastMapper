@@ -37,12 +37,6 @@ private:
     const double half_min_plogp;
 
     /**
-    * The memoisation of important values for the computation of entropy.
-    * 计算信息熵所需要的关键值存储
-    */
-    Entropy memoisation;
-
-    /**
     * This value is set to true if there is a contradiction in the wave (all elements set to false in a cell).
     * 如果wave存在矛盾（在单元格中所有元素都设置为false），则这个值设置为true
     */
@@ -116,12 +110,11 @@ public:
         double log_base_s = log(base_s);
         double entropy_base = log_base_s - base_entropy / base_s;
 
-        memoisation.plogp_sum = std::vector<double>(width * height, base_entropy);
-        memoisation.sum = std::vector<double>(width * height, base_s);
-        memoisation.log_sum = std::vector<double>(width * height, log_base_s);
-        memoisation.nb_patterns = std::vector<unsigned>(width * height, nb_patterns);
-        memoisation.entropy = std::vector<double>(width * height, entropy_base);
-
+        plogp_sum = std::vector<double>(width * height, base_entropy);
+        sum = std::vector<double>(width * height, base_s);
+        log_sum = std::vector<double>(width * height, log_base_s);
+        nb_patterns_vec = std::vector<unsigned>(width * height, nb_patterns);
+        entropy_vec = std::vector<double>(width * height, entropy_base);
     }
 
     /**
@@ -151,14 +144,14 @@ public:
 
         // Otherwise, the memoisation should be updated.
         data.get(index, pattern) = value;
-        memoisation.plogp_sum[index] -= plogp_patterns_frequency[pattern];
-        memoisation.sum[index] -= patterns_frequency[pattern];
-        memoisation.log_sum[index] = log(memoisation.sum[index]);
-        memoisation.nb_patterns[index]--;
-        memoisation.entropy[index] = memoisation.log_sum[index] - memoisation.plogp_sum[index] / memoisation.sum[index];
+        plogp_sum[index] -= plogp_patterns_frequency[pattern];
+        sum[index] -= patterns_frequency[pattern];
+        log_sum[index] = log(sum[index]);
+        nb_patterns_vec[index]--;
+        entropy_vec[index] = log_sum[index] - plogp_sum[index] / sum[index];
         // If there is no patterns possible in the cell, then there is a
         // contradiction.
-        if (memoisation.nb_patterns[index] == 0) is_impossible = true;
+        if (nb_patterns_vec[index] == 0) is_impossible = true;
     }
 
     /**
@@ -187,13 +180,13 @@ public:
         for (unsigned i = 0; i < size; i++) {
             // If the cell is decided, we do not compute the entropy (which is equal to 0).
             // 如果cell被决定，我们不用再计算信息熵
-            double nb_patterns = memoisation.nb_patterns[i];
+            double nb_patterns = nb_patterns_vec[i];
             if (nb_patterns == 1) {
                 continue;
             }
 
             // Otherwise, we take the memoised entropy.
-            double entropy = memoisation.entropy[i];
+            double entropy = entropy_vec[i];
 
             // We first check if the entropy is less than the minimum.
             // This is important to reduce noise computation (which is not
@@ -213,6 +206,14 @@ public:
 
         return argmin;
     }
+
+
+    std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
+    std::vector<double> sum;       // The sum of p'(pattern).
+    std::vector<double> log_sum;   // The log of sum.
+    std::vector<unsigned> nb_patterns_vec; // The number of patterns present
+    std::vector<double> entropy_vec;       // The entropy of the cell.c
 };
 
 #endif // FAST_WFC_WAVE_HPP_
+
