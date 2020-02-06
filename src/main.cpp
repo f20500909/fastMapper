@@ -33,14 +33,14 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
 int main(int argc, char *argv[]) {
 //    -h 20 -w 100 -s 2  -N 2 -n colored_city
-//    -h 40 -w 40 -s 3  -N 2 -n City
+//    -h 40 -w 40 -s 3  -N 2 -n City.png
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);
     a.add<unsigned>("width", 'w', "width", true);
     a.add<unsigned>("symmetry", 's', "symmetry", true);
     a.add<unsigned>("N", 'N', "N", true);
     a.add<string>("name", 'n', "name", true);
-    a.add<int>("channels", 'c', "c", true);
+    a.add<int>("channels", 'c', "c", false,3);
     a.parse_check(argc, argv);
 
     unsigned height = a.get<unsigned>("height");

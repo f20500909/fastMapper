@@ -110,11 +110,11 @@ public:
         double log_base_s = log(base_s);
         double entropy_base = log_base_s - base_entropy / base_s;
 
-        plogp_sum = std::vector<double>(width * height, base_entropy);
-        sum = std::vector<double>(width * height, base_s);
-        log_sum = std::vector<double>(width * height, log_base_s);
-        nb_patterns_vec = std::vector<unsigned>(width * height, nb_patterns);
-        entropy_vec = std::vector<double>(width * height, entropy_base);
+        plogp_sum = std::vector<double>(size, base_entropy);
+        sum = std::vector<double>(size, base_s);
+        log_sum = std::vector<double>(size, log_base_s);
+        nb_patterns_vec = std::vector<unsigned>(size, nb_patterns);
+        entropy_vec = std::vector<double>(size, entropy_base);
     }
 
     /**

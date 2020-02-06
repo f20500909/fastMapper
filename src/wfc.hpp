@@ -96,9 +96,8 @@ public:
             // 定义未定义的网格值
             ObserveStatus result = observe();
             // 检查算法是否结束
-            if (result == failure) {
-                return ;
-            } else if (result == success) {
+            assert(result != failure);
+            if (result == success) {
                  res= data.to_image(wave_to_output());
 
                 if (res.data.size() > 0) {

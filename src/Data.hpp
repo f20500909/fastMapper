@@ -26,10 +26,32 @@ public:
     }
 
     void init() {
-        initData();
+//        initData();
+        initDataWithOpencv();
         initPatterns();
         generateCompatible();
     }
+    void initDataWithOpencv(){
+        Mat src = imread(options.image_path.c_str());
+        assert(!src.empty());
+
+        int row = src.rows;
+        int col = src.cols;
+
+        _data = Matrix<Cell>(row, col);
+
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                Vec3b vec_3 = src.at<Vec3b>(i, j);
+                int b = vec_3[0];
+                int g = vec_3[1];
+                int r = vec_3[2];
+                cout << "B:" << b << " G:" << g << " R:" << r << endl;
+                _data.data[i * col + j] = Cell(r,g,b);
+            }
+        }
+    }
+
 
 
     void initData() {
@@ -118,7 +140,7 @@ public:
 
     void initPatterns() noexcept {
         std::unordered_map<Matrix<Cell>, unsigned> patterns_id;
-        std::vector<Matrix<Cell>> symmetries(8, Matrix<Cell>(options.N, options.N));
+        std::vector<Matrix<Cell>> symmetries(options.symmetry, Matrix<Cell>(options.N, options.N));
         unsigned max_i = _data.height - options.N + 1;
         unsigned max_j = _data.width - options.N + 1;
 
@@ -183,9 +205,6 @@ public:
         }
         return output;
     }
-
-    //维度
-    int dim;
 
     //每个维度的尺寸大小
     //图像是2维，三维物体是3维

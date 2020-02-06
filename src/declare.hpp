@@ -3,7 +3,11 @@
 
 #include <string>
 #include <vector>
+#include<opencv2\opencv.hpp>
+#include<iostream>
+#include<math.h>
 
+using namespace cv;
 
 //相关宏定义
 //一个数据单元的方向数量，4表示上下左右四个方向
