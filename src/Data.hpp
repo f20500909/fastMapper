@@ -92,10 +92,10 @@ public:
         Direction::doEveryDirectId(func, pattern1);
     }
 
-    void doPatternFunc(std::function<void(int)> diretFunc) {
+    template<typename ...Ts>
+    void doEveryPatternIdFunc(std::function<void(int)> doEveryPatternId, Ts...agv) {
         for (unsigned pattern1 = 0; pattern1 < patterns.size(); pattern1++) {
-            // 对上下左右四个方向
-            diretFunc(pattern1);
+            doEveryPatternId(pattern1, std::forward<Ts>(agv)...);
         }
     }
 
@@ -109,9 +109,7 @@ public:
     void generate_compatible() noexcept {
         propagator = std::vector<std::array<std::vector<unsigned>, 4> >(patterns.size());
 
-        auto patternFunc = std::bind(&Data<int>::doPatternFunc, this, std::placeholders::_1);
-
-        patternFunc(std::bind(&Data<int>::doDiretFunc, this, std::placeholders::_1));
+        doEveryPatternIdFunc(std::bind(&Data<int>::doDiretFunc, this, std::placeholders::_1));
     }
 
     void init_patterns() noexcept {
