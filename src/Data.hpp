@@ -55,9 +55,9 @@ public:
     }
 
     static bool isEpual(const Matrix<Cell> &pattern1, const Matrix<Cell> &pattern2, int dy, int dx) noexcept {
-        unsigned xmin = max(0, dx);
+        unsigned xmin = dx > 0 ? dx : 0;
         unsigned xmax = dx < 0 ? dx + pattern2.width : pattern1.width;
-        unsigned ymin = max(0, dy);
+        unsigned ymin = dy > 0 ? dy : 0;
         unsigned ymax = dy < 0 ? dy + pattern2.height : pattern1.width;
 
         // Iterate on every pixel contained in the intersection of the two pattern.
@@ -74,7 +74,7 @@ public:
         return true;
     }
 
-    void iterFunc(int pattern1, int direction) {
+    void iterFunc(int direction, int pattern1) {
         for (unsigned pattern2 = 0; pattern2 < patterns.size(); pattern2++) {
             //判断是否相等
             if (isEpual(patterns[pattern1], patterns[pattern2], directions_y[direction], directions_x[direction])) {
@@ -84,14 +84,12 @@ public:
         }
     }
 
-    std::function<void(int, int)> f1 = std::bind(&Data<int>::iterFunc, this, std::placeholders::_1,
-                                                 std::placeholders::_2);
-//    std::function<void(int)> f3 = std::bind(&Data<int>::patternsFunc, this, std::placeholders::_1);
 
     void doDiretFunc(int pattern1) {
-        for (unsigned direction = 0; direction < 4; direction++) {
-            f1(pattern1, direction);
-        }
+
+        std::function<void(int, int)> func = std::bind(&Data<int>::iterFunc, this, std::placeholders::_1, std::placeholders::_2);
+
+        Direction::doEveryDirectId(func, pattern1);
     }
 
     void doPatternFunc(std::function<void(int)> diretFunc) {

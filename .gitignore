@@ -5,6 +5,7 @@
 /reference
 /temp
 /results
+/test_temp
 /.idea
 *.exe
 **/cmake-build-debug/*
