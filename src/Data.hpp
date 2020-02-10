@@ -25,12 +25,22 @@ public:
         init();
     }
 
+    void initSvgData() {
+        _svg.m[]=
+
+    }
+
     void init() {
 //        initData();
-        initDataWithOpencv();
+//        initDataWithOpencv();
+        initSvgData();
         initPatterns();
         generateCompatible();
     }
+
+
+
+
     void initDataWithOpencv(){
         Mat src = imread(options.image_path.c_str());
         assert(!src.empty());
@@ -51,8 +61,6 @@ public:
             }
         }
     }
-
-
 
     void initData() {
         int width;

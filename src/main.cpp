@@ -9,12 +9,14 @@
 
 #include "Matrix.hpp"
 #include "wfc.hpp"
+#include "include/tinyxml2.h"
 
 using namespace std;
 
 /* TODO shell脚本批量生成
  * 数据输入模块，适配多种格式的数据
  */
+
 
 void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, string name, int desired_channels) {
     srand((unsigned) time(NULL));
@@ -60,4 +62,5 @@ int main(int argc, char *argv[]) {
     single_run(height, width, symmetry, N, name,channels);
     return 0;
 }
+
 

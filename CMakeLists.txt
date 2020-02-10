@@ -6,7 +6,6 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
 #add_subdirectory(test_temp)
 
-
 set(OpenCV_DIR "D:\\package\\developer\\opencv\\wh_build\\install")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
@@ -14,6 +13,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
+
+
+set(BOOST_ROOT "D:\\package\\developer\\boost_1_69_0\\boost")
+find_package(Boost)
+
+include_directories(${Boost_INCLUDE_DIRS})
 
 
 link_directories(./src/lib)
@@ -24,7 +29,7 @@ include_directories(./src)
 include_directories(./src/include)
 
 aux_source_directory(SOURCE_FILES ./src)
-add_executable(demo_temp src/main.cpp ${SOURCE_FILES})
+aux_source_directory(SOURCE_FILES_LIB  ./src/include)
+add_executable(demo_temp src/main.cpp ${SOURCE_FILES} ./src/include/tinyxml2.cpp)
 
-
-target_link_libraries(demo_temp ${OpenCV_LIBS})
+target_link_libraries(demo_temp ${OpenCV_LIBS} ${Boost_LIBRARIES})
