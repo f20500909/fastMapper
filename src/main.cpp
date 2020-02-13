@@ -9,7 +9,7 @@
 
 #include "Matrix.hpp"
 #include "wfc.hpp"
-#include "include/tinyxml2.h"
+#include "imageModel.hpp"
 
 using namespace std;
 
@@ -25,12 +25,11 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
     const Options options = {height, width, symmetry, N, name, image_path, directionSize, desired_channels};
 
-    Data<int> data(options);
+    Img<int> data(options);
 
     WFC wfc(data, options);
 
     wfc.run();
-
 }
 
 int main(int argc, char *argv[]) {

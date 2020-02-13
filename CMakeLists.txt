@@ -30,6 +30,6 @@ include_directories(./src/include)
 
 aux_source_directory(SOURCE_FILES ./src)
 aux_source_directory(SOURCE_FILES_LIB  ./src/include)
-add_executable(demo_temp src/main.cpp ${SOURCE_FILES} ./src/include/tinyxml2.cpp)
+add_executable(demo_temp src/main.cpp ${SOURCE_FILES})
 
 target_link_libraries(demo_temp ${OpenCV_LIBS} ${Boost_LIBRARIES})

@@ -78,11 +78,11 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC(Data<int> data, const Options &options) noexcept
-            : data(data), options(options), patterns(data.patterns), gen(rand()),
-              wave(options, data.patterns_frequency),
-              patterns_frequency(data.patterns_frequency), nb_patterns(data.propagator.size()),
-              propagator(wave.height, wave.width, data.propagator,options) {
+    WFC(Data<int> _data, const Options &options) noexcept
+            : data(_data), options(options), patterns(_data.patterns), gen(rand()),
+              wave(options, _data.patterns_frequency),
+              patterns_frequency(_data.patterns_frequency), nb_patterns(_data.propagator.size()),
+              propagator(wave.height, wave.width, _data.propagator,options) {
     }
 
     Data<int> data;

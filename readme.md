@@ -11,6 +11,8 @@ only to study wfc althorighm
 支持矢量化
 dwg，cad支持
 
+使用boost库代替xml解析库
+
 
 瓷片生成模块
 
