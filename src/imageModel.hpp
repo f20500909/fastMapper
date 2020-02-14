@@ -1,3 +1,5 @@
+#ifndef SRC_IMAGEMODEL_HPP
+#define SRC_IMAGEMODEL_HPP
 #include <iostream>
 #include "Data.hpp"
 
@@ -7,7 +9,6 @@
 
 
 using namespace std;
-
 
 template<class T>
 class Img : public Data<T> {
@@ -201,7 +202,18 @@ public:
         return output;
     }
 
+    virtual void showResult(Matrix<unsigned> mat){
+        Matrix<Cell> res;
+        res = to_image(mat);
+        if (res.data.size() > 0) {
+            write_image_png("results/done.jpg", res);
+            cout << options.name << " finished!" << endl;
+        } else {
+            cout << "failed!" << endl;
+        }
+    };
+
     Options options;
 };
 
-
+#endif // SRC_IMAGEMODEL_HPP

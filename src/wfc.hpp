@@ -13,6 +13,7 @@
 #include "wave.hpp"
 #include "declare.hpp"
 #include "base.hpp"
+#include "imageModel.hpp"
 
 /**
  * Class containing the generic WFC algorithm.
@@ -78,18 +79,17 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC(Data<int> _data, const Options &options) noexcept
-            : data(_data), options(options), patterns(_data.patterns), gen(rand()),
-              wave(options, _data.patterns_frequency),
-              patterns_frequency(_data.patterns_frequency), nb_patterns(_data.propagator.size()),
-              propagator(wave.height, wave.width, _data.propagator,options) {
+    WFC(Data<int> *_data, const Options &options) noexcept
+            : data(_data), options(options), patterns(_data->patterns), gen(rand()),
+              wave(options, _data->patterns_frequency),
+              patterns_frequency(_data->patterns_frequency), nb_patterns(_data->propagator.size()),
+              propagator(wave.height, wave.width, _data->propagator, options) {
     }
 
-    Data<int> data;
+    Data<int> *data;
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
-        Matrix<Cell> res ;
 
         while (true) {
             // Define the value of an undefined cell.
@@ -98,16 +98,15 @@ public:
             // 检查算法是否结束
             assert(result != failure);
             if (result == success) {
-                 res= data.to_image(wave_to_output());
+                Matrix<unsigned> res = wave_to_output();
 
-                if (res.data.size() > 0) {
-                    data.write_image_png("results/done.jpg", res);
-                    cout << options.name << " finished!" << endl;
-                } else {
-                    cout << "failed!" << endl;
-                }
+                data->showResult(res);
+//                Img<int>* t = static_cast<Img<int>*>(data);
+//                t->showResult(res);
+//                static_cast<Img<int>*>(data)->showResult(res);
+//                (Img<int>*)(data)->showResult(res);
 
-                return ;
+                return;
             }
             // 传递信息
             propagator.propagate(wave);

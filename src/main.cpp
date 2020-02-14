@@ -9,14 +9,12 @@
 
 #include "Matrix.hpp"
 #include "wfc.hpp"
-#include "imageModel.hpp"
 
 using namespace std;
 
 /* TODO shell脚本批量生成
  * 数据输入模块，适配多种格式的数据
  */
-
 
 void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, string name, int desired_channels) {
     srand((unsigned) time(NULL));
@@ -25,11 +23,12 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
     const Options options = {height, width, symmetry, N, name, image_path, directionSize, desired_channels};
 
-    Img<int> data(options);
-
+    Img<int>* imgData = new Img<int>(options);
+    Data<int>* data = static_cast<Data<int>*>(imgData);
     WFC wfc(data, options);
 
     wfc.run();
+//    delete data;
 }
 
 int main(int argc, char *argv[]) {
@@ -41,7 +40,7 @@ int main(int argc, char *argv[]) {
     a.add<unsigned>("symmetry", 's', "symmetry", true);
     a.add<unsigned>("N", 'N', "N", true);
     a.add<string>("name", 'n', "name", true);
-    a.add<int>("channels", 'c', "c", false,3);
+    a.add<int>("channels", 'c', "c", false, 3);
     a.parse_check(argc, argv);
 
     unsigned height = a.get<unsigned>("height");
@@ -58,7 +57,7 @@ int main(int argc, char *argv[]) {
          << "name            : " << a.get<string>("name") << endl
          << "channels            : " << a.get<int>("channels") << endl;
 
-    single_run(height, width, symmetry, N, name,channels);
+    single_run(height, width, symmetry, N, name, channels);
     return 0;
 }
 

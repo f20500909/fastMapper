@@ -21,17 +21,9 @@ template<class T>
 class Data : public Base {
 public:
 
-    Data(const Options &op) : options(op), Base(op) {
-    }
+    Data(const Options &op) : options(op), Base(op) {}
 
-
-    /**
-    * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
-    * 将包含2d图案的id数组转换为像素数组
-    */
-    virtual Matrix<Cell> to_image(const Matrix<unsigned> &output_patterns) const ;
-
-    virtual void write_image_png(const std::string &file_path, const Matrix<Cell> &m) ;
+    virtual void showResult(Matrix<unsigned> mat);
 
     //每个维度的尺寸大小
     //图像是2维，三维物体是3维
