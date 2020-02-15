@@ -86,8 +86,11 @@ public:
     Base(const Options &op) : option(op), _direction(op.directionSize) {
     }
 
+    virtual void showResult(Matrix<unsigned> mat){
+        std::cout<<"err res.."<<std::endl;
+    };
+
     Direction _direction;
-    //svg解码器
 //    Svg _svg;
     const Options option;
 

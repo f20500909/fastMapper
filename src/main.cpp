@@ -23,12 +23,11 @@ void single_run(unsigned height, unsigned width, unsigned symmetry, unsigned N, 
 
     const Options options = {height, width, symmetry, N, name, image_path, directionSize, desired_channels};
 
-    Img<int>* imgData = new Img<int>(options);
-    Data<int>* data = static_cast<Data<int>*>(imgData);
+    Data<int>* data = new Img<int>(options);
     WFC wfc(data, options);
 
     wfc.run();
-//    delete data;
+    delete data;
 }
 
 int main(int argc, char *argv[]) {

@@ -100,11 +100,8 @@ public:
             if (result == success) {
                 Matrix<unsigned> res = wave_to_output();
 
-                data->showResult(res);
-//                Img<int>* t = static_cast<Img<int>*>(data);
-//                t->showResult(res);
-//                static_cast<Img<int>*>(data)->showResult(res);
-//                (Img<int>*)(data)->showResult(res);
+                Img<int>* t = (Img<int>*)(data);
+                t->showResult(res);
 
                 return;
             }

@@ -13,9 +13,6 @@ using namespace std;
 template<class T>
 class Img : public Data<T> {
 public:
-    Img() {
-        init();
-    }
 
     void init() {
         initDataWithImg();
@@ -25,11 +22,14 @@ public:
         generateCompatible();
     }
 
+
+
     Img(const Options &op) : Data<T>(op) {
+        init();
     }
 
     void initDataWithOpencv() {
-        Mat src = imread(options.image_path.c_str());
+        Mat src = imread(this->options.image_path.c_str());
         assert(!src.empty());
 
         int row = src.rows;
@@ -53,8 +53,8 @@ public:
         int width;
         int height;
         int num_components;
-        unsigned char *data = stbi_load(options.image_path.c_str(), &width, &height, &num_components,
-                                        options.desired_channels);
+        unsigned char *data = stbi_load(this->options.image_path.c_str(), &width, &height, &num_components,
+                                        this->options.desired_channels);
 
         this->_data = Matrix<Cell>(height, width);
         for (unsigned i = 0; i < (unsigned) height; i++) {
@@ -136,13 +136,13 @@ public:
 
     void initPatterns() noexcept {
         std::unordered_map<Matrix<Cell>, unsigned> patterns_id;
-        std::vector<Matrix<Cell>> symmetries(options.symmetry, Matrix<Cell>(options.N, options.N));
-        unsigned max_i = this->_data.height - options.N + 1;
-        unsigned max_j = this->_data.width - options.N + 1;
+        std::vector<Matrix<Cell>> symmetries(this->options.symmetry, Matrix<Cell>(this->options.N, this->options.N));
+        unsigned max_i = this->_data.height - this->options.N + 1;
+        unsigned max_j = this->_data.width - this->options.N + 1;
 
         for (unsigned i = 0; i < max_i; i++) {
             for (unsigned j = 0; j < max_j; j++) {
-                symmetries[0].data = this->_data.get_sub_array(i, j, options.N, options.N).data;
+                symmetries[0].data = this->_data.get_sub_array(i, j, this->options.N, this->options.N).data;
                 symmetries[1].data = symmetries[0].reflected().data;
                 symmetries[2].data = symmetries[0].rotated().data;
                 symmetries[3].data = symmetries[2].reflected().data;
@@ -151,7 +151,7 @@ public:
                 symmetries[6].data = symmetries[4].rotated().data;
                 symmetries[7].data = symmetries[6].reflected().data;
 
-                for (unsigned k = 0; k < options.symmetry; k++) {
+                for (unsigned k = 0; k < this->options.symmetry; k++) {
                     auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
                     if (!res.second) {
                         this->patterns_frequency[res.first->second] += 1;
@@ -169,51 +169,50 @@ public:
     * 将包含2d图案的id数组转换为像素数组
     */
     Matrix<Cell> to_image(const Matrix<unsigned> &output_patterns) const noexcept {
-        Matrix<Cell> output = Matrix<Cell>(options.out_height, options.out_width);
+        Matrix<Cell> output = Matrix<Cell>(this->options.out_height, this->options.out_width);
 
-        for (unsigned y = 0; y < options.wave_height; y++) {
-            for (unsigned x = 0; x < options.wave_width; x++) {
+        for (unsigned y = 0; y < this->options.wave_height; y++) {
+            for (unsigned x = 0; x < this->options.wave_width; x++) {
                 output.get(y, x) = this->patterns[output_patterns.get(y, x)].get(0, 0);
             }
         }
-        for (unsigned y = 0; y < options.wave_height; y++) {
+        for (unsigned y = 0; y < this->options.wave_height; y++) {
             const Matrix<Cell> &pattern =
-                    this->patterns[output_patterns.get(y, options.wave_width - 1)];
-            for (unsigned dx = 1; dx < options.N; dx++) {
-                output.get(y, options.wave_width - 1 + dx) = pattern.get(0, dx);
+                    this->patterns[output_patterns.get(y, this->options.wave_width - 1)];
+            for (unsigned dx = 1; dx < this->options.N; dx++) {
+                output.get(y, this->options.wave_width - 1 + dx) = pattern.get(0, dx);
             }
         }
-        for (unsigned x = 0; x < options.wave_width; x++) {
+        for (unsigned x = 0; x < this->options.wave_width; x++) {
             const Matrix<Cell> &pattern =
-                    this->patterns[output_patterns.get(options.wave_height - 1, x)];
-            for (unsigned dy = 1; dy < options.N; dy++) {
-                output.get(options.wave_height - 1 + dy, x) =
+                    this->patterns[output_patterns.get(this->options.wave_height - 1, x)];
+            for (unsigned dy = 1; dy < this->options.N; dy++) {
+                output.get(this->options.wave_height - 1 + dy, x) =
                         pattern.get(dy, 0);
             }
         }
         const Matrix<Cell> &pattern = this->patterns[output_patterns.get(
-                options.wave_height - 1, options.wave_width - 1)];
-        for (unsigned dy = 1; dy < options.N; dy++) {
-            for (unsigned dx = 1; dx < options.N; dx++) {
-                output.get(options.wave_height - 1 + dy,
-                           options.wave_width - 1 + dx) = pattern.get(dy, dx);
+                this->options.wave_height - 1, this->options.wave_width - 1)];
+        for (unsigned dy = 1; dy < this->options.N; dy++) {
+            for (unsigned dx = 1; dx < this->options.N; dx++) {
+                output.get(this->options.wave_height - 1 + dy,
+                           this->options.wave_width - 1 + dx) = pattern.get(dy, dx);
             }
         }
         return output;
     }
 
-    virtual void showResult(Matrix<unsigned> mat){
+    void showResult(Matrix<unsigned> mat){
         Matrix<Cell> res;
         res = to_image(mat);
         if (res.data.size() > 0) {
             write_image_png("results/done.jpg", res);
-            cout << options.name << " finished!" << endl;
+            cout << this->options.name << " finished!" << endl;
         } else {
             cout << "failed!" << endl;
         }
     };
 
-    Options options;
 };
 
 #endif // SRC_IMAGEMODEL_HPP
