@@ -19,7 +19,7 @@ enum ObserveStatus {
     to_continue // wfc没有完成
 };
 //具体的坐标值
-typedef std::vector<int> coordinate;
+typedef std::vector<int> coordinateState;
 
 //方向值
 typedef std::vector<int> point;

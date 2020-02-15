@@ -86,7 +86,7 @@ public:
               propagator(wave.height, wave.width, _data->propagator, options) {
     }
 
-    Data<int> *data;
+    Data<int>* data;
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
@@ -98,11 +98,7 @@ public:
             // 检查算法是否结束
             assert(result != failure);
             if (result == success) {
-                Matrix<unsigned> res = wave_to_output();
-
-                Img<int>* t = (Img<int>*)(data);
-                t->showResult(res);
-
+                data->showResult(wave_to_output());
                 return;
             }
             // 传递信息

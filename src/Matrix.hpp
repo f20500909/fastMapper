@@ -46,7 +46,6 @@ public:
     * i must be lower than height and j lower than width.
     */
     const T &get(unsigned i, unsigned j) const noexcept {
-
         assert(i < height && j < width);
         return data[j + i * width];
     }

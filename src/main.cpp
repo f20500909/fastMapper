@@ -5,7 +5,6 @@
 #include <unordered_set>
 
 #include "include/cmdline.h"
-#include "image.hpp"
 
 #include "Matrix.hpp"
 #include "wfc.hpp"

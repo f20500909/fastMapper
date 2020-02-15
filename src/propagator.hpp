@@ -122,7 +122,7 @@ public:
                 int x2 = static_cast<int>(x1) + dx;
                 int y2 = static_cast<int>(y1) + dy;
 
-                coordinate coor2 = {x2, y2};
+                coordinateState coor2 = {x2, y2};
 
                 if (!isVaildCoordinate(coor2)) {
                     continue;

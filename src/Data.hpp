@@ -24,7 +24,7 @@ public:
     Data(const Options &op) : options(op), Base(op) {}
 
     virtual void showResult(Matrix<unsigned> mat){
-        std::cout<<"err res.."<<std::endl;
+        std::cout<<"Data row func err res.."<<std::endl;
     };
     //每个维度的尺寸大小
     //图像是2维，三维物体是3维

@@ -94,7 +94,7 @@ public:
 //    Svg _svg;
     const Options option;
 
-    bool isVaildCoordinate(coordinate coor) {
+    bool isVaildCoordinate(coordinateState coor) {
         int x = coor[0];
         int y = coor[1];
         if (x < 0 || x >= (int) option.wave_width) {
