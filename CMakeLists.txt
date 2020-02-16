@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-project(demo_temp)
+project(fastMapper)
 
 set(CMAKE_CXX_STANDARD 17)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
@@ -30,6 +30,6 @@ include_directories(./src/include)
 
 aux_source_directory(SOURCE_FILES ./src)
 aux_source_directory(SOURCE_FILES_LIB  ./src/include)
-add_executable(demo_temp src/main.cpp ${SOURCE_FILES})
+add_executable(fastMapper src/main.cpp ${SOURCE_FILES})
 
-target_link_libraries(demo_temp ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(fastMapper ${OpenCV_LIBS} ${Boost_LIBRARIES})

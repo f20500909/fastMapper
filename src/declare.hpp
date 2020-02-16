@@ -3,9 +3,9 @@
 
 #include <string>
 #include <vector>
-#include<opencv2\opencv.hpp>
-#include<iostream>
-#include<math.h>
+#include <opencv2\opencv.hpp>
+#include <iostream>
+#include <math.h>
 
 using namespace cv;
 
@@ -38,38 +38,39 @@ constexpr unsigned get_opposite_direction(unsigned direction) noexcept {
 }
 
 struct Options {
+    std::string type;  // The height of the output in pixels.
+
     unsigned out_height;  // The height of the output in pixels.
     unsigned out_width;   // The width of the output in pixels.
     unsigned symmetry; // The number of symmetries (the order is defined in wfc).
     unsigned N; // The width and height in pixel of the patterns.
-    std::string name; // The width and height in pixel of the patterns.
-    std::string image_path; // The width and height in pixel of the patterns.
+    std::string input_data; // The width and height in pixel of the patterns.
+    std::string output_data; // The width and height in pixel of the patterns.
 
 
     unsigned wave_height;  // The height of the output in pixels.
 
     unsigned wave_width;   // The width of the output in pixels.
 
-    const int directionSize =4;
+    const int directionSize = 4;
     int desired_channels;
 
     Options() {
     }
 
-    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, std::string name,std::string image_path,const int _directionSize,int _desired_channels) :
+    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int _desired_channels,
+            std::string input_data, std::string output_data) :
             out_height(out_height),
             out_width(out_width),
             symmetry(symmetry),
             N(N),
-            name(name),
-            image_path(image_path),
-            wave_height(out_height-N+1),
+            input_data(input_data),
+            output_data(output_data),
+            wave_height(out_height - N + 1),
             wave_width(out_width - N + 1),
-            directionSize(_directionSize),
-            desired_channels(_desired_channels)
-            {
+            desired_channels(_desired_channels) {
 
-        }
+    }
 };
 
 
@@ -88,7 +89,6 @@ struct Entropy {
     std::vector<unsigned> nb_patterns_vec; // The number of patterns present
     std::vector<double> entropy;       // The entropy of the cell.
 };
-
 
 
 #endif

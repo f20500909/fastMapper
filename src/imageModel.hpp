@@ -1,11 +1,14 @@
 #ifndef SRC_IMAGEMODEL_HPP
 #define SRC_IMAGEMODEL_HPP
 #include <iostream>
-#include "Data.hpp"
-
 #include <vector>
 #include <string>
 #include <algorithm>
+
+#include "Data.hpp"
+
+#include "include/stb_image.h"
+#include "include/stb_image_write.h"
 
 
 using namespace std;
@@ -29,7 +32,7 @@ public:
     }
 
     void initDataWithOpencv() {
-        Mat src = imread(this->options.image_path.c_str());
+        Mat src = imread(this->options.input_data.c_str());
         assert(!src.empty());
 
         int row = src.rows;
@@ -53,7 +56,7 @@ public:
         int width;
         int height;
         int num_components;
-        unsigned char *data = stbi_load(this->options.image_path.c_str(), &width, &height, &num_components,
+        unsigned char *data = stbi_load(this->options.input_data.c_str(), &width, &height, &num_components,
                                         this->options.desired_channels);
 
         this->_data = Matrix<Cell>(height, width);
@@ -206,8 +209,8 @@ public:
         Matrix<Cell> res;
         res = to_image(mat);
         if (res.data.size() > 0) {
-            write_image_png("results/done.jpg", res);
-            cout << this->options.name << " finished!" << endl;
+            write_image_png(this->options.output_data, res);
+            cout <<" finished!" << endl;
         } else {
             cout << "failed!" << endl;
         }
