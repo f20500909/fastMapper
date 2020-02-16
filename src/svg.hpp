@@ -108,14 +108,42 @@ public:
 
     void initPatterns() {
         // 将图案插入到rtree中
-        unsigned curve_id = 0;
-        for (auto iter = m.cbegin(); iter != m.cend(); iter++, curve_id++) {
-            for (unsigned point_id = 0; point_id < iter->second.size(); point_id++) {
-                svgPoint tmp(iter->second[curve_id], curve_id, point_id, iter->first);
+        unsigned id = 0;
+        for (int i = 0; i < _data.size(); i++) {
+            for (unsigned j = 0; j < _data[i].size(); j++) {
+                svgPoint tmp(_data[i][j], i, j, id++);
                 spatialSvg.insert(tmp);
             }
         }
 
+        std::unordered_map<Matrix<unsigned>, unsigned> patterns_id;
+        std::vector<Matrix<unsigned>> symmetries(this->options.symmetry, Matrix<unsigned>(this->options.N, this->options.N));
+        unsigned max_i = this->_data.height - this->options.N + 1;
+        unsigned max_j = this->_data.width - this->options.N + 1;
+
+
+        for (unsigned i = 0; i < max_i; i++) {
+            for (unsigned j = 0; j < max_j; j++) {
+                symmetries[0].data = this->_data.get_sub_array(i, j, this->options.N, this->options.N).data;
+                symmetries[1].data = symmetries[0].reflected().data;
+                symmetries[2].data = symmetries[0].rotated().data;
+                symmetries[3].data = symmetries[2].reflected().data;
+                symmetries[4].data = symmetries[2].rotated().data;
+                symmetries[5].data = symmetries[4].reflected().data;
+                symmetries[6].data = symmetries[4].rotated().data;
+                symmetries[7].data = symmetries[6].reflected().data;
+
+                for (unsigned k = 0; k < this->options.symmetry; k++) {
+                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
+                    if (!res.second) {
+                        this->patterns_frequency[res.first->second] += 1;
+                    } else {
+                        this->patterns.push_back(symmetries[k]);
+                        this->patterns_frequency.push_back(1);
+                    }
+                }
+            }
+        }
     }
 
     void generateCompatible() {
@@ -148,7 +176,7 @@ public:
                             static_cast<float>(atof(vecSegTag[j + 1].c_str())));
                 singlePolylinePoint.push_back(tmp);
             }
-            m[i] = singlePolylinePoint;
+            _data.push_back(singlePolylinePoint);
         }
     }
 
@@ -170,7 +198,7 @@ public:
     }
 
 private:
-    std::unordered_map<int, vector<point2d>> m;
+    std::vector<vector<point2d>> _data; //原始的数据
     SpatialSvg spatialSvg;
 };
 

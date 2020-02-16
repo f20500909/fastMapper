@@ -210,6 +210,8 @@ public:
             cout << "failed!" << endl;
         }
     };
+    // 原始从输入文件读取得到的数据
+    Matrix<Cell> _data;
 
 };
 

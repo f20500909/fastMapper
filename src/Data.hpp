@@ -25,8 +25,7 @@ public:
     std::vector<double> patterns_frequency;
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;
 
-    // 原始从输入文件读取得到的数据
-    Matrix<Cell> _data;
+
 };
 
 #endif // SRC_DATA_HPP
