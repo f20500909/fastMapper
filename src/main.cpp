@@ -6,7 +6,6 @@
 
 #include "include/cmdline.h"
 
-#include "Matrix.hpp"
 #include "wfc.hpp"
 #include "svg.hpp"
 
@@ -16,15 +15,27 @@ using namespace std;
  * 数据输入模块，适配多种格式的数据
  */
 
-void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N ,int channels, string input_data,string output_data) {
+void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, string input_data,
+                string output_data, string type) {
     srand((unsigned) time(NULL));
 
-    const Options options = {out_height, out_width, symmetry, N,  channels, input_data, output_data};
+//    input_data = "./samples/ai/wh1.svg";
+    type = "svg";
+    type = "img";
+    const Options options = {out_height, out_width, symmetry, N, channels, input_data, output_data, type};
 
-    Data<int>* data = new Img<int>(options);
+    Data<int> *data;
+    if (options.type == "svg") {
+        std::cout<<"use svg modle "<<std::endl;
+//        data = new Svg<int>(options);
+    } else if (options.type=="img")  {
+        data = new Img<int>(options);
+    }else{
+        assert(!"type err...");
+    }
     WFC wfc(data, options);
-
     wfc.run();
+
     delete data;
 }
 
@@ -38,6 +49,7 @@ int main(int argc, char *argv[]) {
     a.add<int>("channels", 'c', "c", false, 3);
     a.add<string>("input_data", 'i', "input_data", true);
     a.add<string>("output_data", 'o', "output_data", true);
+    a.add<string>("type", 't', "type", true);
     a.parse_check(argc, argv);
 
     unsigned height = a.get<unsigned>("height");
@@ -47,16 +59,18 @@ int main(int argc, char *argv[]) {
     int channels = a.get<int>("channels");
     string input_data = a.get<std::string>("input_data");
     string output_data = a.get<std::string>("output_data");
+    string type = a.get<std::string>("type");
 
-    cout << "height          : " << a.get<unsigned>("height") << endl
-         << "width           : " << a.get<unsigned>("width") << endl
-         << "symmetry        : " << a.get<unsigned>("symmetry") << endl
-         << "N               : " << a.get<unsigned>("N") << endl
-         << "input_data            : " << a.get<string>("input_data") << endl
-            << "output_data            : " << a.get<string>("output_data") << endl
-         << "channels            : " << a.get<int>("channels") << endl;
+    cout << "height                   : " << a.get<unsigned>("height") << endl
+         << "width                    : " << a.get<unsigned>("width") << endl
+         << "symmetry                 : " << a.get<unsigned>("symmetry") << endl
+         << "N                        : " << a.get<unsigned>("N") << endl
+         << "channels                 : " << a.get<int>("channels") << endl
+         << "input_data               : " << a.get<string>("input_data") << endl
+         << "output_data              : " << a.get<string>("output_data") << endl
+         << "type                     : " << a.get<string>("type") << endl;
 
-    single_run(height, width, symmetry, N, channels, input_data, output_data);
+    single_run(height, width, symmetry, N, channels, input_data, output_data, type);
     return 0;
 }
 

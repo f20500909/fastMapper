@@ -51,9 +51,6 @@ public:
 	T &get(unsigned i, unsigned j, unsigned k) noexcept {
 		return data[i * width * depth + j * depth + k];
 	}
-
-
-
 };
 
 #endif // FAST_WFC_UTILS_ARRAY3D_HPP_

@@ -8,7 +8,6 @@
 #include <optional>
 
 #include "Data.hpp"
-#include "Matrix.hpp"
 #include "propagator.hpp"
 #include "wave.hpp"
 #include "declare.hpp"

@@ -1,17 +1,28 @@
 #ifndef SRC_SVG_HPP
 #define SRC_SVG_HPP
 
-class Svg {
-public:
-    Svg() {
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
 
+#include "Data.hpp"
+
+
+template<class T>
+class Svg : public Data<T> {
+public:
+    Svg(const Options op) : Data<T>(op) {
+        parseData();
+//        initPatterns();
+//        generateCompatible();
     }
+
 
     void parseData(string path) {
         auto tmp = get_svg_data(path);
         parseDataMap(tmp);
     }
-
 
     void parseDataMap(vector<string> strVector) {
         //截取到有效片段
@@ -55,13 +66,7 @@ public:
         return res;
     }
 
-
-
-
 private:
     std::unordered_map<int, vector<vector<float>>> m;
 };
-
-
-
 #endif //SRC_SVG_HPP

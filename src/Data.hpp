@@ -5,9 +5,6 @@
 #include <string>
 #include <algorithm>
 
-#include "Matrix.hpp"
-#include "color.hpp"
-#include "image.hpp"
 #include "declare.hpp"
 #include "direction.hpp"
 #include "base.hpp"
@@ -24,9 +21,6 @@ public:
         std::cout<<"Data row func err res.."<<std::endl;
     };
 
-
-    //每个维度的尺寸大小
-    //图像是2维，三维物体是3维
     std::vector<Matrix<Cell>> patterns;
     std::vector<double> patterns_frequency;
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;

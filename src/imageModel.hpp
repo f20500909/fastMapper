@@ -6,11 +6,6 @@
 #include <algorithm>
 
 #include "Data.hpp"
-
-#include "include/stb_image.h"
-#include "include/stb_image_write.h"
-
-
 using namespace std;
 
 template<class T>
@@ -57,7 +52,7 @@ public:
         int height;
         int num_components;
         unsigned char *data = stbi_load(this->options.input_data.c_str(), &width, &height, &num_components,
-                                        this->options.desired_channels);
+                                        this->options.channels);
 
         this->_data = Matrix<Cell>(height, width);
         for (unsigned i = 0; i < (unsigned) height; i++) {

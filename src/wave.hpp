@@ -1,7 +1,6 @@
 #ifndef FAST_WFC_WAVE_HPP_
 #define FAST_WFC_WAVE_HPP_
 
-#include "Matrix.hpp"
 #include <iostream>
 #include <limits>
 #include <math.h>
