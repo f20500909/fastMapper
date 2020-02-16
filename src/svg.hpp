@@ -116,6 +116,7 @@ public:
             }
         }
 
+        // 获取一个点临近的点位，点位附近的最近点做为特征图案
         std::unordered_map<Matrix<unsigned>, unsigned> patterns_id;
         std::vector<Matrix<unsigned>> symmetries(this->options.symmetry, Matrix<unsigned>(this->options.N, this->options.N));
         unsigned max_i = this->_data.height - this->options.N + 1;
