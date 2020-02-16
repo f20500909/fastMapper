@@ -19,15 +19,14 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
                 string output_data, string type) {
     srand((unsigned) time(NULL));
 
-//    input_data = "./samples/ai/wh1.svg";
+    input_data = "./samples/ai/wh1.svg";
     type = "svg";
-    type = "img";
     const Options options = {out_height, out_width, symmetry, N, channels, input_data, output_data, type};
 
     Data<int> *data;
     if (options.type == "svg") {
         std::cout<<"use svg modle "<<std::endl;
-//        data = new Svg<int>(options);
+        data = new Svg<int>(options);
     } else if (options.type=="img")  {
         data = new Img<int>(options);
     }else{
