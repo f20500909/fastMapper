@@ -19,8 +19,8 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
                 string output_data, string type) {
     srand((unsigned) time(NULL));
 
-    input_data = "./samples/ai/wh1.svg";
-    type = "svg";
+//    input_data = "./samples/ai/wh1.svg";
+//    type = "svg";
     const Options options = {out_height, out_width, symmetry, N, channels, input_data, output_data, type};
 
     Data<int> *data;
@@ -39,7 +39,7 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
 }
 
 int main(int argc, char *argv[]) {
-//    -h 40 -w 40 -s 8  -N 2 -n City.png
+//    -h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./results/done.jpg
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);
     a.add<unsigned>("width", 'w', "width", true);

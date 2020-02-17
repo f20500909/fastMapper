@@ -85,7 +85,7 @@ public:
               propagator(wave.height, wave.width, _data->propagator, options) {
     }
 
-    Data<int>* data;
+    Data<int> *data;
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
