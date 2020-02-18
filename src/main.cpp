@@ -39,7 +39,7 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
 }
 
 int main(int argc, char *argv[]) {
-//    -h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./results/done.jpg
+//   -h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./res/done.jpg  -t img
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);
     a.add<unsigned>("width", 'w', "width", true);
