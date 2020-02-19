@@ -82,9 +82,6 @@ public:
 //        return res;
 //    }
 
-    std::vector<svgPoint> getPattern(point2d &p) {
-    }
-
 
     int getCount() {
         return count;
@@ -102,8 +99,8 @@ public:
 
     Svg(const Options op) : Data<T>(op) {
         parseData();
-        initPatterns();
-        generateCompatible();
+//        initPatterns();
+//        generateCompatible();
     }
 
     void initPatterns() {
@@ -116,35 +113,35 @@ public:
             }
         }
 
-        // 获取一个点临近的点位，点位附近的最近点做为特征图案
-        std::unordered_map<Matrix<unsigned>, unsigned> patterns_id;
-        std::vector<Matrix<unsigned>> symmetries(this->options.symmetry, Matrix<unsigned>(this->options.N, this->options.N));
-        unsigned max_i = this->_data.height - this->options.N + 1;
-        unsigned max_j = this->_data.width - this->options.N + 1;
-
-
-        for (unsigned i = 0; i < max_i; i++) {
-            for (unsigned j = 0; j < max_j; j++) {
-                symmetries[0].data = this->_data.get_sub_array(i, j, this->options.N, this->options.N).data;
-                symmetries[1].data = symmetries[0].reflected().data;
-                symmetries[2].data = symmetries[0].rotated().data;
-                symmetries[3].data = symmetries[2].reflected().data;
-                symmetries[4].data = symmetries[2].rotated().data;
-                symmetries[5].data = symmetries[4].reflected().data;
-                symmetries[6].data = symmetries[4].rotated().data;
-                symmetries[7].data = symmetries[6].reflected().data;
-
-                for (unsigned k = 0; k < this->options.symmetry; k++) {
-                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
-                    if (!res.second) {
-                        this->patterns_frequency[res.first->second] += 1;
-                    } else {
-                        this->patterns.push_back(symmetries[k]);
-                        this->patterns_frequency.push_back(1);
-                    }
-                }
-            }
-        }
+//        // 获取一个点临近的点位，点位附近的最近点做为特征图案
+//        std::unordered_map<Matrix<unsigned>, unsigned> patterns_id;
+//        std::vector<Matrix<unsigned>> symmetries(this->options.symmetry, Matrix<unsigned>(this->options.N, this->options.N));
+//        unsigned max_i = this->_data.height - this->options.N + 1;
+//        unsigned max_j = this->_data.width - this->options.N + 1;
+//
+//
+//        for (unsigned i = 0; i < max_i; i++) {
+//            for (unsigned j = 0; j < max_j; j++) {
+//                symmetries[0].data = this->_data.get_sub_array(i, j, this->options.N, this->options.N).data;
+//                symmetries[1].data = symmetries[0].reflected().data;
+//                symmetries[2].data = symmetries[0].rotated().data;
+//                symmetries[3].data = symmetries[2].reflected().data;
+//                symmetries[4].data = symmetries[2].rotated().data;
+//                symmetries[5].data = symmetries[4].reflected().data;
+//                symmetries[6].data = symmetries[4].rotated().data;
+//                symmetries[7].data = symmetries[6].reflected().data;
+//
+//                for (unsigned k = 0; k < this->options.symmetry; k++) {
+//                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
+//                    if (!res.second) {
+//                        this->patterns_frequency[res.first->second] += 1;
+//                    } else {
+//                        this->patterns.push_back(symmetries[k]);
+//                        this->patterns_frequency.push_back(1);
+//                    }
+//                }
+//            }
+//        }
     }
 
     void generateCompatible() {
