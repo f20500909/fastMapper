@@ -103,18 +103,15 @@ public:
      * 核心部分，进行传递
      */
     void propagate(Wave &wave) noexcept {
-
-        // We propagate every element while there is element to propagate.
+        //从最后一个传播状态开始传播,没传播成功一次，就移除一次，直到传播列表为空
         while (propagating.size() != 0) {
-
             // The cell and pattern that has been set to false.
             unsigned y1, x1, pattern;
             std::tie(y1, x1, pattern) = propagating.back();
             propagating.pop_back();
 
-//            对图案的四个方向进进行传播
+            //对图案的四个方向进进行传播
             for (unsigned directionId = 0; directionId < directionNumbers; directionId++) {
-                // We get the next cell in the directionId directionId.
                 point po = _direction.getPoint(directionId);
                 int dx = po[0];
                 int dy = po[1];
@@ -135,15 +132,15 @@ public:
                 // For every pattern that could be placed in that cell without being in
                 // contradiction with pattern1
                 for (auto it = patterns.begin(), it_end = patterns.end(); it < it_end; ++it) {
-
                     // We decrease the number of compatible patterns in the opposite
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
                     std::array<int, directionNumbers> &value = compatible.get(y2, x2, *it);
+                    //方向自减
                     value[directionId]--;
 
-                    // If the element was set to 0 with this operation, we need to remove
-                    // the pattern from the wave, and propagate the information
+                    //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
+                    //并且将此wave的传播状态设置为不需要传播
                     if (value[directionId] == 0) {
                         add_to_propagator(y2, x2, *it);
                         wave.set(i2, *it, false);
