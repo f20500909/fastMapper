@@ -51,6 +51,14 @@ public:
 	T &get(unsigned i, unsigned j, unsigned k) noexcept {
 		return data[i * width * depth + j * depth + k];
 	}
+
+
+    T &get(coordinateState coor, unsigned k) noexcept {
+        int dx = coor[0];
+        int dy = coor[1];
+        return data[dy * width * depth + dx * depth + k];
+    }
+
 };
 
 #endif // FAST_WFC_UTILS_ARRAY3D_HPP_

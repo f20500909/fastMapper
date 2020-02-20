@@ -91,7 +91,6 @@ public:
     void run() noexcept {
 
         while (true) {
-            // Define the value of an undefined cell.
             // 定义未定义的网格值
             ObserveStatus result = observe();
             // 检查算法是否结束

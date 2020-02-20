@@ -98,17 +98,26 @@ public:
         propagating.emplace_back(y, x, pattern);
     }
 
-    /**
-     * Propagate the information given with add_to_propagator.
-     * 核心部分，进行传递
-     */
+
+    void add_to_propagator(coordinateState coor, unsigned pattern) noexcept {
+        // All the direction are set to 0, since the pattern cannot be set in (y,x).
+        std::array<int, directionNumbers> temp = {};
+        int x = coor[0];
+        int y = coor[1];
+        compatible.get(y, x, pattern) = temp;
+        propagating.emplace_back(y, x, pattern);
+    }
+
+     // 核心部分，进行传递
     void propagate(Wave &wave) noexcept {
         //从最后一个传播状态开始传播,没传播成功一次，就移除一次，直到传播列表为空
-        while (propagating.size() != 0) {
+        while (!propagating.empty()) {
             // The cell and pattern that has been set to false.
             unsigned y1, x1, pattern;
             std::tie(y1, x1, pattern) = propagating.back();
             propagating.pop_back();
+
+            coordinateState coor1 = {static_cast<int>(x1), static_cast<int>(y1)};
 
             //对图案的四个方向进进行传播
             for (unsigned directionId = 0; directionId < directionNumbers; directionId++) {
@@ -135,14 +144,16 @@ public:
                     // We decrease the number of compatible patterns in the opposite
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
-                    std::array<int, directionNumbers> &value = compatible.get(y2, x2, *it);
+//                    std::array<int, directionNumbers> &value = compatible.get(y2, x2, *it);
+                    std::array<int, directionNumbers> &value = compatible.get(coor2, *it);
                     //方向自减
                     value[directionId]--;
 
                     //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
                     //并且将此wave的传播状态设置为不需要传播
                     if (value[directionId] == 0) {
-                        add_to_propagator(y2, x2, *it);
+//                        add_to_propagator(y2, x2, *it);
+                        add_to_propagator(coor2, *it);
                         wave.set(i2, *it, false);
                     }
                 }
