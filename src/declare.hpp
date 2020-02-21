@@ -23,8 +23,29 @@ enum ObserveStatus {
     to_continue // wfc没有完成
 };
 
-//具体的坐标值
-typedef std::vector<int> coordinateState;
+
+class CoordinateState {
+public:
+    CoordinateState(int x, int y) : x(x), y(y) {
+    }
+
+    CoordinateState operator+(const CoordinateState &coor) {
+        CoordinateState res(coor);
+        res.x += coor.x;
+        res.y += coor.y;
+        return res;
+    }
+
+    CoordinateState operator-(const CoordinateState &coor) {
+        CoordinateState res(coor);
+        res.x -= coor.x;
+        res.y -= coor.y;
+        return res;
+    }
+
+    int x;
+    int y;
+};
 
 //方向值
 typedef std::vector<int> point;

@@ -99,11 +99,11 @@ public:
     }
 
 
-    void add_to_propagator(coordinateState coor, unsigned pattern) noexcept {
+    void add_to_propagator(CoordinateState coor, unsigned pattern) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
         std::array<int, directionNumbers> temp = {};
-        int x = coor[0];
-        int y = coor[1];
+        int x = coor.x;
+        int y = coor.y;
         compatible.get(y, x, pattern) = temp;
         propagating.emplace_back(y, x, pattern);
     }
@@ -117,7 +117,7 @@ public:
             std::tie(y1, x1, pattern) = propagating.back();
             propagating.pop_back();
 
-            coordinateState coor1 = {static_cast<int>(x1), static_cast<int>(y1)};
+            CoordinateState coor1 (static_cast<int>(x1), static_cast<int>(y1));
 
             //对图案的四个方向进进行传播
             for (unsigned directionId = 0; directionId < directionNumbers; directionId++) {
@@ -128,7 +128,7 @@ public:
                 int x2 = static_cast<int>(x1) + dx;
                 int y2 = static_cast<int>(y1) + dy;
 
-                coordinateState coor2 = {x2, y2};
+                CoordinateState coor2 (x2, y2);
 
                 if (!isVaildCoordinate(coor2)) {
                     continue;

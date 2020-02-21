@@ -23,9 +23,9 @@ public:
     Direction _direction;
     const Options options;
 
-    bool isVaildCoordinate(coordinateState coor) {
-        int x = coor[0];
-        int y = coor[1];
+    bool isVaildCoordinate(CoordinateState coor) {
+        int x = coor.x;
+        int y = coor.y;
         if (x < 0 || x >= (int) this->options.wave_width) {
             return false;
         }

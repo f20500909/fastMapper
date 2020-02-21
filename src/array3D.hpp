@@ -53,9 +53,9 @@ public:
 	}
 
 
-    T &get(coordinateState coor, unsigned k) noexcept {
-        int dx = coor[0];
-        int dy = coor[1];
+    T &get(CoordinateState coor, unsigned k) noexcept {
+        int dx = coor.x;
+        int dy = coor.y;
         return data[dy * width * depth + dx * depth + k];
     }
 
