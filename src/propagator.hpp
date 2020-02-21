@@ -73,14 +73,16 @@ private:
         }
     }
 
+    Data<int> *data;
+
 public:
 
     /**
      * Constructor building the propagator and initializing compatible.
      */
-    Propagator(PropagatorState propagator_state, const Options &op) noexcept
-            : patterns_size(propagator_state.size()), propagator_state(propagator_state),
-              compatible(options.wave_height, options.wave_width, patterns_size), Base(op) {
+    Propagator(Data<int> *data) noexcept
+            : patterns_size(data->propagator.size()), propagator_state(data->propagator),
+              compatible(options.wave_height, options.wave_width, patterns_size), Base(data->options) {
         init_compatible();
     }
 
@@ -120,7 +122,7 @@ public:
             for (unsigned directionId = 0; directionId < directionNumbers; directionId++) {
                 Direction po = _direction.getPoint(directionId);
 
-                CoordinateState coor2 = coor1.nextDirection(po);
+                CoordinateState coor2 = coor1.getNextDirection(po);
 
                 if (!isVaildCoordinate(coor2)) {
                     continue;

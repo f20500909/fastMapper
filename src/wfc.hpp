@@ -77,7 +77,7 @@ public:
             : data(data), options(options), patterns(data->patterns), gen(rand()),
               wave(options, data),
               nb_patterns(data->propagator.size()),
-              propagator(data->propagator, options) {
+              propagator(data) {
     }
 
     Data<int> *data;

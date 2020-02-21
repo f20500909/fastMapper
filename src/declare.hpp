@@ -46,7 +46,7 @@ public:
     CoordinateState(unsigned x, unsigned y) : x(static_cast<int>(x)), y(static_cast<int>(y)) {
     }
 
-    CoordinateState nextDirection(const Direction &direction) {
+    CoordinateState getNextDirection(const Direction &direction) {
         CoordinateState res(*this);
         res.x += direction.x;
         res.y += direction.y;
