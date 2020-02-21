@@ -37,11 +37,6 @@ private:
      */
     Wave wave;
 
-    /**
-     * The distribution of the patterns as given in input.
-     * 输入中给的分布模式
-     */
-    const std::vector<double> patterns_frequency;
 
     /**
      * The number of distinct patterns.
@@ -80,8 +75,8 @@ public:
      */
     WFC(Data<int> *data, const Options &options) noexcept
             : data(data), options(options), patterns(data->patterns), gen(rand()),
-              wave(options, data->patterns_frequency),
-              patterns_frequency(data->patterns_frequency), nb_patterns(data->propagator.size()),
+              wave(options, data),
+              nb_patterns(data->propagator.size()),
               propagator(data->propagator, options) {
     }
 
@@ -125,7 +120,7 @@ public:
         // 根据分布结构选择一个元素
         double s = 0;
         for (unsigned k = 0; k < nb_patterns; k++) {
-            s += wave.get(argmin, k) ? patterns_frequency[k] : 0;
+            s += wave.get(argmin, k) ? data->patterns_frequency[k] : 0;
         }
 
         std::uniform_real_distribution<> dis(0, s);
@@ -134,7 +129,7 @@ public:
 
         //小于0时中断
         for (unsigned k = 0; k < nb_patterns; k++) {
-            random_value -= wave.get(argmin, k) ? patterns_frequency[k] : 0;
+            random_value -= wave.get(argmin, k) ? data->patterns_frequency[k] : 0;
             if (random_value <= 0) {
                 chosen_value = k;
                 break;

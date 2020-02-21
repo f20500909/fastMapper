@@ -17,11 +17,7 @@
 
 class Wave : public Base {
 private:
-    /**
-    * The patterns frequencies p given to wfc.
-    * 图案概率p
-    */
-    const std::vector<double> patterns_frequency;
+
 
     /**
     * The precomputation of p * log(p).
@@ -48,10 +44,12 @@ private:
     const unsigned nb_patterns;
 
     /**
-    * The actual wave. data.get(index, pattern) is equal to 0 if the pattern can
+    * The actual wave. mat.get(index, pattern) is equal to 0 if the pattern can
     * be placed in the cell index.
     */
-    Matrix<uint8_t> data;
+    Matrix<uint8_t> mat;
+
+    Data<int> *data;
 
     /**
     * Return distribution * log(distribution).
@@ -89,11 +87,11 @@ public:
     * Initialize the wave with every cell being able to have every pattern.
     * 初始化wave中每个cell
     */
-    Wave(Options op, const std::vector<double> &patterns_frequency) noexcept
-            : patterns_frequency(patterns_frequency), plogp_patterns_frequency(get_plogp(patterns_frequency)),
+    Wave(Options op, Data<int> *data) noexcept
+            : plogp_patterns_frequency(get_plogp(data->patterns_frequency)),
               half_min_plogp(get_half_min(plogp_patterns_frequency)), is_impossible(false),
-              nb_patterns(patterns_frequency.size()), data(op.wave_width * op.wave_height, nb_patterns, 1),
-              size(options.wave_height * options.wave_width), Base(op) {
+              nb_patterns(data->patterns_frequency.size()), mat(op.wave_width * op.wave_height, nb_patterns, 1),
+              size(options.wave_height * options.wave_width), Base(op), data(data) {
 
         double base_entropy = 0;
         double base_s = 0;
@@ -102,7 +100,7 @@ public:
         for (unsigned i = 0; i < nb_patterns; i++) {
             half_min_plogp = std::min(half_min_plogp, plogp_patterns_frequency[i] / 2.0);
             base_entropy += plogp_patterns_frequency[i];// plogp 的和
-            base_s += patterns_frequency[i];// 频率的和
+            base_s += data->patterns_frequency[i];// 频率的和
         }
         double log_base_s = log(base_s);
         double entropy_base = log_base_s - base_entropy / base_s;
@@ -119,7 +117,7 @@ public:
     * 返回true如果图案能放入cell
     */
     bool get(unsigned index, unsigned pattern) const noexcept {
-        return data.get(index, pattern);
+        return mat.get(index, pattern);
     }
 
     /**
@@ -135,14 +133,14 @@ public:
     * 设置图案在cell索引中的值
     */
     void set(unsigned index, unsigned pattern, bool value) noexcept {
-        bool old_value = data.get(index, pattern);
+        bool old_value = mat.get(index, pattern);
         // If the value isn't changed, nothing needs to be done.
         if (old_value == value) return;
 
         // Otherwise, the memoisation should be updated.
-        data.get(index, pattern) = value;
+        mat.get(index, pattern) = value;
         plogp_sum[index] -= plogp_patterns_frequency[pattern];
-        sum[index] -= patterns_frequency[pattern];
+        sum[index] -= data->patterns_frequency[pattern];
         log_sum[index] = log(sum[index]);
         nb_patterns_vec[index]--;
         entropy_vec[index] = log_sum[index] - plogp_sum[index] / sum[index];
