@@ -85,6 +85,8 @@ public:
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
 
+
+
         while (true) {
             // 定义未定义的网格值
             ObserveStatus result = observe();

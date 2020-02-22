@@ -6,9 +6,13 @@
 #include <opencv2\opencv.hpp>
 #include <iostream>
 #include <math.h>
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #include "include/stb_image.h"
+
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+
 #include "include/stb_image_write.h"
 
 using namespace cv;
@@ -82,7 +86,7 @@ public:
  * Return the opposite direction of direction.
  */
 constexpr unsigned get_opposite_direction(unsigned direction) noexcept {
-    return directionNumbers-1 - direction;
+    return directionNumbers - 1 - direction;
 }
 
 struct Options {
@@ -139,13 +143,13 @@ struct Entropy {
 */
 class Cell {
 public:
-    Cell(){
+    Cell() {
         data[0] = 0;
         data[1] = 0;
         data[2] = 0;
     }
 
-    Cell(unsigned char r,unsigned char g,unsigned char b) {
+    Cell(unsigned char r, unsigned char g, unsigned char b) {
         data[0] = r;
         data[1] = g;
         data[2] = b;
@@ -211,9 +215,9 @@ public:
     }
 
     const T &getByPoint(Direction op) const noexcept {
-        unsigned  i=op.x;
-        unsigned  j=op.y;
-        return data[j+i*width];
+        unsigned i = op.x;
+        unsigned j = op.y;
+        return data[j + i * width];
     }
 
     /**
@@ -304,23 +308,30 @@ namespace std {
     class hash<Cell> {
     public:
         size_t operator()(const Cell &c) const {
-            return (size_t) c.data[0] + (size_t) 256 * (size_t) c.data[1] +
-                                                                (size_t) 256 * (size_t) 256 * (size_t) c.data[2];
+            return (size_t)
+            c.data[0] + (size_t)
+            256 * (size_t)
+            c.data[1] +
+            (size_t)
+            256 * (size_t)
+            256 * (size_t)
+            c.data[2];
         }
     };
 
     template<typename T>
     class hash<Matrix<T>> {
     public:
-    size_t operator()(const Matrix<T> &a) const noexcept {
-        std::size_t seed = a.data.size();
-        for (const T &i : a.data) {
-            seed ^= hash<T>()(i) + (size_t) 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        size_t operator()(const Matrix<T> &a) const noexcept {
+            std::size_t seed = a.data.size();
+            for (const T &i : a.data) {
+                seed ^= hash<T>()(i) + (size_t)
+                0x9e3779b9 + (seed << 6) + (seed >> 2);
+            }
+            return seed;
         }
-        return seed;
-    }
-};
-}
+    };
 
+}
 
 #endif

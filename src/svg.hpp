@@ -18,6 +18,25 @@ typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> 
 //                            curve_id   point_id   id
 typedef std::tuple<point2d, unsigned, unsigned, unsigned> svgPoint;
 
+//特征单元 波函数塌陷的最小计算单元
+class Feature {
+public:
+    Feature() {
+    }
+
+    //得到镜像图形
+    Feature reflected() {
+        return *this;
+    }
+
+    //得到旋转后的图形
+    Feature rotated() {
+        return *this;
+    }
+
+    std::vector<svgPoint> data;
+};
+
 //尽量用唯一id来遍历
 class SpatialSvg {
 public:
@@ -77,10 +96,24 @@ public:
 //        std::vector<svgPoint> res;
 //
 //        auto _rule = [&](svgPoint &v) { return boost::geometry::distance(getPoint(v), p) < distance; };
-//
 //        rtree.query(boost::geometry::index::satisfies(_rule), std::back_inserter(res));
 //        return res;
 //    }
+
+
+//    Feature getSubFeature(unsigned id){
+//
+//    }
+
+
+    Feature getSubFeature(point2d po) {
+        Feature res;
+        auto _rule = [&](svgPoint const &v) {
+            return boost::geometry::distance(getPoint(v), po) < distanceThreshold;
+        };
+        rtree.query(boost::geometry::index::satisfies(_rule), std::back_inserter(res.data));
+        return res;
+    }
 
 
     int getCount() {
@@ -99,30 +132,59 @@ public:
 
     Svg(const Options op) : Data<T>(op) {
         parseData();
-//        initPatterns();
+        initPatterns();
 //        generateCompatible();
     }
 
     void initPatterns() {
         // 将图案插入到rtree中
         unsigned id = 0;
-        for (int i = 0; i < _data.size(); i++) {
-            for (unsigned j = 0; j < _data[i].size(); j++) {
-                svgPoint tmp(_data[i][j], i, j, id++);
+        for (int i = 0; i < data.size(); i++) {
+            for (unsigned j = 0; j < data[i].size(); j++) {
+                svgPoint tmp(data[i][j], i, j, id++);
                 spatialSvg.insert(tmp);
             }
         }
 
-//        // 获取一个点临近的点位，点位附近的最近点做为特征图案
-//        std::unordered_map<Matrix<unsigned>, unsigned> patterns_id;
-//        std::vector<Matrix<unsigned>> symmetries(this->options.symmetry, Matrix<unsigned>(this->options.N, this->options.N));
-//        unsigned max_i = this->_data.height - this->options.N + 1;
-//        unsigned max_j = this->_data.width - this->options.N + 1;
+        // 获取一个点临近的点位，点位附近的最近点做为特征图案
+        std::unordered_map<Feature, unsigned> patterns_id;
+        std::vector<Feature> symmetries(this->options.symmetry);
+
+        for (int i = 0; i < data.size(); i++) {
+            for (unsigned j = 0; j < data[i].size(); j++) {
+                symmetries[0] = spatialSvg.getSubFeature(data[i, j]);
+                symmetries[1] = symmetries[0].reflected();
+                symmetries[2] = symmetries[0].rotated();
+                symmetries[3] = symmetries[2].reflected();
+                symmetries[4] = symmetries[2].rotated();
+                symmetries[5] = symmetries[4].reflected();
+                symmetries[6] = symmetries[4].rotated();
+                symmetries[7] = symmetries[6].reflected();
+
+                for (unsigned k = 0; k < this->options.symmetry; k++) {
+                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
+                    if (!res.second) {
+                        this->patterns_frequency[res.first->second] += 1;
+                    } else {
+                        this->patterns.push_back(symmetries[k]);
+                        this->patterns_frequency.push_back(1);
+                    }
+                }
+
+            }
+        }
+
+//        对svg上的每个点
+//        for (auto it = spatialSvg.rtree.begin(); it != spatialSvg.rtree.end(); ++it) {
+//            //生成一个子图案
+//            svgPoint temp = *it;
 //
-//
+//            //对图案进行镜像 旋转变换 得到特征单元
+//        }
+
 //        for (unsigned i = 0; i < max_i; i++) {
 //            for (unsigned j = 0; j < max_j; j++) {
-//                symmetries[0].data = this->_data.get_sub_array(i, j, this->options.N, this->options.N).data;
+//                symmetries[0].data = this->data.get_sub_array(i, j, this->options.N, this->options.N).data;
 //                symmetries[1].data = symmetries[0].reflected().data;
 //                symmetries[2].data = symmetries[0].rotated().data;
 //                symmetries[3].data = symmetries[2].reflected().data;
@@ -131,15 +193,15 @@ public:
 //                symmetries[6].data = symmetries[4].rotated().data;
 //                symmetries[7].data = symmetries[6].reflected().data;
 //
-//                for (unsigned k = 0; k < this->options.symmetry; k++) {
-//                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
-//                    if (!res.second) {
-//                        this->patterns_frequency[res.first->second] += 1;
-//                    } else {
-//                        this->patterns.push_back(symmetries[k]);
-//                        this->patterns_frequency.push_back(1);
-//                    }
-//                }
+                for (unsigned k = 0; k < this->options.symmetry; k++) {
+                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
+                    if (!res.second) {
+                        this->patterns_frequency[res.first->second] += 1;
+                    } else {
+                        this->patterns.push_back(symmetries[k]);
+                        this->patterns_frequency.push_back(1);
+                    }
+                }
 //            }
 //        }
     }
@@ -165,6 +227,7 @@ public:
         for (int i = 0; i < strVector.size(); i++) {
             std::vector<std::string> vecSegTag;
             vector<point2d> singlePolylinePoint;
+            unsigned lenSum = 0;
 
             std::string &singlePolylineStr = strVector[i];
             boost::split(vecSegTag, singlePolylineStr, boost::is_any_of((" ,")));
@@ -174,7 +237,9 @@ public:
                             static_cast<float>(atof(vecSegTag[j + 1].c_str())));
                 singlePolylinePoint.push_back(tmp);
             }
-            _data.push_back(singlePolylinePoint);
+            lenSum += singlePolylinePoint.size();
+            len.push_back(lenSum);
+            data.push_back(singlePolylinePoint);
         }
     }
 
@@ -196,8 +261,10 @@ public:
     }
 
 private:
-    std::vector<vector<point2d>> _data; //原始的数据
-    SpatialSvg spatialSvg;
+    std::vector<vector<point2d>> data;      //原始的数据
+    std::vector<unsigned> len;        //累计的长度列表
+    SpatialSvg spatialSvg;                  //封裝好的rtree  svg接口
+    unsigned limit;                         //限制距离
 };
 
 #endif //SRC_SVG_HPP

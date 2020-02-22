@@ -1,3 +1,6 @@
+#ifndef SRC_FASTMAPPER_HPP
+#define SRC_FASTMAPPER_HPP
+
 #include <iostream>
 #include <random>
 #include <string>
@@ -12,15 +15,14 @@
 using namespace std;
 
 /* TODO shell脚本批量生成
- * 数据输入模块，适配多种格式的数据
- */
+* 数据输入模块，适配多种格式的数据
+*/
 
-void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, string input_data,
-                string output_data, string type) {
+void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, string input_data, string output_data, string type) {
     srand((unsigned) time(NULL));
 
-//    input_data = "./samples/ai/wh1.svg";
-//    type = "svg";
+    input_data = "./samples/ai/wh1.svg";
+    type = "svg";
     const Options options = {out_height, out_width, symmetry, N, channels, input_data, output_data, type};
 
     Data<int> *data;
@@ -32,14 +34,18 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
     }else{
         assert(!"type err...");
     }
+
     WFC wfc(data, options);
     wfc.run();
-
     delete data;
 }
-
 int main(int argc, char *argv[]) {
-//   -h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./res/done.jpg  -t img
+/*
+
+-h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./res/done.jpg  -t img
+-h 40 -w 40 -s 8  -N 2 -i ../samples/City.png -o ../res/done.jpg  -t svg
+
+*/
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);
     a.add<unsigned>("width", 'w', "width", true);
@@ -73,4 +79,4 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-
+#endif // SRC_FASTMAPPER_HPP

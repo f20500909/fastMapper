@@ -20,16 +20,21 @@ find_package(Boost)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-
-link_directories(./src/lib)
-link_directories(./src/bin)
-
-
 include_directories(./src)
 include_directories(./src/include)
 
 aux_source_directory(SOURCE_FILES ./src)
 aux_source_directory(SOURCE_FILES_LIB  ./src/include)
-add_executable(fastMapper src/main.cpp ${SOURCE_FILES})
 
-target_link_libraries(fastMapper ${OpenCV_LIBS} ${Boost_LIBRARIES})
+file(GLOB CPP_SRC_LIST ${CMAKE_CURRENT_LIST_DIR}/src/*.[c|h]pp)
+
+SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/output)
+SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/output)
+SET(LIB_SRC ${SOURCE_FILES} ${CPP_SRC_LIST})
+
+add_executable(main  ${CPP_SRC_LIST})
+#ADD_LIBRARY(fastMapperLIb SHARED  ${CPP_SRC_LIST})
+
+#link_directories(./output)
+#add_executable(runExe src/run.cpp)
+#TARGET_LINK_LIBRARIES(runExe libfastMapperLIb.dll)
