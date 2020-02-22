@@ -23,11 +23,36 @@ enum ObserveStatus {
     to_continue // wfc没有完成
 };
 
+//方向值
+class Direction {
+public:
+    Direction(int x, int y) : x(x), y(y) {
+    }
+
+    Direction(unsigned x, unsigned y) : x(static_cast<int>(x)), y(static_cast<int>(y)) {
+    }
+
+
+    int x;
+    int y;
+};
+
 
 class CoordinateState {
 public:
     CoordinateState(int x, int y) : x(x), y(y) {
     }
+
+    CoordinateState(unsigned x, unsigned y) : x(static_cast<int>(x)), y(static_cast<int>(y)) {
+    }
+
+    CoordinateState nextDirection(const Direction &direction) {
+        CoordinateState res(*this);
+        res.x += direction.x;
+        res.y += direction.y;
+        return res;
+    }
+
 
     CoordinateState operator+(const CoordinateState &coor) {
         CoordinateState res(coor);
@@ -46,9 +71,6 @@ public:
     int x;
     int y;
 };
-
-//方向值
-typedef std::vector<int> point;
 
 /**
  * A direction is represented by an unsigned integer in the range [0; 3].
@@ -190,9 +212,9 @@ public:
         return data[j + i * width];
     }
 
-    const T &getByPoint(point op) const noexcept {
-        unsigned  i=op[0];
-        unsigned  j=op[1];
+    const T &getByPoint(Direction op) const noexcept {
+        unsigned  i=op.x;
+        unsigned  j=op.y;
         return data[j+i*width];
     }
 

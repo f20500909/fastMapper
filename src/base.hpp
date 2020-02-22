@@ -20,7 +20,7 @@ public:
         std::cout << "err res.." << std::endl;
     };
 
-    Direction _direction;
+    Position _direction;
     const Options options;
 
     bool isVaildCoordinate(CoordinateState coor) {

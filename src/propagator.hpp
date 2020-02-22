@@ -9,7 +9,7 @@
 #include "wave.hpp"
 #include "time.h"
 #include "declare.hpp"
-#include "direction.hpp"
+#include "position.hpp"
 #include "base.hpp"
 
 
@@ -121,14 +121,11 @@ public:
 
             //对图案的四个方向进进行传播
             for (unsigned directionId = 0; directionId < directionNumbers; directionId++) {
-                point po = _direction.getPoint(directionId);
-                int dx = po[0];
-                int dy = po[1];
+                Direction po = _direction.getPoint(directionId);
 
-                int x2 = static_cast<int>(x1) + dx;
-                int y2 = static_cast<int>(y1) + dy;
-
-                CoordinateState coor2 (x2, y2);
+                CoordinateState coor2  = coor1.nextDirection(po);
+                int x2  = coor2.x;
+                int y2  = coor2.y;
 
                 if (!isVaildCoordinate(coor2)) {
                     continue;
@@ -152,7 +149,6 @@ public:
                     //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
                     //并且将此wave的传播状态设置为不需要传播
                     if (value[directionId] == 0) {
-//                        add_to_propagator(y2, x2, *it);
                         add_to_propagator(coor2, *it);
                         wave.set(i2, *it, false);
                     }

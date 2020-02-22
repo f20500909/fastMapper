@@ -9,24 +9,24 @@
 
 class Options;
 
-class Direction {
+class Position {
 public:
 
-    Direction() {
+    Position() {
     }
 
-    Direction(const int _directionSize) {
+    Position(const int _positionSize) {
 
     }
 
     const int dim = 2;
 
-    std::vector<point> _data = {{0,  -1},
+    std::vector<Direction> _data = {{0,  -1},
                                 {-1, 0},
                                 {1,  0},
                                 {0,  1}};
 
-    point getPoint(int directionId) {
+    Direction getPoint(unsigned directionId) {
         assert(directionId < _data.size());
         return _data[directionId];
     }

@@ -68,9 +68,9 @@ public:
         stbi_write_png(file_path.c_str(), m.width, m.height, 3, (const unsigned char *) m.data.data(), 0);
     }
 
-    static bool isEpual(const Matrix<Cell> &pattern1, const Matrix<Cell> &pattern2, point point) noexcept {
-        int dx = point[0];
-        int dy = point[1];
+    static bool isEpual(const Matrix<Cell> &pattern1, const Matrix<Cell> &pattern2, Direction Direction) noexcept {
+        int dx = Direction.x;
+        int dy = Direction.y;
 
         unsigned xmin = max(dx, 0);
         unsigned xmax = dx < 0 ? dx + pattern2.width : pattern1.width;
@@ -112,8 +112,8 @@ public:
 
         //对于每个个图案id ，均执行以下函数
         auto realJob = [&](int pattern2, int pattern1, int directionId) {
-            auto point = this->_direction.getPoint(directionId);
-            if (isEpual(this->patterns[pattern1], this->patterns[pattern2], point)) {
+            auto Direction = this->_direction.getPoint(directionId);
+            if (isEpual(this->patterns[pattern1], this->patterns[pattern2], Direction)) {
                 this->propagator[pattern1][directionId].push_back(pattern2);
             }
         };

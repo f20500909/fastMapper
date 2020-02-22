@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "declare.hpp"
-#include "direction.hpp"
+#include "position.hpp"
 #include "base.hpp"
 
 using namespace std;
