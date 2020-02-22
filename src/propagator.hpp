@@ -35,8 +35,6 @@ private:
     /**
      * The wave width and height.
      */
-    const unsigned wave_width;
-    const unsigned wave_height;
     /**
      * All the tuples (y, x, pattern) that should be propagated.
      * The tuple should be propagated when wave.get(y, x, pattern) is set to
@@ -64,8 +62,8 @@ private:
         };
 
         // We compute the number of pattern compatible in all directions.
-        for (unsigned y = 0; y < wave_height; y++) {
-            for (unsigned x = 0; x < wave_width; x++) {
+        for (unsigned y = 0; y < options.wave_height; y++) {
+            for (unsigned x = 0; x < options. wave_width; x++) {
                 for (unsigned pattern = 0; pattern < patterns_size; pattern++) {
                     _direction.doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2),
                                                pattern);
@@ -80,10 +78,9 @@ public:
     /**
      * Constructor building the propagator and initializing compatible.
      */
-    Propagator(unsigned wave_height, unsigned wave_width, PropagatorState propagator_state, const Options &op) noexcept
-            : patterns_size(propagator_state.size()), propagator_state(propagator_state), wave_width(wave_width),
-              wave_height(wave_height),
-              compatible(wave_height, wave_width, patterns_size), Base(op) {
+    Propagator(PropagatorState propagator_state, const Options &op) noexcept
+            : patterns_size(propagator_state.size()), propagator_state(propagator_state),
+              compatible(options.wave_height,options. wave_width, patterns_size), Base(op) {
         init_compatible();
     }
 
