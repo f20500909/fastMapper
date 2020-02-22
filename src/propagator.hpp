@@ -63,7 +63,7 @@ private:
 
         // We compute the number of pattern compatible in all directions.
         for (unsigned y = 0; y < options.wave_height; y++) {
-            for (unsigned x = 0; x < options. wave_width; x++) {
+            for (unsigned x = 0; x < options.wave_width; x++) {
                 for (unsigned pattern = 0; pattern < patterns_size; pattern++) {
                     _direction.doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2),
                                                pattern);
@@ -80,7 +80,7 @@ public:
      */
     Propagator(PropagatorState propagator_state, const Options &op) noexcept
             : patterns_size(propagator_state.size()), propagator_state(propagator_state),
-              compatible(options.wave_height,options. wave_width, patterns_size), Base(op) {
+              compatible(options.wave_height, options.wave_width, patterns_size), Base(op) {
         init_compatible();
     }
 
@@ -105,7 +105,7 @@ public:
         propagating.emplace_back(y, x, pattern);
     }
 
-     // 核心部分，进行传递
+    // 核心部分，进行传递
     void propagate(Wave &wave) noexcept {
         //从最后一个传播状态开始传播,没传播成功一次，就移除一次，直到传播列表为空
         while (!propagating.empty()) {
@@ -114,13 +114,13 @@ public:
             std::tie(y1, x1, pattern) = propagating.back();
             propagating.pop_back();
 
-            CoordinateState coor1 (static_cast<int>(x1), static_cast<int>(y1));
+            CoordinateState coor1(static_cast<int>(x1), static_cast<int>(y1));
 
             //对图案的四个方向进进行传播
             for (unsigned directionId = 0; directionId < directionNumbers; directionId++) {
                 Direction po = _direction.getPoint(directionId);
 
-                CoordinateState coor2  = coor1.nextDirection(po);
+                CoordinateState coor2 = coor1.nextDirection(po);
 
                 if (!isVaildCoordinate(coor2)) {
                     continue;

@@ -82,7 +82,7 @@ public:
             : data(data), options(options), patterns(data->patterns), gen(rand()),
               wave(options, data->patterns_frequency),
               patterns_frequency(data->patterns_frequency), nb_patterns(data->propagator.size()),
-              propagator( data->propagator, options) {
+              propagator(data->propagator, options) {
     }
 
     Data<int> *data;
