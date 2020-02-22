@@ -8,6 +8,8 @@
 #include <regex>
 #include <boost/algorithm/string.hpp>
 
+#include "declare.hpp"
+#include "position.hpp"
 
 using namespace std;
 

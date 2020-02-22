@@ -300,9 +300,6 @@ public:
 
 
 
-/**
-* Hash function for color.
-*/
 namespace std {
     template<>
     class hash<Cell> {

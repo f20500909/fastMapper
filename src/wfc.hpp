@@ -10,7 +10,6 @@
 #include "Data.hpp"
 #include "propagator.hpp"
 #include "wave.hpp"
-#include "declare.hpp"
 #include "base.hpp"
 #include "imageModel.hpp"
 

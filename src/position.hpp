@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-#include "declare.hpp"
+#include "base.hpp"
 
 class Options;
 

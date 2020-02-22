@@ -18,6 +18,9 @@ typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> 
 //                            curve_id   point_id   id
 typedef std::tuple<point2d, unsigned, unsigned, unsigned> svgPoint;
 
+
+
+
 //特征单元 波函数塌陷的最小计算单元
 class Feature {
 public:
@@ -35,6 +38,21 @@ public:
     }
 
     std::vector<svgPoint> data;
+};
+
+//TODO 完成hash函数
+namespace std {
+    template<>
+    class hash<Feature> {
+    public:
+        size_t operator()(const Feature &fea) const {
+            std::size_t seed = fea.data.size();
+            for (int i = 0; i < fea.data.size(); i++) {
+                seed ^= std::size_t(std::get<3>(fea.data[i])) + (seed << 6) + (seed >> 2);
+            };
+            return seed;
+        }
+    };
 };
 
 //尽量用唯一id来遍历
@@ -174,40 +192,10 @@ public:
             }
         }
 
-//        对svg上的每个点
-//        for (auto it = spatialSvg.rtree.begin(); it != spatialSvg.rtree.end(); ++it) {
-//            //生成一个子图案
-//            svgPoint temp = *it;
-//
-//            //对图案进行镜像 旋转变换 得到特征单元
-//        }
 
-//        for (unsigned i = 0; i < max_i; i++) {
-//            for (unsigned j = 0; j < max_j; j++) {
-//                symmetries[0].data = this->data.get_sub_array(i, j, this->options.N, this->options.N).data;
-//                symmetries[1].data = symmetries[0].reflected().data;
-//                symmetries[2].data = symmetries[0].rotated().data;
-//                symmetries[3].data = symmetries[2].reflected().data;
-//                symmetries[4].data = symmetries[2].rotated().data;
-//                symmetries[5].data = symmetries[4].reflected().data;
-//                symmetries[6].data = symmetries[4].rotated().data;
-//                symmetries[7].data = symmetries[6].reflected().data;
-//
-                for (unsigned k = 0; k < this->options.symmetry; k++) {
-                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
-                    if (!res.second) {
-                        this->patterns_frequency[res.first->second] += 1;
-                    } else {
-                        this->patterns.push_back(symmetries[k]);
-                        this->patterns_frequency.push_back(1);
-                    }
-                }
-//            }
-//        }
     }
 
     void generateCompatible() {
-
     }
 
     void parseData() {

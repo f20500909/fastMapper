@@ -5,7 +5,6 @@
 #include <string>
 #include <algorithm>
 
-#include "declare.hpp"
 #include "position.hpp"
 #include "base.hpp"
 

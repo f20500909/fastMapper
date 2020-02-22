@@ -8,7 +8,6 @@
 #include "array3D.hpp"
 #include "wave.hpp"
 #include "time.h"
-#include "declare.hpp"
 #include "position.hpp"
 #include "base.hpp"
 
