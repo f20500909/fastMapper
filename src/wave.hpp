@@ -83,8 +83,6 @@ public:
     * The size of the wave.
     * wave的尺寸
     */
-    const unsigned width;
-    const unsigned height;
     const unsigned size;
 
     /**
@@ -94,8 +92,8 @@ public:
     Wave(Options op, const std::vector<double> &patterns_frequency) noexcept
             : patterns_frequency(patterns_frequency), plogp_patterns_frequency(get_plogp(patterns_frequency)),
               half_min_plogp(get_half_min(plogp_patterns_frequency)), is_impossible(false),
-              nb_patterns(patterns_frequency.size()), data(op.wave_width * op.wave_height, nb_patterns, 1), width(op.wave_width),
-              height(op.wave_height), size(height * width), Base(op) {
+              nb_patterns(patterns_frequency.size()), data(op.wave_width * op.wave_height, nb_patterns, 1),
+              size(options.wave_height * options.wave_width), Base(op) {
 
         double base_entropy = 0;
         double base_s = 0;
@@ -129,7 +127,7 @@ public:
     * 返回true如果图案能放进cell（i，j）
     */
     bool get(unsigned i, unsigned j, unsigned pattern) const noexcept {
-        return get(i * width + j, pattern);
+        return get(i * options.wave_width + j, pattern);
     }
 
     /**
@@ -158,7 +156,7 @@ public:
     * 设置图案在cell索引中的值
     */
     void set(CoordinateState coor, unsigned pattern, bool value) noexcept {
-        unsigned index = coor.x + coor.y * this->width;
+        unsigned index = coor.x + coor.y * this->options.wave_width;
         set(index, pattern, value);
     }
 
@@ -167,7 +165,7 @@ public:
     * 设置图案在cell（i，j）的值
     */
     void set(unsigned i, unsigned j, unsigned pattern, bool value) noexcept {
-        set(i * width + j, pattern, value);
+        set(i * options.wave_width + j, pattern, value);
     }
 
     /**

@@ -62,7 +62,7 @@ private:
      * 此函数只有当波的所有格子都被定义
      */
     Matrix<unsigned> wave_to_output() const noexcept {
-        Matrix<unsigned> output_patterns(wave.height, wave.width);
+        Matrix<unsigned> output_patterns(wave.options.wave_height, wave.options.wave_width);
         for (unsigned i = 0; i < wave.size; i++) {
             for (unsigned k = 0; k < nb_patterns; k++) {
                 if (wave.get(i, k)) {
@@ -78,11 +78,11 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC(Data<int> *_data, const Options &options) noexcept
-            : data(_data), options(options), patterns(_data->patterns), gen(rand()),
-              wave(options, _data->patterns_frequency),
-              patterns_frequency(_data->patterns_frequency), nb_patterns(_data->propagator.size()),
-              propagator(wave.height, wave.width, _data->propagator, options) {
+    WFC(Data<int> *data, const Options &options) noexcept
+            : data(data), options(options), patterns(data->patterns), gen(rand()),
+              wave(options, data->patterns_frequency),
+              patterns_frequency(data->patterns_frequency), nb_patterns(data->propagator.size()),
+              propagator(options.wave_height, options.wave_width, data->propagator, options) {
     }
 
     Data<int> *data;
@@ -144,7 +144,7 @@ public:
         // 根据图案定义网格
         for (unsigned k = 0; k < nb_patterns; k++) {
             if (wave.get(argmin, k) != (k == chosen_value)) {
-                propagator.add_to_propagator(argmin / wave.width, argmin % wave.width, k);
+                propagator.add_to_propagator(argmin / wave.options.wave_width, argmin % wave.options.wave_width, k);
                 wave.set(argmin, k, false);
             }
         }
