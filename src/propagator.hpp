@@ -124,15 +124,12 @@ public:
                 Direction po = _direction.getPoint(directionId);
 
                 CoordinateState coor2  = coor1.nextDirection(po);
-                int x2  = coor2.x;
-                int y2  = coor2.y;
 
                 if (!isVaildCoordinate(coor2)) {
                     continue;
                 }
 
                 // The index of the second cell, and the patterns compatible
-                unsigned i2 = x2 + y2 * wave.width;
                 const std::vector<unsigned> &patterns = propagator_state[pattern][directionId];
 
                 // For every pattern that could be placed in that cell without being in
@@ -141,7 +138,6 @@ public:
                     // We decrease the number of compatible patterns in the opposite
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
-//                    std::array<int, directionNumbers> &value = compatible.get(y2, x2, *it);
                     std::array<int, directionNumbers> &value = compatible.get(coor2, *it);
                     //方向自减
                     value[directionId]--;
@@ -150,7 +146,7 @@ public:
                     //并且将此wave的传播状态设置为不需要传播
                     if (value[directionId] == 0) {
                         add_to_propagator(coor2, *it);
-                        wave.set(i2, *it, false);
+                        wave.set(coor2, *it, false);
                     }
                 }
             }

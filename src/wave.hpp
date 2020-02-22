@@ -154,6 +154,15 @@ public:
     }
 
     /**
+    * Set the value of pattern in cell index.
+    * 设置图案在cell索引中的值
+    */
+    void set(CoordinateState coor, unsigned pattern, bool value) noexcept {
+        unsigned index = coor.x + coor.y * this->width;
+        set(index, pattern, value);
+    }
+
+    /**
     * Set the value of pattern in cell (i,j).
     * 设置图案在cell（i，j）的值
     */
