@@ -31,8 +31,6 @@ public:
 		: height(height), width(width), depth(depth),
 		data(width * height * depth) {}
 
-
-
 	/**
 	* Return a const reference to the element in the i-th line, j-th column, and
 	* k-th depth. i must be lower than height, j lower than width, and k lower
@@ -51,7 +49,6 @@ public:
 	T &get(unsigned i, unsigned j, unsigned k) noexcept {
 		return data[i * width * depth + j * depth + k];
 	}
-
 
     T &get(CoordinateState coor, unsigned k) noexcept {
         int dx = coor.x;

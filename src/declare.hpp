@@ -82,7 +82,7 @@ public:
  * Return the opposite direction of direction.
  */
 constexpr unsigned get_opposite_direction(unsigned direction) noexcept {
-    return 3 - direction;
+    return directionNumbers-1 - direction;
 }
 
 struct Options {
@@ -118,7 +118,6 @@ struct Options {
     }
 };
 
-
 /**
 * Struct containing the values needed to compute the entropy of all the cells.
 * This struct is updated every time the wave is changed.
@@ -134,7 +133,6 @@ struct Entropy {
     std::vector<unsigned> nb_patterns_vec; // The number of patterns present
     std::vector<double> entropy;       // The entropy of the cell.
 };
-
 
 /**
 * Represent a 24-bit rgb color.

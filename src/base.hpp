@@ -24,12 +24,10 @@ public:
     const Options options;
 
     bool isVaildCoordinate(CoordinateState coor) {
-        int x = coor.x;
-        int y = coor.y;
-        if (x < 0 || x >= (int) this->options.wave_width) {
+        if (coor.x < 0 || coor.x >= (int) this->options.wave_width) {
             return false;
         }
-        if (y < 0 || y >= (int) this->options.wave_height) {
+        if (coor.y < 0 || coor.y >= (int) this->options.wave_height) {
             return false;
         }
         return true;

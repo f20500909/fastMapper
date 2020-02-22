@@ -24,8 +24,6 @@ public:
     std::vector<Matrix<Cell>> patterns;
     std::vector<double> patterns_frequency;
     std::vector<std::array<std::vector<unsigned>, 4>> propagator;
-
-
 };
 
 #endif // SRC_DATA_HPP
