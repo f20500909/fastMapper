@@ -166,6 +166,8 @@ public:
 template<class T,class SvgAbstractFeature>
 class Data ;
 
+struct Options ;
+
 template<class T,class SvgAbstractFeature>
 class Svg : public Data<T,SvgAbstractFeature> {
 public:
@@ -220,7 +222,7 @@ public:
 
         //对每个特征元素
         for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
-            vector<unsigned> tempPattern = this->patterns[pattern1].neighborPatternId;
+            std::vector<unsigned> tempPattern = this->patterns[pattern1].neighborPatternId;
 
             //对每个特征元素  的 每个邻居
             for (unsigned neighborId = 0; neighborId++; neighborId < tempPattern.size()) {
@@ -243,10 +245,10 @@ public:
         parseDataMap(tmp);
     }
 
-    void parseDataMap(vector<string> &strVector) {
+    void parseDataMap(std::vector<std::string> &strVector) {
         //截取到有效片段
         for (int i = 0; i < strVector.size(); i++) {
-            string row = strVector[i];
+            std::string row = strVector[i];
             int len = row.size();
             strVector[i] = row.substr(8, len - 8 - 2);
         }
@@ -254,7 +256,7 @@ public:
         //将有效片段分割
         for (int i = 0; i < strVector.size(); i++) {
             std::vector<std::string> vecSegTag;
-            vector<point2d> singlePolylinePoint;
+            std::vector<point2d> singlePolylinePoint;
             unsigned lenSum = 0;
 
             std::string &singlePolylineStr = strVector[i];
@@ -271,15 +273,15 @@ public:
         }
     }
 
-    vector<string> get_svg_data(string input_data) {
-        string str = "(points)=\"[\\s\\S]*?\"";
+    std::vector<std::string> get_svg_data(std::string input_data) {
+        std::string str = "(points)=\"[\\s\\S]*?\"";
 
-        fstream in(input_data);
-        string svg_context((istreambuf_iterator<char>(in)), istreambuf_iterator<char>());
+        std::fstream in(input_data);
+        std::string svg_context((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 
-        regex reg(str);
-        smatch sm;
-        vector<string> res;
+        std::regex reg(str);
+        std::smatch sm;
+        std::vector<std::string> res;
 
         while (regex_search(svg_context, sm, reg)) {
             res.push_back(sm.str());
@@ -289,7 +291,7 @@ public:
     }
 
 private:
-    std::vector<vector<point2d>> data;      //原始的数据
+    std::vector<std::vector<point2d>> data;      //原始的数据
     std::vector<unsigned> len;        //累计的长度列表
     SpatialSvg spatialSvg;                  //封裝好的rtree  svg接口
     unsigned limit;                         //限制距离
