@@ -19,8 +19,6 @@ typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> 
 typedef std::tuple<point2d, unsigned, unsigned, unsigned> svgPoint;
 
 
-
-
 //特征单元 波函数塌陷的最小计算单元
 class Feature {
 public:
@@ -36,8 +34,30 @@ public:
     Feature rotated() {
         return *this;
     }
+    bool operator == (const Feature& fea){
+        for(int i=0;i<data.size();i++){
+
+            point2d  pointA = std::get<0>(this->data[i]);
+            point2d  pointB = std::get<0>(fea.data[i]);
+            if(pointA.get<0>()!=pointA.get<0>()){
+                return false;
+            }
+
+            if(pointA.get<1>()!=pointA.get<1>()){
+                return false;
+            }
+
+        }
+        return true;
+    }
+
+    void setNeighborId(const std::vector<unsigned> neighborId) {
+        this->neighborId = neighborId;
+    }
 
     std::vector<svgPoint> data;
+
+    std::vector<unsigned> neighborPatternId;
 };
 
 //TODO 完成hash函数
@@ -151,7 +171,7 @@ public:
     Svg(const Options op) : Data<T>(op) {
         parseData();
         initPatterns();
-//        generateCompatible();
+        generateCompatible();
     }
 
     void initPatterns() {
@@ -191,11 +211,29 @@ public:
 
             }
         }
-
-
     }
 
-    void generateCompatible() {
+    void generateCompatible() noexcept {
+        this->propagator = std::vector<std::array<std::vector<unsigned>, 4> >(this->patterns.size());
+
+        //对每个特征元素
+        for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
+            vector<unsigned> tempPattern = this->patterns[pattern1].neighborPatternId;
+
+            //对每个特征元素  的 每个邻居
+            for (unsigned neighborId = 0; neighborId++; neighborId < tempPattern.size()) {
+
+                //对每个特征元素  的 每个邻居  的每个特征元素
+                for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
+                    //此处重载了==号操作符
+                    if (this->patterns[pattern1] == this->patterns[pattern2]) {
+                        // 对每一个特征元素，其每一个方向，如果其相等 就把id存下
+                        this->propagator[pattern1][neighborId].push_back(pattern2);
+                    }
+                }
+
+            }
+        }
     }
 
     void parseData() {

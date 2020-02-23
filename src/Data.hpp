@@ -7,7 +7,7 @@
 
 #include "position.hpp"
 #include "base.hpp"
-
+class Feature;
 using namespace std;
 
 template<class T>
@@ -20,9 +20,10 @@ public:
         std::cout<<"Data row func err res.."<<std::endl;
     };
 
-    std::vector<Matrix<Cell>> patterns;
+//    std::vector<Matrix<Cell>> patterns;
+    std::vector<Feature> patterns;
     std::vector<double> patterns_frequency;
-    std::vector<std::array<std::vector<unsigned>, 4>> propagator;
+    std::vector<std::array<std::vector<unsigned>, directionNumbers>> propagator;
 };
 
 #endif // SRC_DATA_HPP
