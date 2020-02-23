@@ -9,7 +9,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include "declare.hpp"
-#include "position.hpp"
 
 using namespace std;
 
@@ -22,7 +21,7 @@ public:
         std::cout << "err res.." << std::endl;
     };
 
-    Position _direction;
+    PositionInfo _direction;
     const Options options;
 
     bool isVaildCoordinate(CoordinateState coor) {

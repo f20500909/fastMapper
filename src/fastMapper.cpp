@@ -10,7 +10,7 @@
 #include "include/cmdline.h"
 
 #include "wfc.hpp"
-#include "svg.hpp"
+//#include "svg_hpp"
 
 using namespace std;
 
@@ -25,15 +25,17 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
     type = "svg";
     const Options options = {out_height, out_width, symmetry, N, channels, input_data, output_data, type};
 
-    Data<int> *data;
+    Data<int,ImgAbstractFeature> *data;
     if (options.type == "svg") {
         std::cout<<"use svg modle "<<std::endl;
         data = new Svg<int>(options);
     } else if (options.type=="img")  {
-        data = new Img<int>(options);
+        data = new Img<int,ImgAbstractFeature>(options);
     }else{
         assert(!"type err...");
     }
+
+
 
     WFC wfc(data, options);
     wfc.run();

@@ -8,7 +8,6 @@
 #include "array3D.hpp"
 #include "wave.hpp"
 #include "time.h"
-#include "position.hpp"
 #include "base.hpp"
 
 
@@ -72,14 +71,14 @@ private:
         }
     }
 
-    Data<int> *data;
+    Data<int,ImgAbstractFeature> *data;
 
 public:
 
     /**
      * Constructor building the propagator and initializing compatible.
      */
-    Propagator(Data<int> *data) noexcept
+    Propagator(Data<int,ImgAbstractFeature> *data) noexcept
             : patterns_size(data->propagator.size()), propagator_state(data->propagator),
               compatible(options.wave_height, options.wave_width, patterns_size), Base(data->options) {
         init_compatible();

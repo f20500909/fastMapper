@@ -8,8 +8,8 @@
 #include "Data.hpp"
 using namespace std;
 
-template<class T>
-class Img : public Data<T> {
+template<class T ,class ImgAbstractFeature>
+class Img : public Data<T,ImgAbstractFeature> {
 public:
 
     void init() {
@@ -22,7 +22,8 @@ public:
 
 
 
-    Img(const Options &op) : Data<T>(op) {
+    Img(const Options &op) : Data<T,ImgAbstractFeature>(op) {
+
         init();
     }
 
@@ -33,7 +34,7 @@ public:
         int row = src.rows;
         int col = src.cols;
 
-        this->_data = Matrix<Cell>(row, col);
+        this->_data = ImgAbstractFeature(row, col);
 
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -54,7 +55,7 @@ public:
         unsigned char *data = stbi_load(this->options.input_data.c_str(), &width, &height, &num_components,
                                         this->options.channels);
 
-        this->_data = Matrix<Cell>(height, width);
+        this->_data = ImgAbstractFeature(height, width);
         for (unsigned i = 0; i < (unsigned) height; i++) {
             for (unsigned j = 0; j < (unsigned) width; j++) {
                 unsigned index = 3 * (i * width + j);
@@ -64,11 +65,11 @@ public:
         free(data);
     }
 
-    void write_image_png(const std::string &file_path, const Matrix<Cell> &m) noexcept {
+    void write_image_png(const std::string &file_path, const ImgAbstractFeature &m) noexcept {
         stbi_write_png(file_path.c_str(), m.width, m.height, 3, (const unsigned char *) m.data.data(), 0);
     }
 
-    static bool isEpual(const Matrix<Cell> &pattern1, const Matrix<Cell> &pattern2, Direction Direction) noexcept {
+    static bool isEpual(const ImgAbstractFeature &pattern1, const ImgAbstractFeature &pattern2, Direction Direction) noexcept {
         int dx = Direction.x;
         int dy = Direction.y;
 
@@ -133,8 +134,12 @@ public:
     }
 
     void initPatterns() noexcept {
-        std::unordered_map<Matrix<Cell>, unsigned> patterns_id;
-        std::vector<Matrix<Cell>> symmetries(this->options.symmetry, Matrix<Cell>(this->options.N, this->options.N));
+//        std::unordered_map<ImgAbstractFeature, unsigned> patterns_id;
+//        std::vector<Matrix<Cell>> symmetries(this->options.symmetry, ImgAbstractFeature(this->options.N, this->options.N));
+
+        std::unordered_map<ImgAbstractFeature, unsigned> patterns_id;
+        std::vector<ImgAbstractFeature> symmetries(this->options.symmetry,ImgAbstractFeature(this->options.N, this->options.N));
+
         unsigned max_i = this->_data.height - this->options.N + 1;
         unsigned max_j = this->_data.width - this->options.N + 1;
 
@@ -166,8 +171,8 @@ public:
     * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
     * 将包含2d图案的id数组转换为像素数组
     */
-    Matrix<Cell> to_image(const Matrix<unsigned> &output_patterns) const noexcept {
-        Matrix<Cell> output = Matrix<Cell>(this->options.out_height, this->options.out_width);
+    ImgAbstractFeature to_image(const Matrix<unsigned> &output_patterns) const noexcept {
+        ImgAbstractFeature output = ImgAbstractFeature(this->options.out_height, this->options.out_width);
 
         for (unsigned y = 0; y < this->options.wave_height; y++) {
             for (unsigned x = 0; x < this->options.wave_width; x++) {
@@ -175,21 +180,21 @@ public:
             }
         }
         for (unsigned y = 0; y < this->options.wave_height; y++) {
-            const Matrix<Cell> &pattern =
+            const ImgAbstractFeature &pattern =
                     this->patterns[output_patterns.get(y, this->options.wave_width - 1)];
             for (unsigned dx = 1; dx < this->options.N; dx++) {
                 output.get(y, this->options.wave_width - 1 + dx) = pattern.get(0, dx);
             }
         }
         for (unsigned x = 0; x < this->options.wave_width; x++) {
-            const Matrix<Cell> &pattern =
+            const ImgAbstractFeature &pattern =
                     this->patterns[output_patterns.get(this->options.wave_height - 1, x)];
             for (unsigned dy = 1; dy < this->options.N; dy++) {
                 output.get(this->options.wave_height - 1 + dy, x) =
                         pattern.get(dy, 0);
             }
         }
-        const Matrix<Cell> &pattern = this->patterns[output_patterns.get(
+        const ImgAbstractFeature &pattern = this->patterns[output_patterns.get(
                 this->options.wave_height - 1, this->options.wave_width - 1)];
         for (unsigned dy = 1; dy < this->options.N; dy++) {
             for (unsigned dx = 1; dx < this->options.N; dx++) {
@@ -201,7 +206,7 @@ public:
     }
 
     void showResult(Matrix<unsigned> mat){
-        Matrix<Cell> res;
+        ImgAbstractFeature res;
         res = to_image(mat);
         if (res.data.size() > 0) {
             write_image_png(this->options.output_data, res);
@@ -211,7 +216,7 @@ public:
         }
     };
     // 原始从输入文件读取得到的数据
-    Matrix<Cell> _data;
+    ImgAbstractFeature _data;
 
 };
 

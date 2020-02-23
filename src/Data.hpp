@@ -5,12 +5,12 @@
 #include <string>
 #include <algorithm>
 
-#include "position.hpp"
 #include "base.hpp"
-class Feature;
+//#include "svg_hpp"
+
 using namespace std;
 
-template<class T>
+template<class T,class ImgAbstractFeature>
 class Data : public Base {
 public:
 
@@ -20,8 +20,8 @@ public:
         std::cout<<"Data row func err res.."<<std::endl;
     };
 
-//    std::vector<Matrix<Cell>> patterns;
-    std::vector<Feature> patterns;
+    std::vector<ImgAbstractFeature> patterns;
+//    std::vector<ImgAbstractFeature> patterns;
     std::vector<double> patterns_frequency;
     std::vector<std::array<std::vector<unsigned>, directionNumbers>> propagator;
 };

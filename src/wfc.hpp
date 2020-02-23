@@ -12,6 +12,7 @@
 #include "wave.hpp"
 #include "base.hpp"
 #include "imageModel.hpp"
+//#include "svg_hpp"
 
 /**
  * Class containing the generic WFC algorithm.
@@ -28,7 +29,7 @@ private:
     * The array of the different patterns extracted from the input.
     * 从输入图案中提取出的不同图案
     */
-    std::vector<Matrix<Cell>> patterns;
+    std::vector<ImgAbstractFeature> patterns;
 
     /**
      * The wave, indicating which patterns can be put in which cell.
@@ -72,14 +73,14 @@ public:
      * Basic constructor initializing the algorithm.
      * 构造函数，初始化
      */
-    WFC(Data<int> *data, const Options &options) noexcept
+    WFC(Data<int,ImgAbstractFeature> *data, const Options &options) noexcept
             : data(data), options(options), patterns(data->patterns), gen(rand()),
               wave(options, data),
               nb_patterns(data->propagator.size()),
               propagator(data) {
     }
 
-    Data<int> *data;
+    Data<int,ImgAbstractFeature> *data;
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {

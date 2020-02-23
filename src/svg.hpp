@@ -20,21 +20,21 @@ typedef std::tuple<point2d, unsigned, unsigned, unsigned> svgPoint;
 
 
 //特征单元 波函数塌陷的最小计算单元
-class Feature {
+class SvgAbstractFeature {
 public:
-    Feature() {
+    SvgAbstractFeature() {
     }
 
     //得到镜像图形
-    Feature reflected() {
+    SvgAbstractFeature reflected() {
         return *this;
     }
 
     //得到旋转后的图形
-    Feature rotated() {
+    SvgAbstractFeature rotated() {
         return *this;
     }
-    bool operator == (const Feature& fea){
+    bool operator == (const SvgAbstractFeature& fea){
         for(int i=0;i<data.size();i++){
 
             point2d  pointA = std::get<0>(this->data[i]);
@@ -52,7 +52,7 @@ public:
     }
 
     void setNeighborId(const std::vector<unsigned> neighborId) {
-        this->neighborId = neighborId;
+//        this->neighborId = neighborId;
     }
 
     std::vector<svgPoint> data;
@@ -63,9 +63,9 @@ public:
 //TODO 完成hash函数
 namespace std {
     template<>
-    class hash<Feature> {
+    class hash<SvgAbstractFeature> {
     public:
-        size_t operator()(const Feature &fea) const {
+        size_t operator()(const SvgAbstractFeature &fea) const {
             std::size_t seed = fea.data.size();
             for (int i = 0; i < fea.data.size(); i++) {
                 seed ^= std::size_t(std::get<3>(fea.data[i])) + (seed << 6) + (seed >> 2);
@@ -139,13 +139,13 @@ public:
 //    }
 
 
-//    Feature getSubFeature(unsigned id){
+//    SvgAbstractFeature getSubFeature(unsigned id){
 //
 //    }
 
 
-    Feature getSubFeature(point2d po) {
-        Feature res;
+    SvgAbstractFeature getSubFeature(point2d po) {
+        SvgAbstractFeature res;
         auto _rule = [&](svgPoint const &v) {
             return boost::geometry::distance(getPoint(v), po) < distanceThreshold;
         };
@@ -163,12 +163,14 @@ public:
     boost::geometry::index::rtree<svgPoint, boost::geometry::index::quadratic<32> > rtree;
 };
 
+template<class T,class SvgAbstractFeature>
+class Data ;
 
-template<class T>
-class Svg : public Data<T> {
+template<class T,class SvgAbstractFeature>
+class Svg : public Data<T,SvgAbstractFeature> {
 public:
 
-    Svg(const Options op) : Data<T>(op) {
+    Svg(const Options op) : Data<T,SvgAbstractFeature>(op) {
         parseData();
         initPatterns();
         generateCompatible();
@@ -185,12 +187,12 @@ public:
         }
 
         // 获取一个点临近的点位，点位附近的最近点做为特征图案
-        std::unordered_map<Feature, unsigned> patterns_id;
-        std::vector<Feature> symmetries(this->options.symmetry);
+        std::unordered_map<SvgAbstractFeature, unsigned> patterns_id;
+        std::vector<SvgAbstractFeature> symmetries(this->options.symmetry);
 
         for (int i = 0; i < data.size(); i++) {
             for (unsigned j = 0; j < data[i].size(); j++) {
-                symmetries[0] = spatialSvg.getSubFeature(data[i, j]);
+                symmetries[0] = spatialSvg.getSubFeature(data[i][j]);
                 symmetries[1] = symmetries[0].reflected();
                 symmetries[2] = symmetries[0].rotated();
                 symmetries[3] = symmetries[2].reflected();
