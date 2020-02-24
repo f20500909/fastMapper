@@ -11,6 +11,7 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/index/rtree.hpp>
 #include "Data.hpp"
+#include "declare.hpp"
 
 typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> point2d;
 
@@ -166,13 +167,13 @@ public:
 template<class T,class SvgAbstractFeature>
 class Data ;
 
-struct Options ;
+class Options;
 
 template<class T,class SvgAbstractFeature>
 class Svg : public Data<T,SvgAbstractFeature> {
 public:
 
-    Svg(const Options op) : Data<T,SvgAbstractFeature>(op) {
+    Svg(const Options& op) : Data<T,SvgAbstractFeature>(op) {
         parseData();
         initPatterns();
         generateCompatible();

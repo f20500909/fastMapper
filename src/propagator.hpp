@@ -71,14 +71,14 @@ private:
         }
     }
 
-    Data<int,ImgAbstractFeature> *data;
+    Data<int,AbstractFeature> *data;
 
 public:
 
     /**
      * Constructor building the propagator and initializing compatible.
      */
-    Propagator(Data<int,ImgAbstractFeature> *data) noexcept
+    Propagator(Data<int,AbstractFeature> *data) noexcept
             : patterns_size(data->propagator.size()), propagator_state(data->propagator),
               compatible(options.wave_height, options.wave_width, patterns_size), Base(data->options) {
         init_compatible();

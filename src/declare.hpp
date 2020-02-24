@@ -90,7 +90,8 @@ constexpr unsigned get_opposite_direction(unsigned direction) noexcept {
     return directionNumbers - 1 - direction;
 }
 
-struct Options {
+class Options {
+public:
     unsigned out_height;
     unsigned out_width;
     unsigned symmetry; // The number of symmetries (the order is defined in wfc).
@@ -370,6 +371,9 @@ namespace std {
 }
 
 using  ImgAbstractFeature = Matrix<Cell>;
-using  SvgAbstractFeature = SvgAbstractFeature;
+
+
+//using AbstractFeature = ImgAbstractFeature;
+using AbstractFeature = SvgAbstractFeature;
 
 #endif

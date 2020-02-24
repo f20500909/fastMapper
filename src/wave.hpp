@@ -52,7 +52,7 @@ private:
     */
     Matrix<uint8_t> mat;
 
-    Data<int,ImgAbstractFeature> *data;
+    Data<int,AbstractFeature> *data;
 
     /**
     * Return distribution * log(distribution).
@@ -90,7 +90,7 @@ public:
     * Initialize the wave with every cell being able to have every pattern.
     * 初始化wave中每个cell
     */
-    Wave(Options op, Data<int,ImgAbstractFeature> *data) noexcept
+    Wave(Options op, Data<int,AbstractFeature> *data) noexcept
             : plogp_patterns_frequency(get_plogp(data->patterns_frequency)),
               half_min_plogp(get_half_min(plogp_patterns_frequency)), is_impossible(false),
               nb_patterns(data->patterns_frequency.size()), mat(op.wave_width * op.wave_height, nb_patterns, 1),

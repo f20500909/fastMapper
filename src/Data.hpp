@@ -10,7 +10,7 @@
 
 using namespace std;
 
-template<class T,class ImgAbstractFeature>
+template<class T,class AbstractFeature>
 class Data : public Base {
 public:
 
@@ -20,8 +20,8 @@ public:
         std::cout<<"Data row func err res.."<<std::endl;
     };
 
-    std::vector<ImgAbstractFeature> patterns;
-//    std::vector<ImgAbstractFeature> patterns;
+    std::vector<AbstractFeature> patterns;
+//    std::vector<AbstractFeature> patterns;
     std::vector<double> patterns_frequency;
     std::vector<std::array<std::vector<unsigned>, directionNumbers>> propagator;
 };
