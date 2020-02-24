@@ -9,7 +9,7 @@
 #include "wave.hpp"
 #include "time.h"
 #include "base.hpp"
-
+#include "data.hpp"
 
 /**
  * Propagate information about patterns in the wave.

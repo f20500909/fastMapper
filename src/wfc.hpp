@@ -7,11 +7,10 @@
 #include <unordered_map>
 #include <optional>
 
-#include "Data.hpp"
 #include "propagator.hpp"
 #include "wave.hpp"
 #include "base.hpp"
-//#include "svg_hpp"
+#include "svg.hpp"
 
 /**
  * Class containing the generic WFC algorithm.
@@ -83,8 +82,6 @@ public:
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
-
-
 
         while (true) {
             // 定义未定义的网格值

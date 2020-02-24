@@ -5,7 +5,7 @@
 #include <string>
 #include <algorithm>
 
-#include "Data.hpp"
+#include "data.hpp"
 using namespace std;
 
 template<class T ,class ImgAbstractFeature>

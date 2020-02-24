@@ -4,17 +4,20 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-
 #include "base.hpp"
-//#include "svg_hpp"
+#include "declare.hpp"
+
 
 using namespace std;
+
+template<typename T>
+class Matrix;
 
 template<class T,class AbstractFeature>
 class Data : public Base {
 public:
 
-    Data(const Options &op):Base(op) {}
+    Data(const Options &op): Base(op) {}
 
     virtual void showResult(Matrix<unsigned> mat){
         std::cout<<"Data row func err res.."<<std::endl;

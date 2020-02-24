@@ -11,6 +11,9 @@
 #include "declare.hpp"
 
 using namespace std;
+class Options;
+class PositionInfo;
+class CoordinateState;
 
 class Base {
 public:

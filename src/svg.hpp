@@ -10,7 +10,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/index/rtree.hpp>
-#include "Data.hpp"
+#include "data.hpp"
 #include "declare.hpp"
 
 typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> point2d;
@@ -164,16 +164,16 @@ public:
     boost::geometry::index::rtree<svgPoint, boost::geometry::index::quadratic<32> > rtree;
 };
 
-template<class T,class SvgAbstractFeature>
-class Data ;
+template<class T,class AbstractFeature>
+class data ;
 
 class Options;
 
-template<class T,class SvgAbstractFeature>
-class Svg : public Data<T,SvgAbstractFeature> {
+template<class T,class AbstractFeature>
+class Svg : public Data<T,AbstractFeature> {
 public:
 
-    Svg(const Options& op) : Data<T,SvgAbstractFeature>(op) {
+    Svg(const Options& op) : Data<T,AbstractFeature>(op) {
         parseData();
         initPatterns();
         generateCompatible();

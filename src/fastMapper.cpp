@@ -9,10 +9,18 @@
 
 #include "include/cmdline.h"
 #include "declare.hpp"
-
 #include "wfc.hpp"
 
 using namespace std;
+
+using AbstractFeature = SvgAbstractFeature;
+
+
+template<class T,class AbstractFeature>
+class Svg;
+
+
+
 
 /* TODO shell脚本批量生成
 * 数据输入模块，适配多种格式的数据
@@ -36,9 +44,7 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
 //    }
 
     Data<int, AbstractFeature> *data;
-//    data = new Svg<int, AbstractFeature>(options);
-    data = new Img<int,AbstractFeature>(options);
-
+    data = new Svg<int, AbstractFeature>(options);
 
     WFC wfc(data, options);
     wfc.run();

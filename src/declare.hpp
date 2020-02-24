@@ -14,7 +14,6 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include "include/stb_image_write.h"
-#include "svg.hpp"
 
 using namespace cv;
 
@@ -370,10 +369,10 @@ namespace std {
 
 }
 
-using  ImgAbstractFeature = Matrix<Cell>;
+//using  ImgAbstractFeature = Matrix<Cell>;
 
-
+//class SvgAbstractFeature;
 //using AbstractFeature = ImgAbstractFeature;
-using AbstractFeature = SvgAbstractFeature;
+//using AbstractFeature = SvgAbstractFeature;
 
 #endif

@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "declare.hpp"
+#include "base.hpp"
+#include "data.hpp"
 
 
 /**
