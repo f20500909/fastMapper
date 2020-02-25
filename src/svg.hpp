@@ -36,7 +36,6 @@ public:
         return *this;
     }
 
-
     bool operator == (const SvgAbstractFeature& fea){
         for(int i=0;i<data.size();i++){
 
@@ -49,12 +48,11 @@ public:
             if(pointA.get<1>()!=pointA.get<1>()){
                 return false;
             }
-
         }
         return true;
     }
 
-    /**
+/**
  * Assign the matrix a to the current matrix.
  */
     SvgAbstractFeature &operator=(const SvgAbstractFeature & fea) noexcept {
@@ -181,6 +179,15 @@ public:
         return res;
     }
 
+    SvgAbstractFeature getSubFeature(point2d po,unsigned distanceThreshold) {
+        SvgAbstractFeature res;
+        auto _rule = [&](svgPoint const &v) {
+            return boost::geometry::distance(getPoint(v), po) < distanceThreshold;
+        };
+        rtree.query(boost::geometry::index::satisfies(_rule), std::back_inserter(res.data));
+        return res;
+    }
+
 
     int getCount() {
         return count;
@@ -222,7 +229,7 @@ public:
 
         for (int i = 0; i < data.size(); i++) {
             for (unsigned j = 0; j < data[i].size(); j++) {
-                symmetries[0] = spatialSvg.getSubFeature(data[i][j]);
+                symmetries[0] = spatialSvg.getSubFeature(data[i][j],40);
                 symmetries[1] = symmetries[0].reflected();
                 symmetries[2] = symmetries[0].rotated();
                 symmetries[3] = symmetries[2].reflected();
@@ -240,7 +247,6 @@ public:
                         this->patterns_frequency.push_back(1);
                     }
                 }
-
             }
         }
     }
@@ -269,7 +275,7 @@ public:
     }
 
     void parseData() {
-        auto tmp = get_svg_data(this->options.input_data);
+        std::vector<std::string> tmp = get_svg_data(this->options.input_data);
         parseDataMap(tmp);
     }
 

@@ -20,8 +20,6 @@ template<class T,class AbstractFeature>
 class Svg;
 
 
-
-
 /* TODO shell脚本批量生成
 * 数据输入模块，适配多种格式的数据
 */
@@ -29,7 +27,7 @@ class Svg;
 void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, string input_data, string output_data, string type) {
     srand((unsigned) time(NULL));
 
-    input_data = "./samples/ai/wh1.svg";
+    input_data = "../samples/ai/wh1.svg";
     type = "svg";
     const Options options = {out_height, out_width, symmetry, N, channels, input_data, output_data, type};
 
