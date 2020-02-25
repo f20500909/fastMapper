@@ -39,15 +39,12 @@ public:
     bool operator == (const SvgAbstractFeature& fea){
         for(int i=0;i<data.size();i++){
 
-            point2d  pointA = std::get<0>(this->data[i]);
-            point2d  pointB = std::get<0>(fea.data[i]);
-            if(pointA.get<0>()!=pointA.get<0>()){
+            unsigned  id_1 = std::get<3>(this->data[i]);
+            unsigned  id_2 = std::get<3>(fea.data[i]);
+            if(id_1 != id_2){
                 return false;
             }
 
-            if(pointA.get<1>()!=pointA.get<1>()){
-                return false;
-            }
         }
         return true;
     }
@@ -184,7 +181,7 @@ public:
         auto _rule = [&](svgPoint const &v) {
             return boost::geometry::distance(getPoint(v), po) < distanceThreshold;
         };
-        rtree.query(boost::geometry::index::satisfies(_rule), std::back_inserter(res.data));
+        this->rtree.query(boost::geometry::index::satisfies(_rule), std::back_inserter(res.data));
         return res;
     }
 
@@ -259,7 +256,7 @@ public:
             std::vector<unsigned> tempPattern = this->patterns[pattern1].neighborPatternId;
 
             //对每个特征元素  的 每个邻居
-            for (unsigned neighborId = 0; neighborId++; neighborId < tempPattern.size()) {
+            for (unsigned neighborId = 0;  neighborId < tempPattern.size();neighborId++) {
 
                 //对每个特征元素  的 每个邻居  的每个特征元素
                 for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
@@ -269,7 +266,6 @@ public:
                         this->propagator[pattern1][neighborId].push_back(pattern2);
                     }
                 }
-
             }
         }
     }
