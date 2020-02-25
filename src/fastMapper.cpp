@@ -10,10 +10,10 @@
 #include "include/cmdline.h"
 #include "declare.hpp"
 #include "wfc.hpp"
+#include "imageModel.hpp"
 
 using namespace std;
 
-using AbstractFeature = SvgAbstractFeature;
 
 
 template<class T,class AbstractFeature>
@@ -29,8 +29,8 @@ class Svg;
 void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, string input_data, string output_data, string type) {
     srand((unsigned) time(NULL));
 
-//    input_data = "./samples/ai/wh1.svg";
-//    type = "svg";
+    input_data = "./samples/ai/wh1.svg";
+    type = "svg";
     const Options options = {out_height, out_width, symmetry, N, channels, input_data, output_data, type};
 
 //    Data<int,SvgAbstractFeature> *data;
@@ -45,6 +45,9 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
 
     Data<int, AbstractFeature> *data;
     data = new Svg<int, AbstractFeature>(options);
+
+//    Data<int,ImgAbstractFeature> *data;
+//    data = new Img<int,ImgAbstractFeature>(options);
 
     WFC wfc(data, options);
     wfc.run();

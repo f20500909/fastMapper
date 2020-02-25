@@ -35,6 +35,8 @@ public:
     SvgAbstractFeature rotated() {
         return *this;
     }
+
+
     bool operator == (const SvgAbstractFeature& fea){
         for(int i=0;i<data.size();i++){
 
@@ -51,6 +53,31 @@ public:
         }
         return true;
     }
+
+    /**
+ * Assign the matrix a to the current matrix.
+ */
+    SvgAbstractFeature &operator=(const SvgAbstractFeature & fea) noexcept {
+        data = fea.data;
+        neighborPatternId = fea.neighborPatternId;
+        return *this;
+    }
+
+    /**
+    * Check if two 2D arrays are equals.
+    */
+    bool operator==(const SvgAbstractFeature & fea) const noexcept {
+//        if (data != fea.data){
+//            return false;
+//
+//        };
+//        if (neighborPatternId != fea.neighborPatternId){
+//            return false;
+//
+//        };
+        return true;
+    }
+
 
     void setNeighborId(const std::vector<unsigned> neighborId) {
 //        this->neighborId = neighborId;
@@ -290,6 +317,11 @@ public:
         }
         return res;
     }
+
+
+    virtual void showResult(Matrix<unsigned> mat){
+        std::cout<<"svg res ...."<<std::endl;
+    };
 
 private:
     std::vector<std::vector<point2d>> data;      //原始的数据

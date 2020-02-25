@@ -369,10 +369,10 @@ namespace std {
 
 }
 
-//using  ImgAbstractFeature = Matrix<Cell>;
+using  ImgAbstractFeature = Matrix<Cell>;
 
-//class SvgAbstractFeature;
+class SvgAbstractFeature;
 //using AbstractFeature = ImgAbstractFeature;
-//using AbstractFeature = SvgAbstractFeature;
+using AbstractFeature = SvgAbstractFeature;
 
 #endif
