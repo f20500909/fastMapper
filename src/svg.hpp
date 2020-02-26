@@ -73,9 +73,12 @@ public:
         return true;
     }
 
+    void getNeighborId(const std::vector<unsigned> neighborId) {
+        this->neighborId = neighborId;
+    }
 
-    void setNeighborId(const std::vector<unsigned> neighborId) {
-//        this->neighborId = neighborId;
+    void neighborPatternId(const std::vector<unsigned> neighborId) {
+        this->neighborId = neighborId;
     }
 
     std::vector<svgPoint> data;
@@ -253,6 +256,7 @@ public:
 
         //对每个特征元素
         for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
+            // 应查询此点的
             std::vector<unsigned> tempPattern = this->patterns[pattern1].neighborPatternId;
 
             //对每个特征元素  的 每个邻居
