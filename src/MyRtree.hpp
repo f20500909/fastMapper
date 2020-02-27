@@ -4,10 +4,35 @@
 #include <functional>
 #include "./include/RTree.h"
 
+class point2D {
+public:
+    point2D() : x(0), y(0) {
+        assert(false);
+    }
 
-class svgPoint;
+    point2D(int x, int y) : x(x), y(y) {
+    }
 
-class point2D;
+    int x;
+    int y;
+};
+
+class svgPoint {
+public:
+    svgPoint(){
+
+    }
+    svgPoint(point2D point, unsigned curve_id, unsigned point_id, unsigned id) : point(point), curve_id(curve_id),
+                                                                                 point_id(point_id), id(id) {
+    }
+
+
+    point2D point;
+    unsigned curve_id;
+    unsigned point_id;
+    unsigned id;
+};
+
 
 class MyRtree {
 public:
@@ -20,10 +45,9 @@ public:
 
     }
 
-    std::vector<svgPoint *> getNearPoints(svgPoint *po) {
+    std::vector<svgPoint *> getNearPoints(svgPoint *pSvgPoint,int distance) {
         std::vector<svgPoint *> res;
-
-        point2D point = po->p;
+        point2D point = pSvgPoint->point;
 
         int x = point.x;
         int y = point.y;
@@ -37,9 +61,9 @@ public:
         return res;
     }
 
-    void insert(svgPoint *svgPoint) {
-        point2D point = svgPoint->point;
-        rtree.Insert(&point.x, &point.y, svgPoint);
+    void insert(svgPoint *pSvgPoint) {
+        point2D point = pSvgPoint->point;
+        rtree.Insert(&point.x, &point.y, pSvgPoint);
     }
 
     RTree<svgPoint *, int, 2, float> rtree;

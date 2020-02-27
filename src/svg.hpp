@@ -12,38 +12,6 @@
 
 class MyRtree;
 
-class point2D {
-public:
-
-    point2D() : x(0), y(0) {
-        assert(false);
-    }
-
-    point2D(int x, int y) : x(x), y(y) {
-    }
-
-    int x;
-    int y;
-};
-
-class svgPoint {
-public:
-    svgPoint(){
-
-    }
-    svgPoint(point2D point, unsigned curve_id, unsigned point_id, unsigned id) : point(point), curve_id(curve_id),
-                                                                                 point_id(point_id), id(id) {
-    }
-
-
-    point2D point;
-    unsigned curve_id;
-    unsigned point_id;
-    unsigned id;
-
-};
-
-
 //特征单元 波函数塌陷的最小计算单元
 class SvgAbstractFeature {
 public:
@@ -82,22 +50,8 @@ public:
         return *this;
     }
 
-    /**
-    * Check if two 2D arrays are equals.
-    */
-    bool operator==(const SvgAbstractFeature &fea) const noexcept {
-//        if (data != fea.data){
-//            return false;
-//
-//        };
-//        if (neighborPatternId != fea.neighborPatternId){
-//            return false;
-//
-//        };
-        return true;
-    }
-
     std::vector<svgPoint *> data;
+    std::vector<unsigned> neighborIds;
     svgPoint basePoint;
 };
 
@@ -110,6 +64,7 @@ namespace std {
             std::size_t seed = fea.data.size();
             for (int i = 0; i < fea.data.size(); i++) {
                 seed ^= std::size_t(fea.data[i]->point.x) + (seed << 6) + (seed >> 2);
+                seed ^= std::size_t(fea.data[i]->point.y) + (seed << 6) + (seed >> 2);
             };
             return seed;
         }
@@ -123,7 +78,7 @@ public:
         setDistanceThreshold(5);
     }
 
-    void insert(svgPoint *&svgPoint) {
+    void insert(svgPoint *svgPoint) {
         this->rtree.insert(svgPoint); // Note, all values including zero are fine in this version
     }
 
@@ -143,19 +98,19 @@ public:
         return svgPoint->id;
     }
 
-
-    void insert(svgPoint *svgPoint) {
-        rtree.insert(svgPoint);
-    }
-
     void setDistanceThreshold(int dis) {
         distanceThreshold = dis;
     }
 
-
-    SvgAbstractFeature getSubFeature(svgPoint *point) {
+    SvgAbstractFeature getSubFeature(svgPoint *point, int distance) {
         SvgAbstractFeature res;
-        res.data = this->rtree.getNearPoints(point);
+        res.data = this->rtree.getNearPoints(point, distance);
+        for (int i =0 ;i<res.data.size();i++){
+
+            if (point->id!=res.data[i]->id) {
+                res.neighborIds.push_back(res.data[i]->id);
+            }
+        }
         res.basePoint = *point;
         return res;
     }
@@ -184,8 +139,7 @@ public:
         unsigned id = 0;
         for (int i = 0; i < data.size(); i++) {
             for (unsigned j = 0; j < data[i].size(); j++) {
-                svgPoint tmp(data[i][j], i, j, id++);
-                spatialSvg.insert(tmp);
+                spatialSvg.insert(data[i][j]);
             }
         }
 
@@ -223,10 +177,10 @@ public:
         //对每个特征元素
         for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
             // 应查询此点的
-            std::vector<unsigned> tempPattern = this->patterns[pattern1].data;
+            std::vector<unsigned> neighborIds = this->patterns[pattern1].neighborIds;
 
             //对每个特征元素  的 每个邻居
-            for (unsigned neighborId = 0; neighborId < tempPattern.size(); neighborId++) {
+            for (unsigned neighborId = 0; neighborId < neighborIds.size(); neighborId++) {
 
                 //对每个特征元素  的 每个邻居  的每个特征元素
                 for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
