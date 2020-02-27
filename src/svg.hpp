@@ -29,7 +29,7 @@ public:
     }
 
     // TODO 完成这个
-    bool operator==(const SvgAbstractFeature &fea) {
+    bool operator==(const SvgAbstractFeature& fea) {
         for (int i = 0; i < data.size(); i++) {
             if (this->data[i]->point.x != fea.data[i]->point.x) {
                 return false;
@@ -39,6 +39,17 @@ public:
             }
         }
         return true;
+    }
+
+
+    size_t operator()(const SvgAbstractFeature &fea)const
+    {
+        std::size_t seed = fea.data.size();
+        for (int i = 0; i < fea.data.size(); i++) {
+            seed ^= std::size_t(fea.data[i]->point.x) + (seed << 6) + (seed >> 2);
+            seed ^= std::size_t(fea.data[i]->point.y) + (seed << 6) + (seed >> 2);
+        };
+        return seed;
     }
 
 /**
@@ -60,7 +71,7 @@ namespace std {
     template<>
     class hash<SvgAbstractFeature> {
     public:
-        size_t operator()(const SvgAbstractFeature &fea) const {
+        size_t operator()(const SvgAbstractFeature fea) const {
             std::size_t seed = fea.data.size();
             for (int i = 0; i < fea.data.size(); i++) {
                 seed ^= std::size_t(fea.data[i]->point.x) + (seed << 6) + (seed >> 2);
