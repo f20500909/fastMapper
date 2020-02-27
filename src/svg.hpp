@@ -7,17 +7,32 @@
 #include <algorithm>
 #include <functional>
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/index/rtree.hpp>
 #include "data.hpp"
 #include "declare.hpp"
 
-typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> point2d;
 
-//                   点       线条id     点id      身份id
-//                            curve_id   point_id   id
-typedef std::tuple<point2d, unsigned, unsigned, unsigned> svgPoint;
+class point2D {
+public:
+    point2D(int x, int y) : x(x), y(y) {
+    }
+
+    int x;
+    int y;
+};
+
+class svgPoint {
+public:
+
+    svgPoint(point2D p, unsigned curve_id, unsigned point_id, unsigned id) : p(p), curve_id(curve_id), point_id(point_id),id(id) {
+    }
+
+
+    point2D p;
+    unsigned curve_id;
+    unsigned point_id;
+    unsigned id;
+
+};
 
 
 //特征单元 波函数塌陷的最小计算单元
@@ -109,32 +124,32 @@ public:
     }
 
     void insert(const svgPoint &svgPoint) {
-        rtree.insert(svgPoint);
+        this->rtree.Insert(svgPoint); // Note, all values including zero are fine in this version
     }
 
-    const point2d getPoint(svgPoint const &svgPoint) {
-        return std::get<0>(svgPoint);
+    const point2D getPoint(svgPoint const &svgPoint) {
+        return svgPoint.p;
     }
 
     unsigned getSvgPatternId(svgPoint &svgPoint) {
-        return std::get<1>(svgPoint);
+        return svgPoint.curve_id;
     }
 
     unsigned getSvgPointId(svgPoint &svgPoint) {
-        return std::get<2>(svgPoint);
+        return svgPoint.point_id;
     }
 
     unsigned getSvgUniqueId(svgPoint &svgPoint) {
-        return std::get<3>(svgPoint);
+        return svgPoint.id;
     }
 
 
     //插入点 其标识码为点的序列
-    void insert(const point2d &p) {
+    void insert(const point2D &p) {
         insert(p, count++);
     }
 
-    void insert(const point2d &p, unsigned id) {
+    void insert(const point2D &p, unsigned id) {
         svgPoint svgPoint(p, 1, 1, id);
         insert(svgPoint);
     }
@@ -143,20 +158,9 @@ public:
         distanceThreshold = dis;
     }
 
-    std::vector<svgPoint> getVaildPoint() {
-        std::vector<svgPoint> res;
-        point2d sought = point2d(0, 0);
-
-        auto _rule = [&](svgPoint const &v) {
-            return boost::geometry::distance(getPoint(v), sought) < distanceThreshold;
-        };
-
-        rtree.query(boost::geometry::index::satisfies(_rule), std::back_inserter(res));
-        return res;
-    }
 
 //    //获取邻近点位
-//    std::vector<svgPoint> getNearItem(point2d &p, int distance) {
+//    std::vector<svgPoint> getNearItem(point2D &p, int distance) {
 //        std::vector<svgPoint> res;
 //
 //        auto _rule = [&](svgPoint &v) { return boost::geometry::distance(getPoint(v), p) < distance; };
@@ -170,32 +174,23 @@ public:
 //    }
 
 
-    SvgAbstractFeature getSubFeature(point2d po) {
+    SvgAbstractFeature getSubFeature(point2D po) {
         SvgAbstractFeature res;
-        auto _rule = [&](svgPoint const &v) {
-            return boost::geometry::distance(getPoint(v), po) < distanceThreshold;
-        };
-        rtree.query(boost::geometry::index::satisfies(_rule), std::back_inserter(res.data));
+
+        rtree.Search(, std::back_inserter(res.data));
         return res;
     }
 
-    SvgAbstractFeature getSubFeature(point2d po,unsigned distanceThreshold) {
+    SvgAbstractFeature getSubFeature(point2D po, unsigned distanceThreshold) {
         SvgAbstractFeature res;
-        auto _rule = [&](svgPoint const &v) {
-            return boost::geometry::distance(getPoint(v), po) < distanceThreshold;
-        };
-        this->rtree.query(boost::geometry::index::satisfies(_rule), std::back_inserter(res.data));
+
+        this->rtree.Search(, std::back_inserter(res.data));
         return res;
     }
 
-
-    int getCount() {
-        return count;
-    }
 
     int distanceThreshold;
-    int count;
-    boost::geometry::index::rtree<svgPoint, boost::geometry::index::quadratic<32> > rtree;
+    RTree<int, int, 2, float> rtree;
 };
 
 template<class T,class AbstractFeature>
@@ -290,14 +285,14 @@ public:
         //将有效片段分割
         for (int i = 0; i < strVector.size(); i++) {
             std::vector<std::string> vecSegTag;
-            std::vector<point2d> singlePolylinePoint;
+            std::vector<point2D> singlePolylinePoint;
             unsigned lenSum = 0;
 
             std::string &singlePolylineStr = strVector[i];
             boost::split(vecSegTag, singlePolylineStr, boost::is_any_of((" ,")));
 
             for (int j = 0; j < vecSegTag.size(); j = j + 2) {
-                point2d tmp(static_cast<float>(atof(vecSegTag[j].c_str())),
+                point2D tmp(static_cast<float>(atof(vecSegTag[j].c_str())),
                             static_cast<float>(atof(vecSegTag[j + 1].c_str())));
                 singlePolylinePoint.push_back(tmp);
             }
@@ -330,7 +325,7 @@ public:
     };
 
 private:
-    std::vector<std::vector<point2d>> data;      //原始的数据
+    std::vector<std::vector<point2D>> data;      //原始的数据
     std::vector<unsigned> len;        //累计的长度列表
     SpatialSvg spatialSvg;                  //封裝好的rtree  svg接口
     unsigned limit;                         //限制距离
