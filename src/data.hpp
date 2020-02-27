@@ -5,8 +5,6 @@
 #include <string>
 #include <algorithm>
 #include "base.hpp"
-#include "declare.hpp"
-
 
 using namespace std;
 

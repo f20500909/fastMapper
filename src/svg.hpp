@@ -8,11 +8,17 @@
 #include <functional>
 
 #include "data.hpp"
-#include "declare.hpp"
+#include "MyRtree.hpp"
 
+class MyRtree;
 
 class point2D {
 public:
+
+    point2D() : x(0), y(0) {
+        assert(false);
+    }
+
     point2D(int x, int y) : x(x), y(y) {
     }
 
@@ -22,12 +28,15 @@ public:
 
 class svgPoint {
 public:
+    svgPoint(){
 
-    svgPoint(point2D p, unsigned curve_id, unsigned point_id, unsigned id) : p(p), curve_id(curve_id), point_id(point_id),id(id) {
+    }
+    svgPoint(point2D point, unsigned curve_id, unsigned point_id, unsigned id) : point(point), curve_id(curve_id),
+                                                                                 point_id(point_id), id(id) {
     }
 
 
-    point2D p;
+    point2D point;
     unsigned curve_id;
     unsigned point_id;
     unsigned id;
@@ -51,15 +60,15 @@ public:
         return *this;
     }
 
-    bool operator == (const SvgAbstractFeature& fea){
-        for(int i=0;i<data.size();i++){
-
-            unsigned  id_1 = std::get<3>(this->data[i]);
-            unsigned  id_2 = std::get<3>(fea.data[i]);
-            if(id_1 != id_2){
+    // TODO 完成这个
+    bool operator==(const SvgAbstractFeature &fea) {
+        for (int i = 0; i < data.size(); i++) {
+            if (this->data[i]->point.x != fea.data[i]->point.x) {
                 return false;
             }
-
+            if (this->data[i]->point.y != fea.data[i]->point.y) {
+                return false;
+            }
         }
         return true;
     }
@@ -67,16 +76,16 @@ public:
 /**
  * Assign the matrix a to the current matrix.
  */
-    SvgAbstractFeature &operator=(const SvgAbstractFeature & fea) noexcept {
-        data = fea.data;
-        neighborPatternId = fea.neighborPatternId;
+    SvgAbstractFeature &operator=(const SvgAbstractFeature &fea) noexcept {
+        this->data = fea.data;
+        this->basePoint = fea.basePoint;
         return *this;
     }
 
     /**
     * Check if two 2D arrays are equals.
     */
-    bool operator==(const SvgAbstractFeature & fea) const noexcept {
+    bool operator==(const SvgAbstractFeature &fea) const noexcept {
 //        if (data != fea.data){
 //            return false;
 //
@@ -88,17 +97,8 @@ public:
         return true;
     }
 
-    void getNeighborId(const std::vector<unsigned> neighborId) {
-        this->neighborId = neighborId;
-    }
-
-    void neighborPatternId(const std::vector<unsigned> neighborId) {
-        this->neighborId = neighborId;
-    }
-
-    std::vector<svgPoint> data;
-
-    std::vector<unsigned> neighborPatternId;
+    std::vector<svgPoint *> data;
+    svgPoint basePoint;
 };
 
 //TODO 完成hash函数
@@ -109,7 +109,7 @@ namespace std {
         size_t operator()(const SvgAbstractFeature &fea) const {
             std::size_t seed = fea.data.size();
             for (int i = 0; i < fea.data.size(); i++) {
-                seed ^= std::size_t(std::get<3>(fea.data[i])) + (seed << 6) + (seed >> 2);
+                seed ^= std::size_t(fea.data[i]->point.x) + (seed << 6) + (seed >> 2);
             };
             return seed;
         }
@@ -123,35 +123,29 @@ public:
         setDistanceThreshold(5);
     }
 
-    void insert(const svgPoint &svgPoint) {
-        this->rtree.Insert(svgPoint); // Note, all values including zero are fine in this version
+    void insert(svgPoint *&svgPoint) {
+        this->rtree.insert(svgPoint); // Note, all values including zero are fine in this version
     }
 
-    const point2D getPoint(svgPoint const &svgPoint) {
-        return svgPoint.p;
+    const point2D getPoint(svgPoint *svgPoint) {
+        return svgPoint->point;
     }
 
-    unsigned getSvgPatternId(svgPoint &svgPoint) {
-        return svgPoint.curve_id;
+    unsigned getSvgPatternId(svgPoint *svgPoint) {
+        return svgPoint->curve_id;
     }
 
-    unsigned getSvgPointId(svgPoint &svgPoint) {
-        return svgPoint.point_id;
+    unsigned getSvgPointId(svgPoint *svgPoint) {
+        return svgPoint->point_id;
     }
 
-    unsigned getSvgUniqueId(svgPoint &svgPoint) {
-        return svgPoint.id;
+    unsigned getSvgUniqueId(svgPoint *svgPoint) {
+        return svgPoint->id;
     }
 
 
-    //插入点 其标识码为点的序列
-    void insert(const point2D &p) {
-        insert(p, count++);
-    }
-
-    void insert(const point2D &p, unsigned id) {
-        svgPoint svgPoint(p, 1, 1, id);
-        insert(svgPoint);
+    void insert(svgPoint *svgPoint) {
+        rtree.insert(svgPoint);
     }
 
     void setDistanceThreshold(int dis) {
@@ -159,50 +153,27 @@ public:
     }
 
 
-//    //获取邻近点位
-//    std::vector<svgPoint> getNearItem(point2D &p, int distance) {
-//        std::vector<svgPoint> res;
-//
-//        auto _rule = [&](svgPoint &v) { return boost::geometry::distance(getPoint(v), p) < distance; };
-//        rtree.query(boost::geometry::index::satisfies(_rule), std::back_inserter(res));
-//        return res;
-//    }
-
-
-//    SvgAbstractFeature getSubFeature(unsigned id){
-//
-//    }
-
-
-    SvgAbstractFeature getSubFeature(point2D po) {
+    SvgAbstractFeature getSubFeature(svgPoint *point) {
         SvgAbstractFeature res;
-
-        rtree.Search(, std::back_inserter(res.data));
+        res.data = this->rtree.getNearPoints(point);
+        res.basePoint = *point;
         return res;
     }
-
-    SvgAbstractFeature getSubFeature(point2D po, unsigned distanceThreshold) {
-        SvgAbstractFeature res;
-
-        this->rtree.Search(, std::back_inserter(res.data));
-        return res;
-    }
-
 
     int distanceThreshold;
-    RTree<int, int, 2, float> rtree;
+    MyRtree rtree;
 };
 
-template<class T,class AbstractFeature>
-class data ;
+template<class T, class AbstractFeature>
+class data;
 
 class Options;
 
-template<class T,class AbstractFeature>
-class Svg : public Data<T,AbstractFeature> {
+template<class T, class AbstractFeature>
+class Svg : public Data<T, AbstractFeature> {
 public:
 
-    Svg(const Options& op) : Data<T,AbstractFeature>(op) {
+    Svg(const Options &op) : Data<T, AbstractFeature>(op) {
         parseData();
         initPatterns();
         generateCompatible();
@@ -224,7 +195,7 @@ public:
 
         for (int i = 0; i < data.size(); i++) {
             for (unsigned j = 0; j < data[i].size(); j++) {
-                symmetries[0] = spatialSvg.getSubFeature(data[i][j],40);
+                symmetries[0] = spatialSvg.getSubFeature(data[i][j], 40);
                 symmetries[1] = symmetries[0].reflected();
                 symmetries[2] = symmetries[0].rotated();
                 symmetries[3] = symmetries[2].reflected();
@@ -252,10 +223,10 @@ public:
         //对每个特征元素
         for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
             // 应查询此点的
-            std::vector<unsigned> tempPattern = this->patterns[pattern1].neighborPatternId;
+            std::vector<unsigned> tempPattern = this->patterns[pattern1].data;
 
             //对每个特征元素  的 每个邻居
-            for (unsigned neighborId = 0;  neighborId < tempPattern.size();neighborId++) {
+            for (unsigned neighborId = 0; neighborId < tempPattern.size(); neighborId++) {
 
                 //对每个特征元素  的 每个邻居  的每个特征元素
                 for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
@@ -282,19 +253,21 @@ public:
             strVector[i] = row.substr(8, len - 8 - 2);
         }
 
+        unsigned cnt = 0;
         //将有效片段分割
         for (int i = 0; i < strVector.size(); i++) {
             std::vector<std::string> vecSegTag;
-            std::vector<point2D> singlePolylinePoint;
+            std::vector<svgPoint *> singlePolylinePoint;
             unsigned lenSum = 0;
 
             std::string &singlePolylineStr = strVector[i];
             boost::split(vecSegTag, singlePolylineStr, boost::is_any_of((" ,")));
 
             for (int j = 0; j < vecSegTag.size(); j = j + 2) {
-                point2D tmp(static_cast<float>(atof(vecSegTag[j].c_str())),
-                            static_cast<float>(atof(vecSegTag[j + 1].c_str())));
-                singlePolylinePoint.push_back(tmp);
+                point2D tempPoint2D(static_cast<float>(atof(vecSegTag[j].c_str())),
+                                    static_cast<float>(atof(vecSegTag[j + 1].c_str())));
+                svgPoint *tempSvgPoint = new svgPoint(tempPoint2D, i, j, cnt++);
+                singlePolylinePoint.push_back(tempSvgPoint);
             }
             lenSum += singlePolylinePoint.size();
             len.push_back(lenSum);
@@ -320,12 +293,12 @@ public:
     }
 
 
-    virtual void showResult(Matrix<unsigned> mat){
-        std::cout<<"svg res ...."<<std::endl;
+    virtual void showResult(Matrix<unsigned> mat) {
+        std::cout << "svg res ...." << std::endl;
     };
 
 private:
-    std::vector<std::vector<point2D>> data;      //原始的数据
+    std::vector<std::vector<svgPoint *>> data;      //原始的数据
     std::vector<unsigned> len;        //累计的长度列表
     SpatialSvg spatialSvg;                  //封裝好的rtree  svg接口
     unsigned limit;                         //限制距离

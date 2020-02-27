@@ -3,42 +3,46 @@
 
 #include <functional>
 #include "./include/RTree.h"
-#include "svg.hpp"
 
-class point2D;
 
 class svgPoint;
 
+class point2D;
 
-class Mytree {
+class MyRtree {
 public:
 
-    Mytree() {
+    MyRtree() {
 
     }
 
-    Mytree(int count) {
+    MyRtree(int count) {
 
     }
 
-    std::vector<unsigned> getNearPoints(const svgPoint &p) {
-        std::vector<unsigned> res;
-        const int x = p.p.x;
-        const int y = p.p.y;
+    std::vector<svgPoint *> getNearPoints(svgPoint *po) {
+        std::vector<svgPoint *> res;
 
-        auto func = [&](int id) { res.push_back(id); return true; };
+        point2D point = po->p;
 
-        tree.Search(&x, &y, func);
+        int x = point.x;
+        int y = point.y;
+
+        std::function<bool(svgPoint *)> func = [&](svgPoint *po) {
+            res.push_back(po);
+            return true;
+        };
+
+        rtree.Search(&x, &y, func);
         return res;
     }
 
-
-
-    void insert(const svgPoint &p) {
-
+    void insert(svgPoint *svgPoint) {
+        point2D point = svgPoint->point;
+        rtree.Insert(&point.x, &point.y, svgPoint);
     }
 
-    RTree<int, int, 2, float> tree;
+    RTree<svgPoint *, int, 2, float> rtree;
 };
 
 
