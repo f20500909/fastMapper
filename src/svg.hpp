@@ -42,20 +42,50 @@ public:
      0000 0000   不同线段上的临近点数量
      0000 0000   角度
      */
-    void reSetVal() {
-        val = BitMap(128);
+    void reSetVal(std::vector<std::vector<svgPoint *>> &data) {
+        val = BitMap(64);
         //起始点判定
-        if (basePoint.point_id==0 ){
-            val.bitmapSet(1);
+        if (basePoint.point_id == 0) {
+            val.set(0, 1);
         }
-        //终止判定
-        if (basePoint.point_id==0 ){
-            val.bitmapSet(1);
+        //终止点判定
+        for (int i = 0; i < data.size(); i++) {
+            int len = data[i].size();
+            if (basePoint.point_id == data[i][len - 1]->point_id) {
+                val.set(1, 1);
+            }
         }
-        //同线段上的临近点数量
-        //同线段上的临近点数量
-    }
 
+        //同线段上的临近点数量
+        int sameCurvePointNumber = 0;
+        for (int i = 0; i < this->data.size(); i++) {
+            if (this->data[i]->curve_id == basePoint.curve_id) {
+                sameCurvePointNumber++;
+            }
+        }
+
+        sameCurvePointNumber = uint8_t(sameCurvePointNumber);
+        sameCurvePointNumber = min(sameCurvePointNumber, 0xff);
+
+        val.setNumber(1, sameCurvePointNumber);
+
+        //不同线段上的临近点数量
+        val.set(2, data.size() - sameCurvePointNumber);
+
+        //角度掩码
+        //如果是起点或者终点，角度默认设为0
+        //既不是起点 也不是终点
+        if (!val.get(0) and !val.get(1)) {
+            int i = basePoint.curve_id;
+            int j = basePoint.point_id;
+            point2D p1 = data[i][j - 1]->point;
+            point2D p3 = data[i][j + 1]->point;
+            double angle = basePoint.point.get_angle(p1, p3);
+            angle = angle/45;
+            val.set(3,  (uint8_t)angle);
+        }
+
+    }
 
 
     /**
@@ -103,7 +133,7 @@ public:
     }
 
     void insert(svgPoint *svgPoint) {
-        std::cout<<*svgPoint;
+        std::cout << *svgPoint;
         this->rtree.insert(svgPoint); // Note, all values including zero are fine in this version
     }
 
@@ -127,17 +157,20 @@ public:
         distanceThreshold = dis;
     }
 
-    SvgAbstractFeature getSubFeature(svgPoint *point, int distance) {
+    SvgAbstractFeature getSubFeature(int i, int j, std::vector<std::vector<svgPoint *>> &data, int distance) {
+        svgPoint *point = data[i][j];
         SvgAbstractFeature res;
         res.data = this->rtree.getNearPoints(point, distance);
-        for (int i =0 ;i<res.data.size();i++){
+        for (int i = 0; i < res.data.size(); i++) {
 
-            if (point->id!=res.data[i]->id) {
+            if (point->id != res.data[i]->id) {
                 res.neighborIds.push_back(res.data[i]->id);
             }
+
         }
         res.basePoint = *point;
-        res.reSetVal();
+        //传入data 用于计算点位属性
+        res.reSetVal(data);
 
         return res;
     }
@@ -191,7 +224,7 @@ public:
 
         for (int i = 0; i < data.size(); i++) {
             for (unsigned j = 0; j < data[i].size(); j++) {
-                symmetries[0] = spatialSvg.getSubFeature(data[i][j], 40);
+                symmetries[0] = spatialSvg.getSubFeature(i, j, data, 40);
                 symmetries[1] = symmetries[0].reflected();
                 symmetries[2] = symmetries[0].rotated();
                 symmetries[3] = symmetries[2].reflected();
@@ -256,10 +289,10 @@ public:
             unsigned lenSum = 0;
 
             std::string &singlePolylineStr = strVector[i];
-            std::vector<std::string> vecSegTag = unit::split_str(singlePolylineStr," ");
+            std::vector<std::string> vecSegTag = unit::split_str(singlePolylineStr, " ");
 
-            for (int j = 0; j < vecSegTag.size(); j ++) {
-                std::vector<std::string> pointSeg = unit::split_str(vecSegTag[j],",");
+            for (int j = 0; j < vecSegTag.size(); j++) {
+                std::vector<std::string> pointSeg = unit::split_str(vecSegTag[j], ",");
 
                 point2D tempPoint2D(static_cast<float>(atof(pointSeg[0].c_str())),
                                     static_cast<float>(atof(pointSeg[1].c_str())));
@@ -293,10 +326,10 @@ public:
     virtual void showResult(Matrix<unsigned> mat) {
         for (unsigned x = 0; x < mat.width; x++) {
             for (unsigned y = 0; y < mat.height; y++) {
-                std::cout<<mat.get(x,y)<<" ";
+                std::cout << mat.get(x, y) << " ";
             }
         }
-        std::cout<<std::endl;
+        std::cout << std::endl;
     };
 
 private:

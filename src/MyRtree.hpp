@@ -15,6 +15,26 @@ public:
     }
 
 
+    double get_angle(point2D& p1,point2D& p3)
+    {
+
+        float x1 =p1.x;
+        float y1=p1.y;
+
+        float x3=p3.x;
+        float y3=p3.y;
+
+
+        double theta = atan2(x1 - x3, y1 - y3) - atan2(this->x - x3, this->y - y3);
+        if (theta > M_PI)
+            theta -= 2 * M_PI;
+        if (theta < -M_PI)
+            theta += 2 * M_PI;
+
+        theta = abs(theta * 180.0 / M_PI);
+        return theta;
+    }
+
 
     double get_angle(double x1, double y1, double x2, double y2, double x3, double y3)
     {
@@ -27,7 +47,6 @@ public:
         theta = abs(theta * 180.0 / M_PI);
         return theta;
     }
-
 
     double get_angle(double x1, double y1, double x3, double y3)
     {
@@ -63,7 +82,6 @@ public:
         return os;
     }
 
-
     point2D point;
     unsigned curve_id;
     unsigned point_id;
@@ -75,7 +93,6 @@ class MyRtree {
 public:
 
     MyRtree() {
-
     }
 
     MyRtree(int count) {

@@ -1,78 +1,97 @@
-//
-//  Header.h
-//  BloomFilter
-//
-//  Created by Alps on 15/3/19.
-//  Copyright (c) 2015年 chen. All rights reserved.
-//
-//这个是 BitMap.h文件。
+#ifndef SRC_BITMAP_HPP
+#define SRC_BITMAP_HPP
+#include <iostream>
+#include <cassert>
+#include <memory>
+#include <ostream>
+#include <memory.h>
+#include <bitset>
 
-class BitMap{
+class BitMap {
 public:
-    BitMap(){
-        bitmap = NULL;
+    BitMap() {
+        data = nullptr;
         size = 0;
     }
-    BitMap(int size){ // contractor, init the bitmap
-        bitmap = NULL;
-        bitmap = new char[size];
-        if (bitmap == NULL) {
-            printf("ErroR In BitMap Constractor!\n");
-        }else{
-            memset(bitmap, 0x0, size * sizeof(char));
-            this->size = size;
+
+    BitMap(int size) : size(size), charSize(size / 8) { // contractor, init the data
+        data = new uint8_t[charSize];
+        assert(data);
+        memset(data, 0x0, charSize * sizeof(uint8_t));
+    }
+
+    ~BitMap() {
+        delete[] data;
+    }
+
+    void set(int index, bool status) {
+        if (status) {
+            setTrue(index);
+        } else {
+            setFalse(index);
         }
     }
 
-
-    /*
-     * set the index bit to 1;
-     */
-    int bitmapSet(int index){
-        int addr = index/8;
-        int addroffset = index%8;
-        unsigned char temp = 0x1 << addroffset;
-        if (addr > (size+1)) {
-            return 0;
-        }else{
-            bitmap[addr] |= temp;
-            return 1;
-        }
+    void setTrue(int index) {
+        int addr = index / 8;
+        int addroffset = index % 8;
+        uint8_t temp = 0x1 << (7 - addroffset);
+        assert (addr <= charSize + 1);
+        data[addr] |= temp;
     }
 
-    /*
-     * return if the index in bitmap is 1;
-     */
-    int bitmapGet(int index){
-        int addr = index/8;
-        int addroffset = index%8;
-        unsigned char temp = 0x1 << addroffset;
-        if (addr > (size + 1)) {
-            return 0;
-        }else{
-            return (bitmap[addr] & temp) > 0 ? 1 : 0;
-        }
+    void set(int charId, int bitId, bool status) {
+        int index = charId * 8 + bitId;
+        set(index, status);
     }
 
-    /*
-     * del the index from 1 to 0
-     */
-    int bitmapDel(int index){
-        if (bitmapGet(index) == 0) {
-            return 0;
-        }
-        int addr = index/8;
-        int addroffset = index%8;
-        unsigned char temp = 0x1 << addroffset;
-        if (addr > (size + 1)) {
-            return 0;
-        }else{
-            bitmap[addr] ^= temp;
-            return 1;
-        }
+    bool get(int charId, int bitId) {
+        int index = charId * 8 + bitId;
+        return get(index);
     }
+
+    bool get(int index) {
+        int addr = index / 8;
+        int addroffset = index % 8;
+        uint8_t temp = 0x1 << (7 - addroffset);
+        assert(addr <= charSize);
+        return (data[addr] & temp) > 0 ? 1 : 0;
+    }
+
+    void setFalse(int index) {
+        if (get(index) == 0) {
+            return;
+        }
+        int addr = index / 8;
+        int addroffset = index % 8;
+        uint8_t temp = 0x1 << (7 - addroffset);
+        assert(addr <= charSize);
+        data[addr] ^= temp;
+        return;
+    }
+
+
+    //把一个字符的8位设置为值
+    void setNumber(int index, uint8_t number) {
+        data[index] = number;
+        return;
+    }
+
+
+    friend std::ostream &operator<<(std::ostream &os, const BitMap &map) {
+        for (int i = 0; i < map.charSize; i++) {
+            os << std::bitset<8>(map.data[i]) << " ";
+        }
+        os << std::endl;
+        return os;
+    }
+
 
 private:
-    char *bitmap;
+    uint8_t *data;
+    int charSize;
     int size;
 };
+
+
+#endif // SRC_BITMAP_HPP
