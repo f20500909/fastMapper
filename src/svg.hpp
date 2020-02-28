@@ -12,6 +12,7 @@
 
 class MyRtree;
 
+
 //特征单元 波函数塌陷的最小计算单元
 class SvgAbstractFeature {
 public:
@@ -28,18 +29,6 @@ public:
         return *this;
     }
 
-    // TODO 完成这个
-    bool operator==(const SvgAbstractFeature &fea) {
-        for (int i = 0; i < data.size(); i++) {
-            if (this->data[i]->point.x != fea.data[i]->point.x) {
-                return false;
-            }
-            if (this->data[i]->point.y != fea.data[i]->point.y) {
-                return false;
-            }
-        }
-        return true;
-    }
 
 /**
  * Assign the matrix a to the current matrix.
@@ -118,6 +107,19 @@ public:
     int distanceThreshold;
     MyRtree rtree;
 };
+
+
+bool operator==(SvgAbstractFeature left, SvgAbstractFeature right) {
+    for (unsigned i = 0; i < left.data.size(); i++) {
+        if (left.data[i]->point.x != right.data[i]->point.x) {
+            return false;
+        }
+        if (left.data[i]->point.y != right.data[i]->point.y) {
+            return false;
+        }
+    }
+    return true;
+}
 
 template<class T, class AbstractFeature>
 class data;

@@ -37,4 +37,4 @@ add_executable(main  ${CPP_SRC_LIST})
 
 #link_directories(./output)
 #add_executable(runExe src/run.cpp)
-TARGET_LINK_LIBRARIES(main ${Boost_LIBRARIES}  )
+#TARGET_LINK_LIBRARIES(main ${Boost_LIBRARIES}  )
