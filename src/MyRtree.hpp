@@ -7,14 +7,42 @@
 class point2D {
 public:
     point2D() : x(0), y(0) {
-        assert(false);
+        std::cout<<"err.."<<endl;
     }
 
-    point2D(int x, int y) : x(x), y(y) {
+
+    point2D(float x, float y) : x(x), y(y) {
     }
 
-    int x;
-    int y;
+
+
+    double get_angle(double x1, double y1, double x2, double y2, double x3, double y3)
+    {
+        double theta = atan2(x1 - x3, y1 - y3) - atan2(x2 - x3, y2 - y3);
+        if (theta > M_PI)
+            theta -= 2 * M_PI;
+        if (theta < -M_PI)
+            theta += 2 * M_PI;
+
+        theta = abs(theta * 180.0 / M_PI);
+        return theta;
+    }
+
+
+    double get_angle(double x1, double y1, double x3, double y3)
+    {
+        double theta = atan2(x1 - x3, y1 - y3) - atan2(x - x3, y - y3);
+        if (theta > M_PI)
+            theta -= 2 * M_PI;
+        if (theta < -M_PI)
+            theta += 2 * M_PI;
+
+        theta = abs(theta * 180.0 / M_PI);
+        return theta;
+    }
+
+    float x;
+    float y;
 };
 
 class svgPoint {
@@ -24,6 +52,15 @@ public:
     }
     svgPoint(point2D point, unsigned curve_id, unsigned point_id, unsigned id) : point(point), curve_id(curve_id),
                                                                                  point_id(point_id), id(id) {
+    }
+
+    friend ostream &operator<<(ostream &os, const svgPoint svgPoint) {
+        os << " [" << svgPoint.point.x << " , " << svgPoint.point.y << "] "
+           << svgPoint.curve_id << " "
+           << svgPoint.point_id << " "
+           << svgPoint.id << " "
+           << endl;
+        return os;
     }
 
 
@@ -49,8 +86,8 @@ public:
         std::vector<svgPoint *> res;
         point2D point = pSvgPoint->point;
 
-        int x = point.x;
-        int y = point.y;
+        float x = point.x;
+        float y = point.y;
 
         std::function<bool(svgPoint *)> func = [&](svgPoint *po) {
             res.push_back(po);
@@ -66,7 +103,7 @@ public:
         rtree.Insert(&point.x, &point.y, pSvgPoint);
     }
 
-    RTree<svgPoint *, int, 2, float> rtree;
+    RTree<svgPoint *, float, 2, float> rtree;
 };
 
 

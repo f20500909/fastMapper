@@ -4,6 +4,7 @@
 #include <tuple>
 #include <vector>
 #include <array>
+#include <functional>
 
 #include "array3D.hpp"
 #include "wave.hpp"
@@ -56,7 +57,6 @@ private:
         std::array<int, directionNumbers> value;
 
         auto iterFunc = [&](int direction, int pattern1) {
-            value[direction] = propagator_state[pattern1][get_opposite_direction(direction)].size();
         };
 
         // We compute the number of pattern compatible in all directions.

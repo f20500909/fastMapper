@@ -9,8 +9,11 @@
 
 #include "data.hpp"
 #include "MyRtree.hpp"
+#include "unti.hpp"
+#include "./include/bitMap.h"
 
 class MyRtree;
+
 
 //特征单元 波函数塌陷的最小计算单元
 class SvgAbstractFeature {
@@ -28,31 +31,34 @@ public:
         return *this;
     }
 
-    // TODO 完成这个
-    bool operator==(const SvgAbstractFeature& fea) {
-        for (int i = 0; i < data.size(); i++) {
-            if (this->data[i]->point.x != fea.data[i]->point.x) {
-                return false;
-            }
-            if (this->data[i]->point.y != fea.data[i]->point.y) {
-                return false;
-            }
+    //得到旋转后的图形
+
+
+    /*
+     * 位图法标识
+
+     0000 0000   1 2 位 起始点  终止点
+     0000 0000   同线段上的临近点数量
+     0000 0000   不同线段上的临近点数量
+     0000 0000   角度
+     */
+    void reSetVal() {
+        val = BitMap(128);
+        //起始点判定
+        if (basePoint.point_id==0 ){
+            val.bitmapSet(1);
         }
-        return true;
+        //终止判定
+        if (basePoint.point_id==0 ){
+            val.bitmapSet(1);
+        }
+        //同线段上的临近点数量
+        //同线段上的临近点数量
     }
 
 
-    size_t operator()(const SvgAbstractFeature &fea)const
-    {
-        std::size_t seed = fea.data.size();
-        for (int i = 0; i < fea.data.size(); i++) {
-            seed ^= std::size_t(fea.data[i]->point.x) + (seed << 6) + (seed >> 2);
-            seed ^= std::size_t(fea.data[i]->point.y) + (seed << 6) + (seed >> 2);
-        };
-        return seed;
-    }
 
-/**
+    /**
  * Assign the matrix a to the current matrix.
  */
     SvgAbstractFeature &operator=(const SvgAbstractFeature &fea) noexcept {
@@ -63,6 +69,13 @@ public:
 
     std::vector<svgPoint *> data;
     std::vector<unsigned> neighborIds;
+
+    unsigned beforeNumber;
+    unsigned afterNumber;
+
+    BitMap val;
+
+
     svgPoint basePoint;
 };
 
@@ -71,7 +84,7 @@ namespace std {
     template<>
     class hash<SvgAbstractFeature> {
     public:
-        size_t operator()(const SvgAbstractFeature fea) const {
+        size_t operator()(const SvgAbstractFeature &fea) const {
             std::size_t seed = fea.data.size();
             for (int i = 0; i < fea.data.size(); i++) {
                 seed ^= std::size_t(fea.data[i]->point.x) + (seed << 6) + (seed >> 2);
@@ -90,6 +103,7 @@ public:
     }
 
     void insert(svgPoint *svgPoint) {
+        std::cout<<*svgPoint;
         this->rtree.insert(svgPoint); // Note, all values including zero are fine in this version
     }
 
@@ -123,12 +137,27 @@ public:
             }
         }
         res.basePoint = *point;
+        res.reSetVal();
+
         return res;
     }
 
     int distanceThreshold;
     MyRtree rtree;
 };
+
+
+bool operator==(SvgAbstractFeature left, SvgAbstractFeature right) {
+    for (unsigned i = 0; i < left.data.size(); i++) {
+        if (left.data[i]->point.x != right.data[i]->point.x) {
+            return false;
+        }
+        if (left.data[i]->point.y != right.data[i]->point.y) {
+            return false;
+        }
+    }
+    return true;
+}
 
 template<class T, class AbstractFeature>
 class data;
@@ -143,6 +172,8 @@ public:
         parseData();
         initPatterns();
         generateCompatible();
+
+
     }
 
     void initPatterns() {
@@ -221,16 +252,17 @@ public:
         unsigned cnt = 0;
         //将有效片段分割
         for (int i = 0; i < strVector.size(); i++) {
-            std::vector<std::string> vecSegTag;
             std::vector<svgPoint *> singlePolylinePoint;
             unsigned lenSum = 0;
 
             std::string &singlePolylineStr = strVector[i];
-            boost::split(vecSegTag, singlePolylineStr, boost::is_any_of((" ,")));
+            std::vector<std::string> vecSegTag = unit::split_str(singlePolylineStr," ");
 
-            for (int j = 0; j < vecSegTag.size(); j = j + 2) {
-                point2D tempPoint2D(static_cast<float>(atof(vecSegTag[j].c_str())),
-                                    static_cast<float>(atof(vecSegTag[j + 1].c_str())));
+            for (int j = 0; j < vecSegTag.size(); j ++) {
+                std::vector<std::string> pointSeg = unit::split_str(vecSegTag[j],",");
+
+                point2D tempPoint2D(static_cast<float>(atof(pointSeg[0].c_str())),
+                                    static_cast<float>(atof(pointSeg[1].c_str())));
                 svgPoint *tempSvgPoint = new svgPoint(tempPoint2D, i, j, cnt++);
                 singlePolylinePoint.push_back(tempSvgPoint);
             }
@@ -259,7 +291,12 @@ public:
 
 
     virtual void showResult(Matrix<unsigned> mat) {
-        std::cout << "svg res ...." << std::endl;
+        for (unsigned x = 0; x < mat.width; x++) {
+            for (unsigned y = 0; y < mat.height; y++) {
+                std::cout<<mat.get(x,y)<<" ";
+            }
+        }
+        std::cout<<std::endl;
     };
 
 private:
