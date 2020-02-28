@@ -6,19 +6,19 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
 #add_subdirectory(test_temp)
 
-set(OpenCV_DIR "D:\\package\\developer\\opencv\\wh_build\\install")
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-
-find_package(OpenCV REQUIRED)
-
-include_directories(${OpenCV_INCLUDE_DIRS})
-
-
-set(BOOST_ROOT "D:\\package\\developer\\boost_1_69_0\\boost")
-find_package(Boost)
-
-include_directories(${Boost_INCLUDE_DIRS})
+#set(OpenCV_DIR "D:\\package\\developer\\opencv\\wh_build\\install")
+#
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+#
+#find_package(OpenCV REQUIRED)
+#
+#include_directories(${OpenCV_INCLUDE_DIRS})
+#
+#
+#set(BOOST_ROOT "D:\\package\\developer\\boost_1_69_0\\boost")
+#find_package(Boost)
+#
+#include_directories(${Boost_INCLUDE_DIRS})
 
 include_directories(./src)
 include_directories(./src/include)

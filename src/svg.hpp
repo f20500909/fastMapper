@@ -9,6 +9,7 @@
 
 #include "data.hpp"
 #include "MyRtree.hpp"
+#include "unti.hpp"
 
 class MyRtree;
 
@@ -68,6 +69,7 @@ public:
     }
 
     void insert(svgPoint *svgPoint) {
+        std::cout<<*svgPoint;
         this->rtree.insert(svgPoint); // Note, all values including zero are fine in this version
     }
 
@@ -134,6 +136,8 @@ public:
         parseData();
         initPatterns();
         generateCompatible();
+
+
     }
 
     void initPatterns() {
@@ -212,16 +216,17 @@ public:
         unsigned cnt = 0;
         //将有效片段分割
         for (int i = 0; i < strVector.size(); i++) {
-            std::vector<std::string> vecSegTag;
             std::vector<svgPoint *> singlePolylinePoint;
             unsigned lenSum = 0;
 
             std::string &singlePolylineStr = strVector[i];
-            boost::split(vecSegTag, singlePolylineStr, boost::is_any_of((" ,")));
+            std::vector<std::string> vecSegTag = unit::split_str(singlePolylineStr," ");
 
-            for (int j = 0; j < vecSegTag.size(); j = j + 2) {
-                point2D tempPoint2D(static_cast<float>(atof(vecSegTag[j].c_str())),
-                                    static_cast<float>(atof(vecSegTag[j + 1].c_str())));
+            for (int j = 0; j < vecSegTag.size(); j ++) {
+                std::vector<std::string> pointSeg = unit::split_str(vecSegTag[j],",");
+
+                point2D tempPoint2D(static_cast<float>(atof(pointSeg[0].c_str())),
+                                    static_cast<float>(atof(pointSeg[1].c_str())));
                 svgPoint *tempSvgPoint = new svgPoint(tempPoint2D, i, j, cnt++);
                 singlePolylinePoint.push_back(tempSvgPoint);
             }

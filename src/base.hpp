@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <fstream>
 #include <regex>
-#include <boost/algorithm/string.hpp>
 
 #include "declare.hpp"
 

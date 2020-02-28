@@ -28,24 +28,24 @@ public:
     }
 
     void initDataWithOpencv() {
-        Mat src = imread(this->options.input_data.c_str());
-        assert(!src.empty());
-
-        int row = src.rows;
-        int col = src.cols;
-
-        this->_data = ImgAbstractFeature(row, col);
-
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                Vec3b vec_3 = src.at<Vec3b>(i, j);
-                int b = vec_3[0];
-                int g = vec_3[1];
-                int r = vec_3[2];
-                cout << "B:" << b << " G:" << g << " R:" << r << endl;
-                this->_data.data[i * col + j] = Cell(r, g, b);
-            }
-        }
+//        Mat src = imread(this->options.input_data.c_str());
+//        assert(!src.empty());
+//
+//        int row = src.rows;
+//        int col = src.cols;
+//
+//        this->_data = ImgAbstractFeature(row, col);
+//
+//        for (int i = 0; i < row; i++) {
+//            for (int j = 0; j < col; j++) {
+//                Vec3b vec_3 = src.at<Vec3b>(i, j);
+//                int b = vec_3[0];
+//                int g = vec_3[1];
+//                int r = vec_3[2];
+//                cout << "B:" << b << " G:" << g << " R:" << r << endl;
+//                this->_data.data[i * col + j] = Cell(r, g, b);
+//            }
+//        }
     }
 
     void initDataWithImg() {
