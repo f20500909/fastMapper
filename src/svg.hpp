@@ -10,6 +10,7 @@
 #include "data.hpp"
 #include "MyRtree.hpp"
 #include "unti.hpp"
+#include "./include/bitMap.h"
 
 class MyRtree;
 
@@ -30,8 +31,34 @@ public:
         return *this;
     }
 
+    //得到旋转后的图形
 
-/**
+
+    /*
+     * 位图法标识
+
+     0000 0000   1 2 位 起始点  终止点
+     0000 0000   同线段上的临近点数量
+     0000 0000   不同线段上的临近点数量
+     0000 0000   角度
+     */
+    void reSetVal() {
+        val = BitMap(128);
+        //起始点判定
+        if (basePoint.point_id==0 ){
+            val.bitmapSet(1);
+        }
+        //终止判定
+        if (basePoint.point_id==0 ){
+            val.bitmapSet(1);
+        }
+        //同线段上的临近点数量
+        //同线段上的临近点数量
+    }
+
+
+
+    /**
  * Assign the matrix a to the current matrix.
  */
     SvgAbstractFeature &operator=(const SvgAbstractFeature &fea) noexcept {
@@ -42,6 +69,13 @@ public:
 
     std::vector<svgPoint *> data;
     std::vector<unsigned> neighborIds;
+
+    unsigned beforeNumber;
+    unsigned afterNumber;
+
+    BitMap val;
+
+
     svgPoint basePoint;
 };
 
@@ -103,6 +137,8 @@ public:
             }
         }
         res.basePoint = *point;
+        res.reSetVal();
+
         return res;
     }
 
@@ -255,7 +291,12 @@ public:
 
 
     virtual void showResult(Matrix<unsigned> mat) {
-        std::cout << "svg res ...." << std::endl;
+        for (unsigned x = 0; x < mat.width; x++) {
+            for (unsigned y = 0; y < mat.height; y++) {
+                std::cout<<mat.get(x,y)<<" ";
+            }
+        }
+        std::cout<<std::endl;
     };
 
 private:
