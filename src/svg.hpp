@@ -25,7 +25,6 @@ public:
 
     SvgAbstractFeature(std::vector<svgPoint *> nearPoints, svgPoint basePoint, std::vector<std::vector<svgPoint *>> &allSvgData)
             : data(nearPoints), basePoint(basePoint) {
-
         for (int i = 0; i < this->data.size(); i++) {
             if (this->basePoint.id != this->data[i]->id) {
                 this->neighborIds.push_back(this->data[i]->id);
@@ -94,8 +93,9 @@ public:
             point2D p1 = data[i][j - 1]->point;
             point2D p3 = data[i][j + 1]->point;
             double angle = basePoint.point.get_angle(p1, p3);
-            angle = angle/45;
-            val.set(3,  (uint8_t)angle);
+            angle = (uint8_t)(angle/30);
+            std::cout<<angle<<std::endl;
+            val.set(3,  angle);
         }
 
     }
@@ -111,9 +111,9 @@ public:
 
     std::vector<svgPoint *> data;
     std::vector<unsigned> neighborIds;
-
-    unsigned beforeNumber;
-    unsigned afterNumber;
+//
+//    unsigned beforeNumber;
+//    unsigned afterNumber;
 
     BitMap val;
 
@@ -129,7 +129,7 @@ namespace std {
             std::size_t seed = fea.data.size();
             for (int i = 0; i < fea.data.size(); i++) {
                 seed ^= std::size_t(fea.data[i]->point.x) + (seed << 6) + (seed >> 2);
-                seed ^= std::size_t(fea.data[i]->point.y) + (seed << 6) + (seed >> 2);
+                seed ^= std::size_t(fea.data[i]->point.y) + (seed << 2) + (seed >> 6);
             };
             return seed;
         }
@@ -168,7 +168,7 @@ public:
         distanceThreshold = dis;
     }
 
-    SvgAbstractFeature getSubFeature(int i, int j, std::vector<std::vector<svgPoint *>> &data, int distance) {
+    SvgAbstractFeature getSubFeature(int i, int j, std::vector<std::vector<svgPoint *>> &data, float distance) {
         svgPoint *point = data[i][j];
 //        SvgAbstractFeature res;
         std::vector<svgPoint *> nearPoints = this->rtree.getNearPoints(point, distance);
@@ -227,7 +227,7 @@ public:
 
         for (int i = 0; i < data.size(); i++) {
             for (unsigned j = 0; j < data[i].size(); j++) {
-                symmetries[0] = spatialSvg.getSubFeature(i, j, data, 40);
+                symmetries[0] = spatialSvg.getSubFeature(i, j, data, 30.0);
                 symmetries[1] = symmetries[0].reflected();
                 symmetries[2] = symmetries[0].rotated();
                 symmetries[3] = symmetries[2].reflected();

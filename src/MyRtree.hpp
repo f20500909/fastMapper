@@ -99,19 +99,20 @@ public:
 
     }
 
-    std::vector<svgPoint *> getNearPoints(svgPoint *pSvgPoint,int distance) {
+    std::vector<svgPoint *> getNearPoints(svgPoint *pSvgPoint,float distance) {
         std::vector<svgPoint *> res;
         point2D point = pSvgPoint->point;
 
-        float x = point.x;
-        float y = point.y;
+
+        float min[2] ={point.x-distance,point.y-distance};
+        float max[2] ={point.y+distance,point.y+distance};
 
         std::function<bool(svgPoint *)> func = [&](svgPoint *po) {
             res.push_back(po);
             return true;
         };
 
-        rtree.Search(&x, &y, func);
+        rtree.Search(min, max, func);
         return res;
     }
 
@@ -119,7 +120,7 @@ public:
         point2D point = pSvgPoint->point;
 
         float min[2] ={point.x,point.y};
-        float max[2] ={point.y,point.y};
+        float max[2] ={point.x +1,point.y +1};
 
         rtree.Insert(min, max, pSvgPoint);
     }

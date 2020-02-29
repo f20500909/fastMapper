@@ -4,7 +4,6 @@
 #include <iostream>
 #include <random>
 #include <string>
-#include <unistd.h>
 #include <unordered_set>
 
 #include "include/cmdline.h"
