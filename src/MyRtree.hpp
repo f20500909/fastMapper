@@ -117,7 +117,11 @@ public:
 
     void insert(svgPoint *pSvgPoint) {
         point2D point = pSvgPoint->point;
-        rtree.Insert(&point.x, &point.y, pSvgPoint);
+
+        float min[2] ={point.x,point.y};
+        float max[2] ={point.y,point.y};
+
+        rtree.Insert(min, max, pSvgPoint);
     }
 
     RTree<svgPoint *, float, 2, float> rtree;

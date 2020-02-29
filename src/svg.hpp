@@ -18,7 +18,21 @@ class MyRtree;
 //特征单元 波函数塌陷的最小计算单元
 class SvgAbstractFeature {
 public:
+
     SvgAbstractFeature() {
+
+    }
+
+    SvgAbstractFeature(std::vector<svgPoint *> nearPoints, svgPoint basePoint, std::vector<std::vector<svgPoint *>> &allSvgData)
+            : data(nearPoints), basePoint(basePoint) {
+
+        for (int i = 0; i < this->data.size(); i++) {
+            if (this->basePoint.id != this->data[i]->id) {
+                this->neighborIds.push_back(this->data[i]->id);
+            }
+        }
+
+        this->reSetVal(allSvgData);
     }
 
     //得到镜像图形
@@ -36,7 +50,6 @@ public:
 
     /*
      * 位图法标识
-
      0000 0000   1 2 位 起始点  终止点
      0000 0000   同线段上的临近点数量
      0000 0000   不同线段上的临近点数量
@@ -87,7 +100,6 @@ public:
 
     }
 
-
     /**
  * Assign the matrix a to the current matrix.
  */
@@ -104,7 +116,6 @@ public:
     unsigned afterNumber;
 
     BitMap val;
-
 
     svgPoint basePoint;
 };
@@ -133,8 +144,8 @@ public:
     }
 
     void insert(svgPoint *svgPoint) {
-        std::cout << *svgPoint;
         this->rtree.insert(svgPoint); // Note, all values including zero are fine in this version
+//        std::cout << *svgPoint;
     }
 
     const point2D getPoint(svgPoint *svgPoint) {
@@ -159,18 +170,10 @@ public:
 
     SvgAbstractFeature getSubFeature(int i, int j, std::vector<std::vector<svgPoint *>> &data, int distance) {
         svgPoint *point = data[i][j];
-        SvgAbstractFeature res;
-        res.data = this->rtree.getNearPoints(point, distance);
-        for (int i = 0; i < res.data.size(); i++) {
+//        SvgAbstractFeature res;
+        std::vector<svgPoint *> nearPoints = this->rtree.getNearPoints(point, distance);
 
-            if (point->id != res.data[i]->id) {
-                res.neighborIds.push_back(res.data[i]->id);
-            }
-
-        }
-        res.basePoint = *point;
-        //传入data 用于计算点位属性
-        res.reSetVal(data);
+        SvgAbstractFeature res(nearPoints, *point, data);
 
         return res;
     }

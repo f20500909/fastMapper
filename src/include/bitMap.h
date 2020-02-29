@@ -21,7 +21,7 @@ public:
     }
 
     ~BitMap() {
-        delete[] data;
+//        delete data;
     }
 
     void set(int index, bool status) {
@@ -80,7 +80,7 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const BitMap &map) {
         for (int i = 0; i < map.charSize; i++) {
-            os << std::bitset<8>(map.data[i]) << " ";
+            os << std::bitset<8>(map.data[i]) << "";
         }
         os << std::endl;
         return os;
