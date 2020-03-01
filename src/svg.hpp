@@ -11,6 +11,7 @@
 #include "MyRtree.hpp"
 #include "unti.hpp"
 #include "./include/bitMap.h"
+#include "./include/simple_svg.hpp"
 
 class MyRtree;
 
@@ -23,11 +24,19 @@ public:
 
     }
 
-    SvgAbstractFeature(std::vector<svgPoint *> nearPoints, svgPoint basePoint, std::vector<std::vector<svgPoint *>> &allSvgData)
-            : data(nearPoints), basePoint(basePoint) {
-        for (int i = 0; i < this->data.size(); i++) {
-            if (this->basePoint.id != this->data[i]->id) {
-                this->neighborIds.push_back(this->data[i]->id);
+    SvgAbstractFeature(std::vector<svgPoint *> nearPoints, svgPoint basePoint,
+                       std::vector<std::vector<svgPoint *>> &allSvgData) : basePoint(basePoint) {
+
+        // 把对此点的相对坐标写入  data 作为特征数据
+        for (int i = 0; i < nearPoints.size(); i++) {
+//            data(nearPoints),
+            svgPoint *temp = nearPoints[i];
+            temp->point.x -= basePoint.point.x;
+            temp->point.y -= basePoint.point.y;
+            this->data.push_back(temp);
+
+            if (temp->id != basePoint.id) {
+                this->neighborIds.push_back(temp->id);
             }
         }
 
@@ -59,30 +68,38 @@ public:
         //起始点判定
         if (basePoint.point_id == 0) {
             val.set(0, 1);
+            this->isBegin = true;
         }
         //终止点判定
         for (int i = 0; i < data.size(); i++) {
             int len = data[i].size();
             if (basePoint.point_id == data[i][len - 1]->point_id) {
                 val.set(1, 1);
+                this->isEnd = true;
             }
         }
 
         //同线段上的临近点数量
-        int sameCurvePointNumber = 0;
+        int _sameCurvePointNumber = 0;
         for (int i = 0; i < this->data.size(); i++) {
             if (this->data[i]->curve_id == basePoint.curve_id) {
-                sameCurvePointNumber++;
+                _sameCurvePointNumber++;
             }
         }
 
-        sameCurvePointNumber = uint8_t(sameCurvePointNumber);
-        sameCurvePointNumber = min(sameCurvePointNumber, 0xff);
+        _sameCurvePointNumber = uint8_t(_sameCurvePointNumber);
+        _sameCurvePointNumber = min(_sameCurvePointNumber, 0xff);
 
-        val.setNumber(1, sameCurvePointNumber);
+        val.setNumber(1, _sameCurvePointNumber);
+        this->sameCurvePointNumber = _sameCurvePointNumber;
+
 
         //不同线段上的临近点数量
-        val.set(2, data.size() - sameCurvePointNumber);
+        int _diffCurvePointNumber = data.size() - _sameCurvePointNumber;
+
+        val.set(2, _diffCurvePointNumber);
+
+        this->diffCurvePointNumber = _diffCurvePointNumber;
 
         //角度掩码
         //如果是起点或者终点，角度默认设为0
@@ -92,15 +109,17 @@ public:
             int j = basePoint.point_id;
             point2D p1 = data[i][j - 1]->point;
             point2D p3 = data[i][j + 1]->point;
-            double angle = basePoint.point.get_angle(p1, p3);
-            angle = (uint8_t)(angle/30);
-            std::cout<<angle<<std::endl;
-            val.set(3,  angle);
+            double _angle = basePoint.point.get_angle(p1, p3);
+            _angle = (int8_t) (_angle / 30);
+            std::cout << _angle << std::endl;
+            val.set(3, _angle);
+            this->angle = _angle;
         }
+
 
     }
 
-    /**
+/**
  * Assign the matrix a to the current matrix.
  */
     SvgAbstractFeature &operator=(const SvgAbstractFeature &fea) noexcept {
@@ -109,15 +128,22 @@ public:
         return *this;
     }
 
-    std::vector<svgPoint *> data;
+    // 特征值属性
+    bool isBegin = false;
+    bool isEnd = false;
+    int sameCurvePointNumber;
+    int diffCurvePointNumber;
+
+
     std::vector<unsigned> neighborIds;
-//
-//    unsigned beforeNumber;
-//    unsigned afterNumber;
+
+    int8_t angle = 0;
 
     BitMap val;
 
     svgPoint basePoint;
+
+    std::vector<svgPoint *> data;
 };
 
 //TODO 完成hash函数
@@ -168,13 +194,11 @@ public:
         distanceThreshold = dis;
     }
 
-    SvgAbstractFeature getSubFeature(int i, int j, std::vector<std::vector<svgPoint *>> &data, float distance) {
+    SvgAbstractFeature getSubFeature(int i, int j, std::vector<std::vector<svgPoint *>> &data) {
         svgPoint *point = data[i][j];
 //        SvgAbstractFeature res;
-        std::vector<svgPoint *> nearPoints = this->rtree.getNearPoints(point, distance);
-
+        std::vector<svgPoint *> nearPoints = this->rtree.getSameBranchPoint(point);
         SvgAbstractFeature res(nearPoints, *point, data);
-
         return res;
     }
 
@@ -182,16 +206,12 @@ public:
     MyRtree rtree;
 };
 
-
 bool operator==(SvgAbstractFeature left, SvgAbstractFeature right) {
-    for (unsigned i = 0; i < left.data.size(); i++) {
-        if (left.data[i]->point.x != right.data[i]->point.x) {
-            return false;
-        }
-        if (left.data[i]->point.y != right.data[i]->point.y) {
-            return false;
-        }
-    }
+    if (left.isBegin != right.isBegin) { return false; }
+    if (left.isEnd != right.isEnd) { return false; }
+    if (left.angle != right.angle) { return false; }
+    if (left.sameCurvePointNumber != right.sameCurvePointNumber) { return false; }
+    if (left.diffCurvePointNumber != right.diffCurvePointNumber) { return false; }
     return true;
 }
 
@@ -208,7 +228,6 @@ public:
         parseData();
         initPatterns();
         generateCompatible();
-
 
     }
 
@@ -227,7 +246,7 @@ public:
 
         for (int i = 0; i < data.size(); i++) {
             for (unsigned j = 0; j < data[i].size(); j++) {
-                symmetries[0] = spatialSvg.getSubFeature(i, j, data, 30.0);
+                symmetries[0] = spatialSvg.getSubFeature(i, j, data);
                 symmetries[1] = symmetries[0].reflected();
                 symmetries[2] = symmetries[0].rotated();
                 symmetries[3] = symmetries[2].reflected();
@@ -327,12 +346,23 @@ public:
 
 
     virtual void showResult(Matrix<unsigned> mat) {
+        svg::Dimensions dimensions(1000, 1000);
+        svg::Document doc("../res/res.svg", svg::Layout(dimensions, svg::Layout::BottomLeft));
+        unsigned cnt = 0;
         for (unsigned x = 0; x < mat.width; x++) {
+
+            svg::Polyline polyline_a(svg::Stroke(.5, svg::Color::Blue));
+
             for (unsigned y = 0; y < mat.height; y++) {
-                std::cout << mat.get(x, y) << " ";
+                unsigned val = mat.get(x, y);
+                polyline_a << svg::Point(x * 100 + y * 10, val);
             }
+
+            doc << polyline_a;
         }
-        std::cout << std::endl;
+
+        doc.save();
+
     };
 
 private:

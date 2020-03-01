@@ -99,6 +99,7 @@ public:
 
     }
 
+    //回调函数需要返回true
     std::vector<svgPoint *> getNearPoints(svgPoint *pSvgPoint,float distance) {
         std::vector<svgPoint *> res;
         point2D point = pSvgPoint->point;
@@ -115,6 +116,20 @@ public:
         rtree.Search(min, max, func);
         return res;
     }
+
+
+    std::vector<svgPoint *> getSameBranchPoint(svgPoint *pSvgPoint) {
+        return  this->rtree.getSameBranchData(pSvgPoint);
+    }
+
+    //knn
+    std::vector<svgPoint *> knnSearch(svgPoint *pSvgPoint,int number) {
+        std::vector<svgPoint *> res;
+        point2D point = pSvgPoint->point;
+
+        return res;
+    }
+
 
     void insert(svgPoint *pSvgPoint) {
         point2D point = pSvgPoint->point;
