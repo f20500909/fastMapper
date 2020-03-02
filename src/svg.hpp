@@ -174,6 +174,9 @@ public:
     std::vector<svgPoint *> data;
 };
 
+
+
+
 //TODO 完成hash函数
 namespace std {
     template<>
@@ -384,11 +387,19 @@ public:
 
             //第一个点写为基准点
             polyline_a << svg::Point(100*x,0);
-            point2D lastPoint(100*x,0);
+            point2D curPoint(100*x,0);
+
+            //在基准点后写入点位
 
             for (unsigned y = 0; y < mat.height; y++) {
-                unsigned val = mat.get(x, y);
-                polyline_a << svg::Point(x * 100 + y * 10, val);
+
+                AbstractFeature feature = this->patterns[mat.get(y, x)];
+
+                float dx = feature.distanceLeft;
+                float dy = feature.distanceRight;
+
+                polyline_a << svg::Point(curPoint.x, curPoint.x);
+                curPoint.move(dx,dy);
             }
 
             doc << polyline_a;

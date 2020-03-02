@@ -180,26 +180,21 @@ public:
             }
         }
         for (unsigned y = 0; y < this->options.wave_height; y++) {
-            const ImgAbstractFeature &pattern =
-                    this->patterns[output_patterns.get(y, this->options.wave_width - 1)];
+            const ImgAbstractFeature &pattern = this->patterns[output_patterns.get(y, this->options.wave_width - 1)];
             for (unsigned dx = 1; dx < this->options.N; dx++) {
                 output.get(y, this->options.wave_width - 1 + dx) = pattern.get(0, dx);
             }
         }
         for (unsigned x = 0; x < this->options.wave_width; x++) {
-            const ImgAbstractFeature &pattern =
-                    this->patterns[output_patterns.get(this->options.wave_height - 1, x)];
+            const ImgAbstractFeature &pattern = this->patterns[output_patterns.get(this->options.wave_height - 1, x)];
             for (unsigned dy = 1; dy < this->options.N; dy++) {
-                output.get(this->options.wave_height - 1 + dy, x) =
-                        pattern.get(dy, 0);
+                output.get(this->options.wave_height - 1 + dy, x) = pattern.get(dy, 0);
             }
         }
-        const ImgAbstractFeature &pattern = this->patterns[output_patterns.get(
-                this->options.wave_height - 1, this->options.wave_width - 1)];
+        const ImgAbstractFeature &pattern = this->patterns[output_patterns.get( this->options.wave_height - 1, this->options.wave_width - 1)];
         for (unsigned dy = 1; dy < this->options.N; dy++) {
             for (unsigned dx = 1; dx < this->options.N; dx++) {
-                output.get(this->options.wave_height - 1 + dy,
-                           this->options.wave_width - 1 + dx) = pattern.get(dy, dx);
+                output.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = pattern.get(dy, dx);
             }
         }
         return output;

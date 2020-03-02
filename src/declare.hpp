@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-//#include <opencv2\opencv.hpp>
 #include <iostream>
 #include <math.h>
 
@@ -15,7 +14,17 @@
 
 #include "include/stb_image_write.h"
 
-//using namespace cv;
+class Cell;
+template<typename T> class Matrix ;
+using  ImgAbstractFeature = Matrix<Cell>;
+
+class SvgAbstractFeature;
+
+
+//using AbstractFeature = ImgAbstractFeature;
+//using AbstractFeature = SvgAbstractFeature;
+
+
 
 //相关宏定义
 //一个数据单元的方向数量，4表示上下左右四个方向
@@ -35,7 +44,6 @@ public:
 
     Direction(unsigned x, unsigned y) : x(static_cast<int>(x)), y(static_cast<int>(y)) {
     }
-
 
     int x;
     int y;
@@ -369,10 +377,5 @@ namespace std {
 
 }
 
-using  ImgAbstractFeature = Matrix<Cell>;
-
-class SvgAbstractFeature;
-//using AbstractFeature = ImgAbstractFeature;
-using AbstractFeature = SvgAbstractFeature;
-
+using  AbstractFeature   = SvgAbstractFeature;
 #endif

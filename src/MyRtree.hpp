@@ -17,8 +17,6 @@ public:
 
 
     float get_angle(point2D &p1, point2D &p2) {
-
-
         float x1 = p1.x;
         float y1 = p1.y;
 
@@ -66,6 +64,11 @@ public:
 
         theta = abs(theta * 180.0 / M_PI);
         return theta;
+    }
+
+    void move(float dx,float dy){
+        x+=dx;
+        y+=dy;
     }
 
     float x;
