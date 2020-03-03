@@ -66,10 +66,25 @@ public:
         return theta;
     }
 
-    void move(float dx,float dy){
-        x+=dx;
-        y+=dy;
+    void shiftFormPoint(float dx, float dy) {
+        x += dx;
+        y += dy;
     }
+
+    //得到点的偏移量 返回的是一个包含偏移信息的坐标
+    point2D getPointShift(point2D &p) {
+        point2D shift;
+        shift.x = p.x - this->x;
+        shift.y = p.y - this->y;
+        return shift;
+    }
+
+    void shiftFormPoint(point2D &p) {
+        this->x -= p.x;
+        this->y -= p.y;
+
+    }
+
 
     float x;
     float y;

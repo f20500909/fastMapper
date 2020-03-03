@@ -21,8 +21,56 @@ class SvgAbstractFeature {
 public:
 
     SvgAbstractFeature() {
-
     }
+
+
+//    // 特征值属性
+//    bool isBegin = false;
+//    bool isEnd = false;
+//    int sameCurvePointNumber;
+//    int diffCurvePointNumber;
+//
+//    int8_t angleLeft = 0;
+//    int8_t angleRight = 0;
+//
+//    float distanceLeft = 0;
+//    float distanceRight = 0;
+//
+//    point2D shiftLeft = point2D(0, 0);
+//    point2D shiftRight = point2D(0, 0);
+//
+//
+//    float distanceRatio;
+//
+//
+//    std::vector<unsigned> neighborIds;
+//
+//    BitMap val;
+//
+//    svgPoint basePoint;
+//
+//    std::vector<svgPoint *> data;
+
+
+    SvgAbstractFeature(const SvgAbstractFeature& svg) {
+        SvgAbstractFeature res;
+        this->isBegin =svg.isBegin;
+        this->isEnd =svg.isEnd;
+        this->sameCurvePointNumber =svg.sameCurvePointNumber;
+        this->diffCurvePointNumber =svg.diffCurvePointNumber;
+        this->angleLeft =svg.angleLeft;
+        this->angleRight =svg.angleRight;
+        this->distanceLeft =svg.distanceLeft;
+        this->distanceRight =svg.distanceRight;
+        this->shiftLeft =svg.shiftLeft;
+        this->shiftRight =svg.shiftRight;
+        this->distanceRatio =svg.distanceRatio;
+        this->neighborIds =svg.neighborIds;
+        this->val =svg.val;
+        this->basePoint =svg.basePoint;
+        this->data =svg.data;
+    }
+
 
     SvgAbstractFeature(std::vector<svgPoint *> nearPoints, svgPoint basePoint,
                        std::vector<std::vector<svgPoint *>> &allSvgData) : basePoint(basePoint) {
@@ -45,12 +93,12 @@ public:
 
     //得到镜像图形
     SvgAbstractFeature reflected() {
-        return *this;
+        return SvgAbstractFeature(*this);
     }
 
     //得到旋转后的图形
     SvgAbstractFeature rotated() {
-        return *this;
+        return SvgAbstractFeature(*this);
     }
 
     //得到旋转后的图形
@@ -115,7 +163,7 @@ public:
         int i = basePoint.curve_id;
         int j = basePoint.point_id;
         //如果不是起点,说明左边有点
-        if (!isBegin) {
+        if (!this->isBegin) {
             point2D left = data[i][j - 1]->point;
             point2D temp = point2D(basePoint.point.x, basePoint.point.y + 1000);
 
@@ -124,18 +172,22 @@ public:
 
             this->angleLeft = _angle;
 
-            this->distanceLeft =basePoint.point.get_distance(left);
+            this->distanceLeft = basePoint.point.get_distance(left);
+            this->shiftLeft = basePoint.point.getPointShift(left);
+
+            std::cout<<" i "<<i<<" j "<<j<<" x "<<shiftLeft.x<< " y " <<shiftLeft.y<<std::endl;
         }
 
         //如果不是终点,说明右边有点
-        if (!isEnd) {
+        if (!this->isEnd) {
             point2D right = data[i][j + 1]->point;
             point2D temp = point2D(basePoint.point.x, basePoint.point.y + 1000);
             double _angle = basePoint.point.get_angle(right, temp);
             _angle = (int8_t) (_angle / 30);
             this->angleLeft = _angle;
 
-            this->distanceRight =basePoint.point.get_distance(right);
+            this->distanceRight = basePoint.point.get_distance(right);
+            this->shiftRight = basePoint.point.getPointShift(right);
         }
 
     }
@@ -147,6 +199,21 @@ public:
         this->data = fea.data;
         this->basePoint = fea.basePoint;
         return *this;
+    }
+
+    //根据特征得到偏移坐标
+
+    point2D getShiftCoor() {
+        point2D res(0, 0);
+        //起始点无偏移
+        if (this->isBegin) {
+            return res;
+        }
+        //终点偏移只与前一个点有关
+        if (this->isEnd) {
+
+        }
+
     }
 
     // 特征值属性
@@ -161,7 +228,11 @@ public:
     float distanceLeft = 0;
     float distanceRight = 0;
 
-    float distanceRatio ;
+    point2D shiftLeft = point2D(0, 0);
+    point2D shiftRight = point2D(0, 0);
+
+
+    float distanceRatio;
 
 
     std::vector<unsigned> neighborIds;
@@ -385,20 +456,18 @@ public:
             svg::Polyline polyline_a(svg::Stroke(.5, svg::Color::Blue));
 
             //第一个点写为基准点
-            polyline_a << svg::Point(100*x,0);
-            point2D curPoint(100*x,0);
+            polyline_a << svg::Point(100 * x, 0);
+            point2D curPoint(100 * x, 0);
 
             //在基准点后写入点位
 
             for (unsigned y = 0; y < mat.height; y++) {
 
-                AbstractFeature feature = this->patterns[mat.get(y, x)];
+                AbstractFeature fea = this->patterns[mat.get(y, x)];
 
-                float dx = feature.distanceLeft;
-                float dy = feature.distanceRight;
+                curPoint.shiftFormPoint(fea.shiftLeft);
 
                 polyline_a << svg::Point(curPoint.x, curPoint.x);
-                curPoint.move(dx,dy);
             }
 
             doc << polyline_a;
