@@ -377,5 +377,6 @@ namespace std {
 
 }
 
-using  AbstractFeature   = SvgAbstractFeature;
+//using  AbstractFeature   = SvgAbstractFeature;
+using  AbstractFeature   = Matrix<Cell>;
 #endif

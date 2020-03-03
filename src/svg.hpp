@@ -138,7 +138,6 @@ public:
             this->distanceRight =basePoint.point.get_distance(right);
         }
 
-
     }
 
 /**
@@ -274,7 +273,7 @@ public:
 
         // 获取一个点临近的点位，点位附近的最近点做为特征图案
         std::unordered_map<SvgAbstractFeature, unsigned> patterns_id;
-        std::vector<SvgAbstractFeature> symmetries(this->options.symmetry);
+        std::vector<SvgAbstractFeature> symmetries(8);
 
         for (int i = 0; i < data.size(); i++) {
             for (unsigned j = 0; j < data[i].size(); j++) {
@@ -411,9 +410,9 @@ public:
 
 private:
     std::vector<std::vector<svgPoint *>> data;      //原始的数据
-    std::vector<unsigned> len;        //累计的长度列表
-    SpatialSvg spatialSvg;                  //封裝好的rtree  svg接口
-    unsigned limit;                         //限制距离
+    std::vector<unsigned> len;                       //累计的长度列表
+    SpatialSvg spatialSvg;                        //封裝好的rtree  svg接口
+    unsigned limit;                               //限制距离
 };
 
 #endif //SRC_SVG_HPP

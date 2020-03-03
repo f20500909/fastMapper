@@ -26,25 +26,16 @@ class Svg;
 void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, string input_data, string output_data, string type) {
     srand((unsigned) time(NULL));
 
-    input_data = "../samples/ai/wh1.svg";
-    type = "svg";
+//    input_data = "../samples/ai/wh1.svg";
+//    type = "svg";
     const Options options = {out_height, out_width, symmetry, N, channels, input_data, output_data, type};
 
-//    Data<int,SvgAbstractFeature> *data;
-//    if (options.type == "svg") {
-//        std::cout<<"use svg modle "<<std::endl;
-//        data = new Svg<int,SvgAbstractFeature>(options);
-//    } else if (options.type=="img")  {
-//        data = new Img<int,ImgAbstractFeature>(options);
-//    }else{
-//        assert(!"type err...");
-//    }
 
-    Data<int, AbstractFeature> *data;
-    data = new Svg<int, AbstractFeature>(options);
+//    Data<int, AbstractFeature> *data;
+//    data = new Svg<int, AbstractFeature>(options);
 
-//    Data<int,ImgAbstractFeature> *data;
-//    data = new Img<int,ImgAbstractFeature>(options);
+    Data<int,AbstractFeature> *data;
+    data = new Img<int,AbstractFeature>(options);
 
     WFC wfc(data, options);
     wfc.run();
