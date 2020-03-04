@@ -8,9 +8,8 @@
 class point2D {
 public:
     point2D() : x(0), y(0) {
-        std::cout << "err.." << endl;
+//        std::cout << "err.." << endl;
     }
-
 
     point2D(float x, float y) : x(x), y(y) {
     }

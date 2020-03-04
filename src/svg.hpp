@@ -465,6 +465,8 @@ public:
 
                 AbstractFeature fea = this->patterns[mat.get(y, x)];
 
+                std::cout<<" x "<<fea.shiftLeft.x <<" y "<<fea.shiftLeft.y<<std::endl;
+
                 curPoint.shiftFormPoint(fea.shiftLeft);
 
                 polyline_a << svg::Point(curPoint.x, curPoint.x);
