@@ -384,7 +384,7 @@ public:
                 //对每个特征元素  的 每个邻居  的每个特征元素
                 for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
                     //此处重载了==号操作符
-                    if (this->patterns[pattern1] == this->patterns[pattern2]) {
+                    if (this->patterns[pattern1] == this->patterns[pattern2] && neighborId<this->propagator[pattern1].size()) {
                         // 对每一个特征元素，其每一个方向，如果其相等 就把id存下
                         this->propagator[pattern1][neighborId].push_back(pattern2);
                     }
@@ -456,8 +456,8 @@ public:
             svg::Polyline polyline_a(svg::Stroke(.5, svg::Color::Blue));
 
             //第一个点写为基准点
-            polyline_a << svg::Point(100 * x, 0);
-            point2D curPoint(100 * x, 0);
+            polyline_a << svg::Point(0, 0);
+            point2D curPoint(0, 0);
 
             //在基准点后写入点位
 
