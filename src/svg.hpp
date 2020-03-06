@@ -105,15 +105,33 @@ public:
         //如果是起点或者终点，角度默认设为0
         //既不是起点 也不是终点
         if (!val.get(0) and !val.get(1)) {
-            int i = basePoint.curve_id;
-            int j = basePoint.point_id;
-            point2D p1 = data[i][j - 1]->point;
-            point2D p3 = data[i][j + 1]->point;
-            double _angle = basePoint.point.get_angle(p1, p3);
+//            double _angle = basePoint.point.get_angle(p1, p3);
+//            _angle = (int8_t) (_angle / 30);
+//            std::cout << _angle << std::endl;
+//            val.set(3, _angle);
+//            this->angle = _angle;
+        }
+
+        int i = basePoint.curve_id;
+        int j = basePoint.point_id;
+        //如果不是起点
+        if (!isBegin) {
+            point2D left = data[i][j - 1]->point;
+            point2D temp = point2D(basePoint.point.x, basePoint.point.y + 1000);
+
+            double _angle = basePoint.point.get_angle(left, temp);
             _angle = (int8_t) (_angle / 30);
-            std::cout << _angle << std::endl;
-            val.set(3, _angle);
-            this->angle = _angle;
+
+            this->angleLeft = _angle;
+        }
+
+        //如果不是终点
+        if (!isEnd) {
+            point2D right = data[i][j + 1]->point;
+            point2D temp = point2D(basePoint.point.x, basePoint.point.y + 1000);
+            double _angle = basePoint.point.get_angle(right, temp);
+            _angle = (int8_t) (_angle / 30);
+            this->angleLeft = _angle;
         }
 
 
@@ -134,10 +152,13 @@ public:
     int sameCurvePointNumber;
     int diffCurvePointNumber;
 
+    int8_t angleLeft = 0;
+    int8_t angleRight = 0;
+
+    int8_t distanceLeft = 0;
+    int8_t distanceRight = 0;
 
     std::vector<unsigned> neighborIds;
-
-    int8_t angle = 0;
 
     BitMap val;
 
@@ -209,7 +230,8 @@ public:
 bool operator==(SvgAbstractFeature left, SvgAbstractFeature right) {
     if (left.isBegin != right.isBegin) { return false; }
     if (left.isEnd != right.isEnd) { return false; }
-    if (left.angle != right.angle) { return false; }
+    if (left.angleLeft != right.angleLeft) { return false; }
+    if (left.angleRight != right.angleRight) { return false; }
     if (left.sameCurvePointNumber != right.sameCurvePointNumber) { return false; }
     if (left.diffCurvePointNumber != right.diffCurvePointNumber) { return false; }
     return true;

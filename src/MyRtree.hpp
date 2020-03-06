@@ -15,17 +15,21 @@ public:
     }
 
 
-    double get_angle(point2D& p1,point2D& p3)
+    double get_angle(point2D& p1,point2D& p2)
     {
 
-        float x1 =p1.x;
-        float y1=p1.y;
 
-        float x3=p3.x;
-        float y3=p3.y;
+        double x1 = p1.x;
+         double y1 = p1.y;
+
+        double x2 = p2.x;
+        double y2 = p2.y;
+
+        double x3 = this->x;
+        double y3 = this->y;
 
 
-        double theta = atan2(x1 - x3, y1 - y3) - atan2(this->x - x3, this->y - y3);
+        double theta = atan2(x1 - x3, y1 - y3) - atan2(x2 - x3, y2 - y3);
         if (theta > M_PI)
             theta -= 2 * M_PI;
         if (theta < -M_PI)
