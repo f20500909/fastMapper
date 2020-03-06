@@ -2,12 +2,13 @@
 #define SRC_MYRTREE_HPP
 
 #include <functional>
+#include <math.h>
 #include "./include/RTree.h"
 
 class point2D {
 public:
     point2D() : x(0), y(0) {
-        std::cout<<"err.."<<endl;
+        std::cout << "err.." << endl;
     }
 
 
@@ -15,21 +16,20 @@ public:
     }
 
 
-    double get_angle(point2D& p1,point2D& p2)
-    {
+    float get_angle(point2D &p1, point2D &p2) {
 
 
-        double x1 = p1.x;
-         double y1 = p1.y;
+        float x1 = p1.x;
+        float y1 = p1.y;
 
-        double x2 = p2.x;
-        double y2 = p2.y;
+        float x2 = p2.x;
+        float y2 = p2.y;
 
-        double x3 = this->x;
-        double y3 = this->y;
+        float x3 = this->x;
+        float y3 = this->y;
 
 
-        double theta = atan2(x1 - x3, y1 - y3) - atan2(x2 - x3, y2 - y3);
+        float theta = atan2(x1 - x3, y1 - y3) - atan2(x2 - x3, y2 - y3);
         if (theta > M_PI)
             theta -= 2 * M_PI;
         if (theta < -M_PI)
@@ -39,10 +39,15 @@ public:
         return theta;
     }
 
+    float get_distance(point2D &p) {
+        float x2 = p.x;
+        float y2 = p.y;
+        return sqrt((this->x - x2) * (this->x - x2) + (this->y - y2) * (this->y - y2));
+    }
 
-    double get_angle(double x1, double y1, double x2, double y2, double x3, double y3)
-    {
-        double theta = atan2(x1 - x3, y1 - y3) - atan2(x2 - x3, y2 - y3);
+
+    float get_angle(float x1, float y1, float x2, float y2, float x3, float y3) {
+        float theta = atan2(x1 - x3, y1 - y3) - atan2(x2 - x3, y2 - y3);
         if (theta > M_PI)
             theta -= 2 * M_PI;
         if (theta < -M_PI)
@@ -52,9 +57,8 @@ public:
         return theta;
     }
 
-    double get_angle(double x1, double y1, double x3, double y3)
-    {
-        double theta = atan2(x1 - x3, y1 - y3) - atan2(x - x3, y - y3);
+    float get_angle(float x1, float y1, float x3, float y3) {
+        float theta = atan2(x1 - x3, y1 - y3) - atan2(x - x3, y - y3);
         if (theta > M_PI)
             theta -= 2 * M_PI;
         if (theta < -M_PI)
@@ -70,9 +74,10 @@ public:
 
 class svgPoint {
 public:
-    svgPoint(){
+    svgPoint() {
 
     }
+
     svgPoint(point2D point, unsigned curve_id, unsigned point_id, unsigned id) : point(point), curve_id(curve_id),
                                                                                  point_id(point_id), id(id) {
     }
@@ -104,13 +109,13 @@ public:
     }
 
     //回调函数需要返回true
-    std::vector<svgPoint *> getNearPoints(svgPoint *pSvgPoint,float distance) {
+    std::vector<svgPoint *> getNearPoints(svgPoint *pSvgPoint, float distance) {
         std::vector<svgPoint *> res;
         point2D point = pSvgPoint->point;
 
 
-        float min[2] ={point.x-distance,point.y-distance};
-        float max[2] ={point.y+distance,point.y+distance};
+        float min[2] = {point.x - distance, point.y - distance};
+        float max[2] = {point.y + distance, point.y + distance};
 
         std::function<bool(svgPoint *)> func = [&](svgPoint *po) {
             res.push_back(po);
@@ -123,11 +128,11 @@ public:
 
 
     std::vector<svgPoint *> getSameBranchPoint(svgPoint *pSvgPoint) {
-        return  this->rtree.getSameBranchData(pSvgPoint);
+        return this->rtree.getSameBranchData(pSvgPoint);
     }
 
     //knn
-    std::vector<svgPoint *> knnSearch(svgPoint *pSvgPoint,int number) {
+    std::vector<svgPoint *> knnSearch(svgPoint *pSvgPoint, int number) {
         std::vector<svgPoint *> res;
         point2D point = pSvgPoint->point;
 
@@ -138,8 +143,8 @@ public:
     void insert(svgPoint *pSvgPoint) {
         point2D point = pSvgPoint->point;
 
-        float min[2] ={point.x,point.y};
-        float max[2] ={point.x +1,point.y +1};
+        float min[2] = {point.x, point.y};
+        float max[2] = {point.x + 1, point.y + 1};
 
         rtree.Insert(min, max, pSvgPoint);
     }

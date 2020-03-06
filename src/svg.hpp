@@ -114,7 +114,7 @@ public:
 
         int i = basePoint.curve_id;
         int j = basePoint.point_id;
-        //如果不是起点
+        //如果不是起点,说明左边有点
         if (!isBegin) {
             point2D left = data[i][j - 1]->point;
             point2D temp = point2D(basePoint.point.x, basePoint.point.y + 1000);
@@ -123,15 +123,19 @@ public:
             _angle = (int8_t) (_angle / 30);
 
             this->angleLeft = _angle;
+
+            this->distanceLeft =basePoint.point.get_distance(left);
         }
 
-        //如果不是终点
+        //如果不是终点,说明右边有点
         if (!isEnd) {
             point2D right = data[i][j + 1]->point;
             point2D temp = point2D(basePoint.point.x, basePoint.point.y + 1000);
             double _angle = basePoint.point.get_angle(right, temp);
             _angle = (int8_t) (_angle / 30);
             this->angleLeft = _angle;
+
+            this->distanceRight =basePoint.point.get_distance(right);
         }
 
 
@@ -155,8 +159,11 @@ public:
     int8_t angleLeft = 0;
     int8_t angleRight = 0;
 
-    int8_t distanceLeft = 0;
-    int8_t distanceRight = 0;
+    float distanceLeft = 0;
+    float distanceRight = 0;
+
+    float distanceRatio ;
+
 
     std::vector<unsigned> neighborIds;
 
@@ -374,6 +381,10 @@ public:
         for (unsigned x = 0; x < mat.width; x++) {
 
             svg::Polyline polyline_a(svg::Stroke(.5, svg::Color::Blue));
+
+            //第一个点写为基准点
+            polyline_a << svg::Point(100*x,0);
+            point2D lastPoint(100*x,0);
 
             for (unsigned y = 0; y < mat.height; y++) {
                 unsigned val = mat.get(x, y);
