@@ -81,7 +81,7 @@ public:
             for (int directionId = 0; directionId <this->_direction. _data.size(); directionId++) {
                 //每个方向的每个特征
                 for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
-                    auto Direction = this->_direction.getPoint(directionId);
+                    auto Direction = this->_direction.getDirectionFromId(directionId);
                     //每个方向的每个特征的所有方向
                     if (isEpual(this->patterns[pattern1], this->patterns[pattern2], Direction)) {
                         this->propagator[pattern1][directionId].push_back(pattern2);

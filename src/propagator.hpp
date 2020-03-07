@@ -108,9 +108,10 @@ public:
 
             CoordinateState coor1(x1, y1);
 
-            //对图案的四个方向进进行传播
+            //对图案的各个方向进进行传播
             for (unsigned directionId = 0; directionId < maxDirectionNumber; directionId++) {
-                Direction po = data->_direction.getPoint(directionId);
+                Direction po = data->_direction.getDirectionFromId(directionId);
+
 
                 CoordinateState coor2 = coor1.getNextDirection(po);
 
