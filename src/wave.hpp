@@ -3,24 +3,14 @@
 
 #include <iostream>
 #include <limits>
-#include <math.h>
 #include <random>
-#include <stdint.h>
 #include <vector>
 
 #include "declare.hpp"
 #include "base.hpp"
 #include "data.hpp"
 
-
-/**
-* Contains the pattern possibilities in every cell.
-* Also contains information about cell entropy.
-* 包含每个格子的图案可能性
-* 包含网格信息熵
-*/
-
-class Wave : public Base {
+class Wave  {
 private:
 
 
@@ -54,7 +44,7 @@ private:
     */
     Matrix<uint8_t> mat;
 
-    Data<int,AbstractFeature> *data;
+    const Data<int,AbstractFeature> *data;
 
     /**
     * Return distribution * log(distribution).
@@ -92,11 +82,11 @@ public:
     * Initialize the wave with every cell being able to have every pattern.
     * 初始化wave中每个cell
     */
-    Wave(Options op, Data<int,AbstractFeature> *data) noexcept
+    Wave( Data<int,AbstractFeature> *data) noexcept
             : plogp_patterns_frequency(get_plogp(data->patterns_frequency)),
               half_min_plogp(get_half_min(plogp_patterns_frequency)), is_impossible(false),
-              nb_patterns(data->patterns_frequency.size()), mat(op.wave_width * op.wave_height, nb_patterns, 1),
-              size(options.wave_height * options.wave_width), Base(op), data(data) {
+              nb_patterns(data->patterns_frequency.size()), mat(data->options.wave_width * data->options.wave_height, nb_patterns, 1),
+              size(data->options.wave_height * data->options.wave_width), data(data) {
 
         double base_entropy = 0;
         double base_s = 0;
@@ -130,7 +120,7 @@ public:
     * 返回true如果图案能放进cell（i，j）
     */
     bool get(unsigned i, unsigned j, unsigned pattern) const noexcept {
-        return get(i * options.wave_width + j, pattern);
+        return get(i *data-> options.wave_width + j, pattern);
     }
 
     /**
@@ -159,7 +149,7 @@ public:
     * 设置图案在cell索引中的值
     */
     void set(CoordinateState coor, unsigned pattern, bool value) noexcept {
-        unsigned index = coor.x + coor.y * this->options.wave_width;
+        unsigned index = coor.x + coor.y * data->options.wave_width;
         set(index, pattern, value);
     }
 
@@ -168,7 +158,7 @@ public:
     * 设置图案在cell（i，j）的值
     */
     void set(unsigned i, unsigned j, unsigned pattern, bool value) noexcept {
-        set(i * options.wave_width + j, pattern, value);
+        set(i * data->options.wave_width + j, pattern, value);
     }
 
     /**

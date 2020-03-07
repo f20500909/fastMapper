@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <math.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -15,20 +14,14 @@
 #include "include/stb_image_write.h"
 
 class Cell;
-template<typename T> class Matrix ;
-using  ImgAbstractFeature = Matrix<Cell>;
+
+template<typename T>
+class Matrix;
 
 class SvgAbstractFeature;
 
-
-//using AbstractFeature = ImgAbstractFeature;
-//using AbstractFeature = SvgAbstractFeature;
-
-
-
-//相关宏定义
 //一个数据单元的方向数量，4表示上下左右四个方向
-#define  directionNumbers 4
+#define  maxDirectionNumber 4
 
 enum ObserveStatus {
     success, // wfc完成并取得成功
@@ -88,32 +81,30 @@ public:
  * A direction is represented by an unsigned integer in the range [0; 3].
  * The x and y values of the direction can be retrieved in these tables.
  */
-// TODO 方向的遍历写成迭代器方式
 
 /**
  * Return the opposite direction of direction.
  */
 constexpr unsigned get_opposite_direction(unsigned direction) noexcept {
-    return directionNumbers - 1 - direction;
+    return maxDirectionNumber - 1 - direction;
 }
 
 class Options {
 public:
-    unsigned out_height;
-    unsigned out_width;
-    unsigned symmetry; // The number of symmetries (the order is defined in wfc).
-    unsigned N; // The width and height in pixel of the patterns.
-    std::string input_data; // The width and height in pixel of the patterns.
-    std::string output_data; // The width and height in pixel of the patterns.
-    std::string type;        // 模式
+    const unsigned out_height;
+    const unsigned out_width;
+    const unsigned symmetry; // The number of symmetries (the order is defined in wfc).
+    const unsigned N; // The width and height in pixel of the patterns.
+    const std::string input_data; // The width and height in pixel of the patterns.
+    const std::string output_data; // The width and height in pixel of the patterns.
+    const std::string type;        // 模式
 
-    unsigned wave_height;  // The height of the output in pixels.
-    unsigned wave_width;   // The width of the output in pixels.
+    const unsigned wave_height;  // The height of the output in pixels.
+    const unsigned wave_width;   // The width of the output in pixels.
+
+    const unsigned wave_size;   // The width of the output in pixels.
     const int directionSize = 4;
-    int channels;
-
-    Options() {
-    }
+    const int channels;
 
     Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels,
             std::string input_data, std::string output_data, std::string type) :
@@ -126,9 +117,8 @@ public:
             type(type),
             wave_height(out_height - N + 1),
             wave_width(out_width - N + 1),
-            channels(channels) {
-
-    }
+            channels(channels),
+            wave_size(wave_height * wave_width) {}
 };
 
 class PositionInfo {
@@ -352,13 +342,13 @@ namespace std {
     public:
         size_t operator()(const Cell &c) const {
             return (size_t)
-            c.data[0] + (size_t)
-            256 * (size_t)
-            c.data[1] +
-            (size_t)
-            256 * (size_t)
-            256 * (size_t)
-            c.data[2];
+                           c.data[0] + (size_t)
+                                               256 * (size_t)
+                                               c.data[1] +
+                   (size_t)
+                           256 * (size_t)
+                           256 * (size_t)
+                           c.data[2];
         }
     };
 
@@ -369,7 +359,7 @@ namespace std {
             std::size_t seed = a.data.size();
             for (const T &i : a.data) {
                 seed ^= hash<T>()(i) + (size_t)
-                0x9e3779b9 + (seed << 6) + (seed >> 2);
+                        0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
             return seed;
         }
@@ -377,6 +367,6 @@ namespace std {
 
 }
 
-using  AbstractFeature   = SvgAbstractFeature;
-//using  AbstractFeature   = Matrix<Cell>;
+//using  AbstractFeature   = SvgAbstractFeature;
+using AbstractFeature   = Matrix<Cell>;
 #endif

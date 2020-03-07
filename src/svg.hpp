@@ -152,7 +152,7 @@ public:
         //角度掩码
         //如果是起点或者终点，角度默认设为0
         //既不是起点 也不是终点
-        if (!val.get(0) and !val.get(1)) {
+        if (!val.get(0) && !val.get(1)) {
 //            double _angle = basePoint.point.get_angle(p1, p3);
 //            _angle = (int8_t) (_angle / 30);
 //            std::cout << _angle << std::endl;
@@ -330,7 +330,6 @@ public:
         parseData();
         initPatterns();
         generateCompatible();
-
     }
 
     void initPatterns() {
@@ -371,7 +370,7 @@ public:
     }
 
     void generateCompatible() noexcept {
-        this->propagator = std::vector<std::array<std::vector<unsigned>, 4> >(this->patterns.size());
+        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->patterns.size(),std::vector<std::vector<unsigned>>(maxDirectionNumber));
 
         //对每个特征元素
         for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {

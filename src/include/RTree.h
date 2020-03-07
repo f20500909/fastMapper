@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <stack>
 
 
 #define RTREE_DONT_USE_MEMPOOLS // This version does not contain a fixed memory allocator, fill in lines with EXAMPLE to implement one.
@@ -94,7 +95,7 @@ public:
 
     Node *getNode(Node *a_node, DATATYPE target) const {
 
-        std::stack<Node *> st;
+        stack<Node *> st;
         st.push(a_node);
 
         Node *cur;

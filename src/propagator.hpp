@@ -8,28 +8,17 @@
 
 #include "array3D.hpp"
 #include "wave.hpp"
-#include "time.h"
-#include "base.hpp"
-#include "data.hpp"
 
 /**
  * Propagate information about patterns in the wave.
  */
-class Propagator : public Base {
+class Propagator {
 public:
-    using PropagatorState = std::vector<std::array<std::vector<unsigned>, directionNumbers>>;
-
 private:
-    /**
-     * The size of the patterns.
-     */
-    const unsigned patterns_size;
-
     /**
      * propagator[pattern1][direction] contains all the patterns that can
      * be placed in next to pattern1 in the direction direction.
      */
-    PropagatorState propagator_state;
 
     /**
      * The wave width and height.
@@ -48,39 +37,42 @@ private:
      * placed in (y,x). If wave.get(y, x, pattern) is set to false, then
      * compatible.get(y, x, pattern) has every element negative or null
      */
-    Array3D<std::array<int, directionNumbers>> compatible;
+    Array3D<std::vector<int>> compatible;
 
     /**
      * Initialize compatible.
      */
     void init_compatible() noexcept {
-        std::array<int, directionNumbers> value;
-
-        auto iterFunc = [&](int direction, int pattern1) {
-        };
-
+        std::vector<int> value(maxDirectionNumber);
         // We compute the number of pattern compatible in all directions.
-        for (unsigned y = 0; y < options.wave_height; y++) {
-            for (unsigned x = 0; x < options.wave_width; x++) {
-                for (unsigned pattern = 0; pattern < patterns_size; pattern++) {
-                    _direction.doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2),
-                                               pattern);
-                    compatible.get(y, x, pattern) = value;
+
+        for (unsigned id = 0; id < data->options.wave_size; id++) {
+            for (unsigned pattern = 0; pattern < data->propagator.size(); pattern++) {
+                for (int direction = 0; direction < maxDirectionNumber; direction++) {
+                    value[direction] = data->propagator[pattern][get_opposite_direction(direction)].size();
                 }
+
+                unsigned x = id/data->options.wave_width;
+                unsigned y = id%data->options.wave_width;
+                CoordinateState coor(x, y);
+                assert(x<data->options.wave_width);
+                assert(y<data->options.wave_height);
+
+                compatible.get(coor, pattern) = value;
+
             }
         }
     }
 
-    Data<int,AbstractFeature> *data;
+    Data<int, AbstractFeature> *data;
 
 public:
 
     /**
      * Constructor building the propagator and initializing compatible.
      */
-    Propagator(Data<int,AbstractFeature> *data) noexcept
-            : patterns_size(data->propagator.size()), propagator_state(data->propagator),
-              compatible(options.wave_height, options.wave_width, patterns_size), Base(data->options) {
+    Propagator(Data<int, AbstractFeature> *data) noexcept
+            : data(data), compatible(data->options.wave_height, data->options.wave_width, data->propagator.size()) {
         init_compatible();
     }
 
@@ -90,7 +82,7 @@ public:
      */
     void add_to_propagator(unsigned y, unsigned x, unsigned pattern) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
-        std::array<int, directionNumbers> temp = {};
+        std::vector<int> temp = std::vector<int>(maxDirectionNumber);
         compatible.get(y, x, pattern) = temp;
         propagating.emplace_back(y, x, pattern);
     }
@@ -98,7 +90,7 @@ public:
 
     void add_to_propagator(CoordinateState coor, unsigned pattern) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
-        std::array<int, directionNumbers> temp = {};
+        std::vector<int> temp = std::vector<int>(maxDirectionNumber);
         int x = coor.x;
         int y = coor.y;
         compatible.get(y, x, pattern) = temp;
@@ -114,20 +106,20 @@ public:
             std::tie(y1, x1, pattern) = propagating.back();
             propagating.pop_back();
 
-            CoordinateState coor1(static_cast<int>(x1), static_cast<int>(y1));
+            CoordinateState coor1(x1, y1);
 
             //对图案的四个方向进进行传播
-            for (unsigned directionId = 0; directionId < directionNumbers; directionId++) {
-                Direction po = _direction.getPoint(directionId);
+            for (unsigned directionId = 0; directionId < maxDirectionNumber; directionId++) {
+                Direction po = data->_direction.getPoint(directionId);
 
                 CoordinateState coor2 = coor1.getNextDirection(po);
 
-                if (!isVaildCoordinate(coor2)) {
+                if (!data->isVaildCoordinate(coor2)) {
                     continue;
                 }
 
                 // The index of the second cell, and the patterns compatible
-                const std::vector<unsigned> &patterns = propagator_state[pattern][directionId];
+                const std::vector<unsigned> &patterns = data->propagator[pattern][directionId];
 
                 // For every pattern that could be placed in that cell without being in
                 // contradiction with pattern1
@@ -135,7 +127,7 @@ public:
                     // We decrease the number of compatible patterns in the opposite
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
-                    std::array<int, directionNumbers> &value = compatible.get(coor2, *it);
+                    std::vector<int> &value = compatible.get(coor2, *it);
                     //方向自减
                     value[directionId]--;
 

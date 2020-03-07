@@ -7,15 +7,12 @@
 #include <unordered_set>
 
 #include "include/cmdline.h"
-#include "declare.hpp"
 #include "wfc.hpp"
 #include "imageModel.hpp"
 
 using namespace std;
 
-
-
-template<class T,class AbstractFeature>
+template<class T, class AbstractFeature>
 class Svg;
 
 
@@ -23,32 +20,27 @@ class Svg;
 * 数据输入模块，适配多种格式的数据
 */
 
-void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, string input_data, string output_data, string type) {
+void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, string input_data,
+                string output_data, string type) {
     srand((unsigned) time(NULL));
 
-    input_data = "../samples/ai/wh1.svg";
-    type = "svg";
+//    input_data = "../samples/ai/wh1.svg";
+//    type = "svg";
     const Options options = {out_height, out_width, symmetry, N, channels, input_data, output_data, type};
 
 
-    Data<int, AbstractFeature> *data;
-    data = new Svg<int, AbstractFeature>(options);
+//    Data<int, AbstractFeature> *data = new Svg<int, AbstractFeature>(options);
+    Data<int, AbstractFeature> *data = new Img<int, AbstractFeature>(options);
 
-//    Data<int,AbstractFeature> *data;
-//    data = new Img<int,AbstractFeature>(options);
-
-    WFC wfc(data, options);
+    WFC wfc(data);
     wfc.run();
     delete data;
 }
 
 int main(int argc, char *argv[]) {
-/*
+//    -h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./res/done.jpg  -t img
+//    -h 40 -w 40 -s 8  -N 2 -i ../samples/City.png -o ../res/done.jpg  -t svg
 
--h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./res/done.jpg  -t img
--h 40 -w 40 -s 8  -N 2 -i ../samples/City.png -o ../res/done.jpg  -t svg
-
-*/
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);
     a.add<unsigned>("width", 'w', "width", true);

@@ -8,8 +8,9 @@
 /test_temp
 /output
 /.idea
-*.exe
+/.vs
 **/cmake-build-debug/*
+*.exe
 **/.idea/*
 *.mp4
 *.pdf

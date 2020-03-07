@@ -1,8 +1,8 @@
 #ifndef FAST_WFC_UTILS_ARRAY3D_HPP_
 #define FAST_WFC_UTILS_ARRAY3D_HPP_
 
-#include "assert.h"
 #include <vector>
+#include "declare.hpp"
 
 /**
 * Represent a 3D array.
@@ -29,14 +29,14 @@ public:
 	*/
 	Array3D(unsigned height, unsigned width, unsigned depth) noexcept
 		: height(height), width(width), depth(depth),
-		data(width * height * depth) {}
+		data(width* height* depth) {}
 
 	/**
 	* Return a const reference to the element in the i-th line, j-th column, and
 	* k-th depth. i must be lower than height, j lower than width, and k lower
 	* than depth.
 	*/
-	const T &get(unsigned i, unsigned j, unsigned k) const noexcept {
+	const T& get(unsigned i, unsigned j, unsigned k) const noexcept {
 		assert(i < height && j < width && k < depth);
 		return data[i * width * depth + j * depth + k];
 	}
@@ -46,15 +46,15 @@ public:
 	* depth. i must be lower than height, j lower than width, and k lower than
 	* depth.
 	*/
-	T &get(unsigned i, unsigned j, unsigned k) noexcept {
+	T& get(unsigned i, unsigned j, unsigned k) noexcept {
 		return data[i * width * depth + j * depth + k];
 	}
 
-    T &get(CoordinateState coor, unsigned k) noexcept {
-        int dx = coor.x;
-        int dy = coor.y;
-        return data[dy * width * depth + dx * depth + k];
-    }
+	T& get(CoordinateState coor, unsigned k) noexcept {
+		int dx = coor.x;
+		int dy = coor.y;
+		return data[dy * width * depth + dx * depth + k];
+	}
 
 };
 

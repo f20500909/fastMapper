@@ -36,6 +36,7 @@ public:
         return true;
     }
 
+    std::vector<std::vector<std::vector<unsigned>> > propagator;
 public:
 
 };

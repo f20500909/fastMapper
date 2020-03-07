@@ -2,8 +2,9 @@
 #define SRC_MYRTREE_HPP
 
 #include <functional>
-#include <math.h>
 #include "./include/RTree.h"
+
+#define M_PI 3.14159265358979323846
 
 class point2D {
 public:

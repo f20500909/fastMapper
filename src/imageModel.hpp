@@ -12,41 +12,15 @@ template<class T ,class ImgAbstractFeature>
 class Img : public Data<T,ImgAbstractFeature> {
 public:
 
-    void init() {
-        initDataWithImg();
-//        initDataWithOpencv();
-//        initSvgData();
-        initPatterns();
-        generateCompatible();
-    }
+	void init() {
+		initDataWithImg();
+		initPatterns();
+		generateCompatible();
+	}
 
-
-
-    Img(const Options &op) : Data<T,ImgAbstractFeature>(op) {
-
-        init();
-    }
-
-    void initDataWithOpencv() {
-//        Mat src = imread(this->options.input_data.c_str());
-//        assert(!src.empty());
-//
-//        int row = src.rows;
-//        int col = src.cols;
-//
-//        this->_data = ImgAbstractFeature(row, col);
-//
-//        for (int i = 0; i < row; i++) {
-//            for (int j = 0; j < col; j++) {
-//                Vec3b vec_3 = src.at<Vec3b>(i, j);
-//                int b = vec_3[0];
-//                int g = vec_3[1];
-//                int r = vec_3[2];
-//                cout << "B:" << b << " G:" << g << " R:" << r << endl;
-//                this->_data.data[i * col + j] = Cell(r, g, b);
-//            }
-//        }
-    }
+	Img(const Options& op) : Data<T, ImgAbstractFeature>(op) {
+		this->init();
+	}
 
     void initDataWithImg() {
         int width;
@@ -92,15 +66,6 @@ public:
         return true;
     }
 
-
-    template<typename Func, typename ...Ts>
-    void doEveryPatternIdFunc(Func fun, Ts...agv) {
-        for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
-            fun(pattern1, std::forward<Ts>(agv)...);
-        }
-    }
-
-
     /**
 * Precompute the function isEpual(pattern1, pattern2, dy, dx).
 * If isEpual(pattern1, pattern2, dy, dx), then compatible[pattern1][direction]
@@ -109,34 +74,24 @@ public:
  如果匹配，则合并
 */
     void generateCompatible() noexcept {
-        this->propagator = std::vector<std::array<std::vector<unsigned>, 4> >(this->patterns.size());
-
-        //对于每个个图案id ，均执行以下函数
-        auto realJob = [&](int pattern2, int pattern1, int directionId) {
-            auto Direction = this->_direction.getPoint(directionId);
-            if (isEpual(this->patterns[pattern1], this->patterns[pattern2], Direction)) {
-                this->propagator[pattern1][directionId].push_back(pattern2);
+        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->patterns.size(),std::vector<std::vector<unsigned>>(maxDirectionNumber));
+        //每个特征
+        for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
+            //每个方向
+            for (int directionId = 0; directionId <this->_direction. _data.size(); directionId++) {
+                //每个方向的每个特征
+                for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
+                    auto Direction = this->_direction.getPoint(directionId);
+                    //每个方向的每个特征的所有方向
+                    if (isEpual(this->patterns[pattern1], this->patterns[pattern2], Direction)) {
+                        this->propagator[pattern1][directionId].push_back(pattern2);
+                    }
+                }
             }
-        };
-
-        auto iterFunc = [&](int directionId, int pattern1) {
-            doEveryPatternIdFunc(
-                    std::bind(realJob, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), pattern1,
-                    directionId);
-        };
-
-        auto doDiretFunc = [&](int pattern1) {
-            this->_direction.doEveryDirectId(std::bind(iterFunc, std::placeholders::_1, std::placeholders::_2),
-                                             pattern1);
-        };
-
-        doEveryPatternIdFunc(std::bind(doDiretFunc, std::placeholders::_1));
+        }
     }
 
     void initPatterns() noexcept {
-//        std::unordered_map<ImgAbstractFeature, unsigned> patterns_id;
-//        std::vector<Matrix<Cell>> symmetries(this->options.symmetry, ImgAbstractFeature(this->options.N, this->options.N));
-
         std::unordered_map<ImgAbstractFeature, unsigned> patterns_id;
         std::vector<ImgAbstractFeature> symmetries(this->options.symmetry,ImgAbstractFeature(this->options.N, this->options.N));
 
