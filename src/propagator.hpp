@@ -43,18 +43,20 @@ private:
      * Initialize compatible.
      */
     void init_compatible() noexcept {
-        std::vector<int> value(maxDirectionNumber);
+        std::vector<int> value( data->_direction.getMaxNumber());
 
         compatible = Array3D<std::vector<int>>(data->options.wave_height, data->options.wave_width, data->patterns.size());
 
         for (unsigned id = 0; id < data->options.wave_size; id++) {
             for (unsigned pattern = 0; pattern < data->patterns.size(); pattern++) {
-                for (int direction = 0; direction < maxDirectionNumber; direction++) {
-                    value[direction] = data->propagator[pattern][get_opposite_direction(direction)].size();
+                for (int direction = 0; direction <  data->_direction.getMaxNumber(); direction++) {
+                    unsigned oppositeDirection = data->_direction.get_opposite_direction(direction);
+                    value[direction] = data->propagator[pattern][oppositeDirection].size();
                 }
 
-                unsigned x = id / data->options.wave_width;
-                unsigned y = id % data->options.wave_width;
+                unsigned x = id % data->options.wave_width;
+                unsigned y = id / data->options.wave_width;
+
                 CoordinateState coor(x, y);
                 assert(x < data->options.wave_width);
                 assert(y < data->options.wave_height);
@@ -78,7 +80,7 @@ public:
 
     void add_to_propagator(CoordinateState coor, unsigned pattern) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
-        compatible.get(coor, pattern) = std::vector<int>(maxDirectionNumber,0);
+        compatible.get(coor, pattern) = std::vector<int>( data->_direction.getMaxNumber(),0);
         propagating.emplace_back(coor.y, coor.x, pattern);
     }
 
@@ -94,9 +96,8 @@ public:
             CoordinateState coor1(x1, y1);
 
             //对图案的各个方向进进行传播
-            for (unsigned directionId = 0; directionId < maxDirectionNumber; directionId++) {
+            for (unsigned directionId = 0; directionId <  data->_direction.getMaxNumber(); directionId++) {
                 Direction po = data->_direction.getDirectionFromId(directionId);
-
 
                 CoordinateState coor2 = coor1.getNextDirection(po);
 

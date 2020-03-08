@@ -11,7 +11,7 @@
 
 using namespace std;
 class Options;
-class PositionInfo;
+class DirectionSet;
 class CoordinateState;
 
 class Base {
@@ -35,7 +35,7 @@ public:
         return true;
     }
 
-    PositionInfo _direction;
+    DirectionSet _direction;
 
     std::vector<std::vector<std::vector<unsigned>> > propagator;
     std::vector<AbstractFeature> patterns;                             //图案数据

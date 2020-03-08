@@ -20,8 +20,7 @@ class Matrix;
 
 class SvgAbstractFeature;
 
-//一个数据单元的方向数量，4表示上下左右四个方向
-#define  maxDirectionNumber 4
+
 
 enum ObserveStatus {
     success, // wfc完成并取得成功
@@ -85,9 +84,6 @@ public:
 /**
  * Return the opposite direction of direction.
  */
-constexpr unsigned get_opposite_direction(unsigned direction) noexcept {
-    return maxDirectionNumber - 1 - direction;
-}
 
 class Options {
 public:
@@ -121,24 +117,17 @@ public:
             wave_size(wave_height * wave_width) {}
 };
 
-class PositionInfo {
+class DirectionSet {
 public:
 
-    PositionInfo() {
+    DirectionSet() {
     }
 
-    PositionInfo(const int _positionSize) {
-
-    }
-
-    const int dim = 2;
 
     std::vector<Direction> _data = {{0,  -1},
                                     {-1, 0},
                                     {1,  0},
                                     {0,  1}};
-
-    std::vector<unsigned > _dataId;
 
 
     Direction getDirectionFromId(unsigned directionId) {
@@ -146,6 +135,13 @@ public:
         return _data[directionId];
     }
 
+    unsigned get_opposite_direction(unsigned direction) noexcept {
+        return 4 - 1 - direction;
+    }
+
+    unsigned  getMaxNumber(){
+        return _data.size();
+    }
 
 };
 
