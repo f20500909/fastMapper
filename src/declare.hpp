@@ -104,10 +104,7 @@ public:
     unsigned movePatternByDirection(Direction po, unsigned wave_width){
         return   po.x + po.y *wave_width;
     }
-
 };
-
-
 
 struct Entropy {
     std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
@@ -309,5 +306,6 @@ namespace std {
 }
 
 //using  AbstractFeature   = SvgAbstractFeature;
-using AbstractFeature   = Matrix<Cell>;
+//using AbstractFeature   = Matrix<Cell>;
+using AbstractFeature   = Matrix<unsigned>;
 #endif

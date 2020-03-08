@@ -78,11 +78,11 @@ int main(int argc, char *argv[]) {
 //         << "type                     : " << a.get<string>("type") << endl;
 
     unsigned height =  40;
-    unsigned width =  60;
+    unsigned width =  40;
     unsigned symmetry = 8 ;
     unsigned N = 2;
     int channels = 3;
-    string input_data ="../samples/City2.png" ;
+    string input_data ="../samples/City.png" ;
     string output_data ="../res/done.jpg ";
     string type = "img";
 

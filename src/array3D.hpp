@@ -12,7 +12,6 @@ public:
     unsigned width;
     unsigned depth;
 
-
     std::vector<T> data;
 
     Array2D() {
