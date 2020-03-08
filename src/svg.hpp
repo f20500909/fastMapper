@@ -192,14 +192,14 @@ public:
 
     }
 
-/**
- * Assign the matrix a to the current matrix.
- */
-    SvgAbstractFeature &operator=(const SvgAbstractFeature &fea) noexcept {
-        this->data = fea.data;
-        this->basePoint = fea.basePoint;
-        return *this;
-    }
+///**
+// * Assign the matrix a to the current matrix.
+// */
+//    SvgAbstractFeature &operator=(const SvgAbstractFeature &fea) noexcept {
+//        this->data = fea.data;
+//        this->basePoint = fea.basePoint;
+//        return *this;
+//    }
 
     //根据特征得到偏移坐标
 
