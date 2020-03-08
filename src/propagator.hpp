@@ -28,8 +28,7 @@ private:
      * The tuple should be propagated when wave.get(y, x, pattern) is set to
      * false.
      */
-//    std::vector<std::tuple<unsigned, unsigned, unsigned>> propagating;
-    std::vector<std::tuple<unsigned, unsigned, unsigned>> propagating;
+    std::vector<std::tuple<unsigned, unsigned>> propagating;
 
     /**
      * compatible.get(y, x, pattern)[direction] contains the number of patterns
@@ -38,20 +37,20 @@ private:
      * placed in (y,x). If wave.get(y, x, pattern) is set to false, then
      * compatible.get(y, x, pattern) has every element negative or null
      */
-//    Array3D<std::vector<int>> compatible;
     Array2D<std::vector<int>> compatible;
 
     /**
      * Initialize compatible.
      */
     void init_compatible() noexcept {
-        std::vector<int> value( data->_direction.getMaxNumber());
+        std::vector<int> value(data->_direction.getMaxNumber());
 
-        compatible = Array2D<std::vector<int>>(data->options.wave_height, data->options.wave_width, data->patterns.size());
+        compatible = Array2D<std::vector<int>>(data->options.wave_height, data->options.wave_width,
+                                               data->patterns.size());
 
         for (unsigned id = 0; id < data->options.wave_size; id++) {
             for (unsigned pattern = 0; pattern < data->patterns.size(); pattern++) {
-                for (int direction = 0; direction <  data->_direction.getMaxNumber(); direction++) {
+                for (int direction = 0; direction < data->_direction.getMaxNumber(); direction++) {
                     unsigned oppositeDirection = data->_direction.get_opposite_direction(direction);
                     value[direction] = data->propagator[pattern][oppositeDirection].size();
                 }
@@ -71,10 +70,10 @@ public:
         init_compatible();
     }
 
-    void add_to_propagator(CoordinateState coor, unsigned pattern) noexcept {
+    void add_to_propagator(unsigned p_id_1, unsigned p_id_2) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
-        compatible.get(coor.x+coor.y*data->options.wave_width, pattern) = std::vector<int>( data->_direction.getMaxNumber(),0);
-        propagating.emplace_back(coor.y, coor.x, pattern);
+        compatible.get(p_id_1, p_id_2) = std::vector<int>(data->_direction.getMaxNumber(), 0);
+        propagating.emplace_back(p_id_1, p_id_2);
     }
 
     // 核心部分，进行传递
@@ -82,14 +81,17 @@ public:
         //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
         while (!propagating.empty()) {
             // The cell and pattern that has been set to false.
-            unsigned y1, x1, pattern;
-            std::tie(y1, x1, pattern) = propagating.back();
+            unsigned p_id_1, p_id_2;
+            std::tie(p_id_1, p_id_2) = propagating.back();
             propagating.pop_back();
 
-            CoordinateState coor1(x1, y1);
+            unsigned y = p_id_1 / data->options.wave_width;
+            unsigned x = p_id_1 % data->options.wave_width;
+
+            CoordinateState coor1(x, y);
 
             //对图案的各个方向进进行传播
-            for (unsigned directionId = 0; directionId <  data->_direction.getMaxNumber(); directionId++) {
+            for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
                 Direction po = data->_direction.getDirectionFromId(directionId);
 
                 CoordinateState coor2 = coor1.getNextDirection(po);
@@ -99,7 +101,7 @@ public:
                 }
 
                 // The index of the second cell, and the patterns compatible
-                const std::vector<unsigned> &patterns = data->propagator[pattern][directionId];
+                const std::vector<unsigned> &patterns = data->propagator[p_id_2][directionId];
 
                 // For every pattern that could be placed in that cell without being in
                 // contradiction with pattern1
@@ -108,7 +110,7 @@ public:
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
 
-                    std::vector<int> &value = compatible.get(coor2.x+coor2.y*data->options.wave_width, *it);
+                    std::vector<int> &value = compatible.get(coor2.x + coor2.y * data->options.wave_width, *it);
 
                     //方向自减
                     value[directionId]--;
@@ -116,7 +118,7 @@ public:
                     //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
                     //并且将此wave的传播状态设置为不需要传播
                     if (value[directionId] == 0) {
-                        add_to_propagator(coor2, *it);
+                        add_to_propagator(coor2.x + coor2.y * data->options.wave_width, *it);
                         wave.set(coor2, *it, false);
                     }
 

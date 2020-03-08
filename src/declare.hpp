@@ -57,7 +57,6 @@ public:
         return res;
     }
 
-
     CoordinateState operator+(const CoordinateState &coor) {
         CoordinateState res(coor);
         res.x += coor.x;

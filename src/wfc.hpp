@@ -119,9 +119,7 @@ public:
         // 根据图案定义网格
         for (unsigned k = 0; k < data->patterns.size(); k++) {
             if (wave.get(argmin, k) != (k == chosen_value)) {
-
-                CoordinateState co(argmin % data->options.wave_width, argmin / data->options.wave_width);
-                propagator.add_to_propagator(co, k);
+                propagator.add_to_propagator(argmin, k);
                 wave.set(argmin, k, false);
             }
         }
