@@ -44,19 +44,20 @@ private:
      */
     void init_compatible() noexcept {
         std::vector<int> value(maxDirectionNumber);
-        // We compute the number of pattern compatible in all directions.
+
+        compatible = Array3D<std::vector<int>>(data->options.wave_height, data->options.wave_width, data->patterns.size());
 
         for (unsigned id = 0; id < data->options.wave_size; id++) {
-            for (unsigned pattern = 0; pattern < data->propagator.size(); pattern++) {
+            for (unsigned pattern = 0; pattern < data->patterns.size(); pattern++) {
                 for (int direction = 0; direction < maxDirectionNumber; direction++) {
                     value[direction] = data->propagator[pattern][get_opposite_direction(direction)].size();
                 }
 
-                unsigned x = id/data->options.wave_width;
-                unsigned y = id%data->options.wave_width;
+                unsigned x = id / data->options.wave_width;
+                unsigned y = id % data->options.wave_width;
                 CoordinateState coor(x, y);
-                assert(x<data->options.wave_width);
-                assert(y<data->options.wave_height);
+                assert(x < data->options.wave_width);
+                assert(y < data->options.wave_height);
 
                 compatible.get(coor, pattern) = value;
 
@@ -71,30 +72,14 @@ public:
     /**
      * Constructor building the propagator and initializing compatible.
      */
-    Propagator(Data<int, AbstractFeature> *data) noexcept
-            : data(data), compatible(data->options.wave_height, data->options.wave_width, data->propagator.size()) {
+    Propagator(Data<int, AbstractFeature> *data) noexcept : data(data) {
         init_compatible();
     }
 
-    /**
-     * Add an element to the propagator.
-     * This function is called when wave.get(y, x, pattern) is set to false.
-     */
-    void add_to_propagator(unsigned y, unsigned x, unsigned pattern) noexcept {
-        // All the direction are set to 0, since the pattern cannot be set in (y,x).
-        std::vector<int> temp = std::vector<int>(maxDirectionNumber);
-        compatible.get(y, x, pattern) = temp;
-        propagating.emplace_back(y, x, pattern);
-    }
-
-
     void add_to_propagator(CoordinateState coor, unsigned pattern) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
-        std::vector<int> temp = std::vector<int>(maxDirectionNumber);
-        int x = coor.x;
-        int y = coor.y;
-        compatible.get(y, x, pattern) = temp;
-        propagating.emplace_back(y, x, pattern);
+        compatible.get(coor, pattern) = std::vector<int>(maxDirectionNumber,0);
+        propagating.emplace_back(coor.y, coor.x, pattern);
     }
 
     // 核心部分，进行传递

@@ -23,6 +23,10 @@ public:
 	*/
 	std::vector<T> data;
 
+    Array3D(){
+
+    }
+
 	/**
 	* Build a 2D array given its height, width and depth.
 	* All the arrays elements are initialized to default value.

@@ -44,7 +44,7 @@ private:
     Matrix<unsigned> wave_to_output() const noexcept {
         Matrix<unsigned> output_patterns(data->options.wave_height, data->options.wave_width);
         for (unsigned i = 0; i < wave.size; i++) {
-            for (unsigned k = 0; k < data->propagator.size(); k++) {
+            for (unsigned k = 0; k < data->patterns.size(); k++) {
                 if (wave.get(i, k)) {
                     output_patterns.data[i] = k;
                 }
@@ -99,16 +99,16 @@ public:
 
         // 根据分布结构选择一个元素
         double s = 0;
-        for (unsigned k = 0; k < data->propagator.size(); k++) {
+        for (unsigned k = 0; k < data->patterns.size(); k++) {
             s += wave.get(argmin, k) ? data->patterns_frequency[k] : 0;
         }
 
         std::uniform_real_distribution<> dis(0, s);
         double random_value = dis(gen);
-        unsigned chosen_value = data->propagator.size() - 1;
+        unsigned chosen_value = data->patterns.size() - 1;
 
         //小于0时中断
-        for (unsigned k = 0; k < data->propagator.size(); k++) {
+        for (unsigned k = 0; k < data->patterns.size(); k++) {
             random_value -= wave.get(argmin, k) ? data->patterns_frequency[k] : 0;
             if (random_value <= 0) {
                 chosen_value = k;
@@ -117,9 +117,11 @@ public:
         }
 
         // 根据图案定义网格
-        for (unsigned k = 0; k < data->propagator.size(); k++) {
+        for (unsigned k = 0; k < data->patterns.size(); k++) {
             if (wave.get(argmin, k) != (k == chosen_value)) {
-                propagator.add_to_propagator(argmin / data->options.wave_width, argmin % data->options.wave_width, k);
+
+                CoordinateState co(argmin % data->options.wave_width, argmin / data->options.wave_width);
+                propagator.add_to_propagator(co, k);
                 wave.set(argmin, k, false);
             }
         }

@@ -1,26 +1,48 @@
 #ifndef SRC_IMAGEMODEL_HPP
 #define SRC_IMAGEMODEL_HPP
+
 #include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
 
 #include "data.hpp"
+
 using namespace std;
 
-template<class T ,class ImgAbstractFeature>
-class Img : public Data<T,ImgAbstractFeature> {
+template<class T, class ImgAbstractFeature>
+class Img : public Data<T, ImgAbstractFeature> {
 public:
 
-	void init() {
-		initDataWithImg();
-		initPatterns();
-		generateCompatible();
-	}
+    void init() {
+        initDataWithImg();
+        initPatterns();
+        initDirection();
+        generateCompatible();
+    }
 
-	Img(const Options& op) : Data<T, ImgAbstractFeature>(op) {
-		this->init();
-	}
+    // 初始化时 初始每个特征各个方向的所有特征id  即记录一个特征周围特征的id是什么
+    void initDirection() {
+
+//        for (unsigned patternId = 0; patternId < this->patterns.size(); patternId++) {
+//            CoordinateState coor1(patternId);
+//
+//            for (unsigned directionId = 0; directionId < maxDirectionNumber; directionId++) {
+//                Direction po = this->_direction.getDirectionFromId(directionId);
+//
+//                CoordinateState coor2 = coor1.getNextDirection(po);
+//                if (!this->isVaildCoordinate(coor2)) {
+//                    continue;
+//                }
+//                this->_direction._dataId.push_back();
+//            }
+//        }
+
+    }
+
+    Img(const Options &op) : Data<T, ImgAbstractFeature>(op) {
+        this->init();
+    }
 
     void initDataWithImg() {
         int width;
@@ -43,14 +65,15 @@ public:
         stbi_write_png(file_path.c_str(), m.width, m.height, 3, (const unsigned char *) m.data.data(), 0);
     }
 
-    static bool isEpual(const ImgAbstractFeature &pattern1, const ImgAbstractFeature &pattern2, Direction Direction) noexcept {
+    static bool
+    isEpual(const ImgAbstractFeature &pattern1, const ImgAbstractFeature &pattern2, Direction Direction) noexcept {
         int dx = Direction.x;
         int dy = Direction.y;
 
         unsigned xmin = max(dx, 0);
-        unsigned xmax = dx < 0 ? dx + pattern2.width : pattern1.width;
+        unsigned xmax = min(pattern2.width + dx, pattern1.width);
         unsigned ymin = max(dy, 0);
-        unsigned ymax = dy < 0 ? dy + pattern2.height : pattern1.width;
+        unsigned ymax = min(pattern2.height + dy, pattern1.width);
 
         // Iterate on every pixel contained in the intersection of the two pattern.
         // 迭代两个图案中每个像素
@@ -74,15 +97,20 @@ public:
  如果匹配，则合并
 */
     void generateCompatible() noexcept {
-        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->patterns.size(),std::vector<std::vector<unsigned>>(maxDirectionNumber));
+        //图案id  方向id   此图案此方向同图案的id
+        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->patterns.size(),
+                                                                           std::vector<std::vector<unsigned>>(
+                                                                                   maxDirectionNumber));
         //每个特征
         for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
             //每个方向
-            for (int directionId = 0; directionId <this->_direction. _data.size(); directionId++) {
+            for (int directionId = 0; directionId < this->_direction._data.size(); directionId++) {
+//                auto Direction = this->_direction.getDirectionFromId(directionId);
+                auto Direction = this->_direction.getDirectionFromId(directionId);
+
                 //每个方向的每个特征
                 for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
-                    auto Direction = this->_direction.getDirectionFromId(directionId);
-                    //每个方向的每个特征的所有方向
+                    //判断是否相等  相等就压入图案到传播队列
                     if (isEpual(this->patterns[pattern1], this->patterns[pattern2], Direction)) {
                         this->propagator[pattern1][directionId].push_back(pattern2);
                     }
@@ -93,7 +121,8 @@ public:
 
     void initPatterns() noexcept {
         std::unordered_map<ImgAbstractFeature, unsigned> patterns_id;
-        std::vector<ImgAbstractFeature> symmetries(this->options.symmetry,ImgAbstractFeature(this->options.N, this->options.N));
+        std::vector<ImgAbstractFeature> symmetries(this->options.symmetry,
+                                                   ImgAbstractFeature(this->options.N, this->options.N));
 
         unsigned max_i = this->_data.height - this->options.N + 1;
         unsigned max_j = this->_data.width - this->options.N + 1;
@@ -146,7 +175,8 @@ public:
                 output.get(this->options.wave_height - 1 + dy, x) = pattern.get(dy, 0);
             }
         }
-        const ImgAbstractFeature &pattern = this->patterns[output_patterns.get( this->options.wave_height - 1, this->options.wave_width - 1)];
+        const ImgAbstractFeature &pattern = this->patterns[output_patterns.get(this->options.wave_height - 1,
+                                                                               this->options.wave_width - 1)];
         for (unsigned dy = 1; dy < this->options.N; dy++) {
             for (unsigned dx = 1; dx < this->options.N; dx++) {
                 output.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = pattern.get(dy, dx);
@@ -155,12 +185,12 @@ public:
         return output;
     }
 
-    void showResult(Matrix<unsigned> mat){
+    void showResult(Matrix<unsigned> mat) {
         ImgAbstractFeature res;
         res = to_image(mat);
         if (res.data.size() > 0) {
             write_image_png(this->options.output_data, res);
-            cout <<" finished!" << endl;
+            cout << " finished!" << endl;
         } else {
             cout << "failed!" << endl;
         }

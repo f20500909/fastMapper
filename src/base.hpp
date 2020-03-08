@@ -16,14 +16,13 @@ class CoordinateState;
 
 class Base {
 public:
-    Base(const Options &op) : options(op), _direction(op.directionSize) {
+    Base(const Options &op) : options(op){
     }
 
     virtual void showResult(Matrix<unsigned> mat) {
         std::cout << "err res.." << std::endl;
     };
 
-    PositionInfo _direction;
     const Options options;
 
     bool isVaildCoordinate(CoordinateState coor) {
@@ -36,7 +35,11 @@ public:
         return true;
     }
 
+    PositionInfo _direction;
+
     std::vector<std::vector<std::vector<unsigned>> > propagator;
+    std::vector<AbstractFeature> patterns;                             //图案数据
+    std::vector<double> patterns_frequency;                            //图案频率
 public:
 
 };

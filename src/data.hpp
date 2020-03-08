@@ -19,9 +19,6 @@ public:
         std::cout << "Data row func err res.." << std::endl;
     };
 
-    std::vector<AbstractFeature> patterns;
-    std::vector<double> patterns_frequency;
-
 };
 
 #endif // SRC_DATA_HPP

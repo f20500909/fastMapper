@@ -138,6 +138,9 @@ public:
                                     {1,  0},
                                     {0,  1}};
 
+    std::vector<unsigned > _dataId;
+
+
     Direction getDirectionFromId(unsigned directionId) {
         assert(directionId < _data.size());
         return _data[directionId];
