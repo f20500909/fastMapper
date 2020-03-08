@@ -103,7 +103,6 @@ public:
 		for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
 			//每个方向
 			for (int directionId = 0; directionId < this->_direction._data.size(); directionId++) {
-				//                auto Direction = this->_direction.getDirectionFromId(directionId);
 				auto Direction = this->_direction.getDirectionFromId(directionId);
 
 				//每个方向的每个特征
