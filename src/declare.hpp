@@ -42,47 +42,6 @@ public:
 };
 
 
-class CoordinateState {
-public:
-    CoordinateState(int x, int y) : x(x), y(y) {
-    }
-
-    CoordinateState(unsigned x, unsigned y) : x(static_cast<int>(x)), y(static_cast<int>(y)) {
-    }
-
-    CoordinateState getNextDirection(const Direction &direction) {
-        CoordinateState res(*this);
-        res.x += direction.x;
-        res.y += direction.y;
-        return res;
-    }
-
-    CoordinateState operator+(const CoordinateState &coor) {
-        CoordinateState res(coor);
-        res.x += coor.x;
-        res.y += coor.y;
-        return res;
-    }
-
-    CoordinateState operator-(const CoordinateState &coor) {
-        CoordinateState res(coor);
-        res.x -= coor.x;
-        res.y -= coor.y;
-        return res;
-    }
-
-    int x;
-    int y;
-};
-
-/**
- * A direction is represented by an unsigned integer in the range [0; 3].
- * The x and y values of the direction can be retrieved in these tables.
- */
-
-/**
- * Return the opposite direction of direction.
- */
 
 class Options {
 public:

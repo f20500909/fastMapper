@@ -81,22 +81,17 @@ public:
         //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
         while (!propagating.empty()) {
             // The cell and pattern that has been set to false.
-            unsigned p_id_1, p_id_2;
+            unsigned p_id_1, p_id_2, p_id_3;
             std::tie(p_id_1, p_id_2) = propagating.back();
             propagating.pop_back();
-
-            unsigned y = p_id_1 / data->options.wave_width;
-            unsigned x = p_id_1 % data->options.wave_width;
-
-            CoordinateState coor1(x, y);
 
             //对图案的各个方向进进行传播
             for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
                 Direction po = data->_direction.getDirectionFromId(directionId);
 
-                CoordinateState coor2 = coor1.getNextDirection(po);
+                p_id_3 = p_id_1 + po.x + po.y * data->options.wave_width;
 
-                if (!data->isVaildCoordinate(coor2)) {
+                if (!data->isVaildPatternId(p_id_3)) {
                     continue;
                 }
 
@@ -110,7 +105,7 @@ public:
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
 
-                    std::vector<int> &value = compatible.get(coor2.x + coor2.y * data->options.wave_width, *it);
+                    std::vector<int> &value = compatible.get(p_id_3, *it);
 
                     //方向自减
                     value[directionId]--;
@@ -118,10 +113,9 @@ public:
                     //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
                     //并且将此wave的传播状态设置为不需要传播
                     if (value[directionId] == 0) {
-                        add_to_propagator(coor2.x + coor2.y * data->options.wave_width, *it);
-                        wave.set(coor2, *it, false);
+                        add_to_propagator(p_id_3, *it);
+                        wave.set(p_id_3, *it, false);
                     }
-
                 }
             }
         }

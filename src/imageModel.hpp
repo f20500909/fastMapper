@@ -17,27 +17,7 @@ public:
 	void init() {
 		initDataWithImg();
 		initPatterns();
-		initDirection();
 		generateCompatible();
-	}
-
-	// 初始化时 初始每个特征各个方向的所有特征id  即记录一个特征周围特征的id是什么
-	void initDirection() {
-
-		//        for (unsigned patternId = 0; patternId < this->patterns.size(); patternId++) {
-		//            CoordinateState coor1(patternId);
-		//
-		//            for (unsigned directionId = 0; directionId < maxDirectionNumber; directionId++) {
-		//                Direction po = this->_direction.getDirectionFromId(directionId);
-		//
-		//                CoordinateState coor2 = coor1.getNextDirection(po);
-		//                if (!this->isVaildCoordinate(coor2)) {
-		//                    continue;
-		//                }
-		//                this->_direction._dataId.push_back();
-		//            }
-		//        }
-
 	}
 
 	Img(const Options& op) : Data<T, ImgAbstractFeature>(op) {

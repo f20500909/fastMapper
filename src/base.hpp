@@ -12,7 +12,6 @@
 using namespace std;
 class Options;
 class DirectionSet;
-class CoordinateState;
 
 class Base {
 public:
@@ -25,11 +24,15 @@ public:
 
     const Options options;
 
-    bool isVaildCoordinate(CoordinateState coor) {
-        if (coor.x < 0 || coor.x >= (int) this->options.wave_width) {
+    bool isVaildPatternId(unsigned pId) {
+
+        unsigned y = pId / this->options.wave_width;
+        unsigned x = pId % this->options.wave_width;
+
+        if (x < 0 || x >= (int) this->options.wave_width) {
             return false;
         }
-        if (coor.y < 0 || coor.y >= (int) this->options.wave_height) {
+        if (y < 0 || y >= (int) this->options.wave_height) {
             return false;
         }
         return true;
