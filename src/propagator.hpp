@@ -15,33 +15,11 @@
 class Propagator {
 public:
 private:
-    /**
-     * propagator[pattern1][direction] contains all the patterns that can
-     * be placed in next to pattern1 in the direction direction.
-     */
 
-    /**
-     * The wave width and height.
-     */
-    /**
-     * All the tuples (y, x, pattern) that should be propagated.
-     * The tuple should be propagated when wave.get(y, x, pattern) is set to
-     * false.
-     */
     std::vector<std::tuple<unsigned, unsigned>> propagating;
 
-    /**
-     * compatible.get(y, x, pattern)[direction] contains the number of patterns
-     * present in the wave that can be placed in the cell next to (y,x) in the
-     * opposite direction of direction without being in contradiction with pattern
-     * placed in (y,x). If wave.get(y, x, pattern) is set to false, then
-     * compatible.get(y, x, pattern) has every element negative or null
-     */
     Array2D<std::vector<int>> compatible;
 
-    /**
-     * Initialize compatible.
-     */
     void init_compatible() noexcept {
         std::vector<int> value(data->_direction.getMaxNumber());
 
@@ -63,9 +41,6 @@ private:
 
 public:
 
-    /**
-     * Constructor building the propagator and initializing compatible.
-     */
     Propagator(Data<int, AbstractFeature> *data) noexcept : data(data) {
         init_compatible();
     }
@@ -89,7 +64,8 @@ public:
             for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
                 Direction po = data->_direction.getDirectionFromId(directionId);
 
-                p_id_3 = p_id_1 + po.x + po.y * data->options.wave_width;
+                unsigned  shift = data->_direction.movePatternByDirection(po,data->options.wave_width);
+                p_id_3 = p_id_1 +shift;
 
                 if (!data->isVaildPatternId(p_id_3)) {
                     continue;

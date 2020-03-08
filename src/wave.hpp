@@ -145,14 +145,6 @@ public:
     }
 
     /**
-    * Set the value of pattern in cell (i,j).
-    * 设置图案在cell（i，j）的值
-    */
-    void set(unsigned i, unsigned j, unsigned pattern, bool value) noexcept {
-        set(i * data->options.wave_width + j, pattern, value);
-    }
-
-    /**
     * 返回不为0的最小熵的索引
     * 如果中间有contradiction在wave中，则返回-2
     * 如果所有cell都被定义，返回-1

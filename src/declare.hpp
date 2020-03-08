@@ -101,17 +101,14 @@ public:
         return _data.size();
     }
 
+    unsigned movePatternByDirection(Direction po, unsigned wave_width){
+        return   po.x + po.y *wave_width;
+    }
+
 };
 
 
-/**
-* Struct containing the values needed to compute the entropy of all the cells.
-* This struct is updated every time the wave is changed.
-* p'(pattern) is equal to patterns_frequency[pattern] if wave.get(cell,
-* pattern) is set to true, otherwise 0.
-* 结构包含计算所有网格的熵所需的值
-* 当波更改每次都会更新次结构
-*/
+
 struct Entropy {
     std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
     std::vector<double> sum;       // The sum of p'(pattern).
@@ -207,7 +204,6 @@ public:
     * i must be lower than height and j lower than width.
     */
     T &get(unsigned i, unsigned j) noexcept {
-
         assert(i < height && j < width);
         return data[j + i * width];
     }
