@@ -20,7 +20,6 @@ private:
     Array2D<std::vector<int>> compatible;
 
     void init_compatible() noexcept {
-        std::vector<int> value(data->_direction.getMaxNumber());
 
         //可能的图案id
         compatible = Array2D<std::vector<int>>(data->options.wave_size, data->patterns.size());
@@ -29,6 +28,9 @@ private:
         for (unsigned id = 0; id < data->options.wave_size; id++) {
             //对所有提取的特征图案id
             for (unsigned pattern = 0; pattern < data->patterns.size(); pattern++) {
+
+                std::vector<int> value(data->_direction.getMaxNumber());
+
                 //对特征图案的所有方向
                 for (int direction = 0; direction < data->_direction.getMaxNumber(); direction++) {
                     //对特征图案的所有方向的相反方向
@@ -36,7 +38,7 @@ private:
                     //此方向上的值  等于 其反方向上的可传播大小
                     value[direction] = data->propagator[pattern][oppositeDirection].size();
                 }
-                //对其可能的图案id进行赋值
+
                 compatible.get(id, pattern) = value;
             }
         }
@@ -79,12 +81,12 @@ public:
 
                 // For every pattern that could be placed in that cell without being in
                 // contradiction with pattern1
-                for (auto it = patterns.begin(), it_end = patterns.end(); it < it_end; ++it) {
+                for (unsigned i = 0; i < patterns.size(); i++) {
                     // We decrease the number of compatible patterns in the opposite
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
 
-                    std::vector<int> &value = compatible.get(p_id_3, *it);
+                    std::vector<int> &value = compatible.get(p_id_3, patterns[i]);
 
                     //方向自减
                     value[directionId]--;
@@ -92,8 +94,8 @@ public:
                     //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
                     //并且将此wave的传播状态设置为不需要传播
                     if (value[directionId] == 0) {
-                        add_to_propagator(p_id_3, *it);
-                        wave.set(p_id_3, *it, false);
+                        add_to_propagator(p_id_3, patterns[i]);
+                        wave.set(p_id_3, patterns[i], false);
                     }
                 }
             }

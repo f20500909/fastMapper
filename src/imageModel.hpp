@@ -53,7 +53,7 @@ public:
         stbi_write_png(file_path.c_str(), m.width, m.height, 3, imgData, 0);
     }
 
-    bool isEpual(const ImgAbstractFeature &pattern1, const ImgAbstractFeature &pattern2, unsigned directionId) noexcept {
+    bool isIntersect(const ImgAbstractFeature &pattern1, const ImgAbstractFeature &pattern2, unsigned directionId) noexcept {
         Direction direction = this->_direction._data[directionId];
         int dx = direction.x;
         int dy = direction.y;
@@ -68,7 +68,6 @@ public:
         for (unsigned y = ymin; y < ymax; y++) {
             for (unsigned x = xmin; x < xmax; x++) {
                 // 检查值是否相同
-
 
                 unsigned  x2 = x-dx;
                 unsigned  y2 = y-dy;
@@ -98,11 +97,10 @@ public:
         for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
             //每个方向
             for (int directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
-
                 //每个方向的每个特征
                 for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
                     //判断是否相等  相等就压入图案到传播队列
-                    if (isEpual(this->patterns[pattern1], this->patterns[pattern2], directionId)) {
+                    if (isIntersect(this->patterns[pattern1], this->patterns[pattern2], directionId)) {
                         this->propagator[pattern1][directionId].push_back(pattern2);
                     }
                 }
