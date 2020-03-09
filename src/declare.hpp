@@ -136,10 +136,18 @@ public:
     Matrix(unsigned height, unsigned width, T value) noexcept
             : height(height), width(width), data(width * height, value) {}
 
-    /**
-    * Return a const reference to the element in the i-th line and j-th column.
-    * i must be lower than height and j lower than width.
-    */
+
+    T &get(unsigned id) noexcept {
+        assert(id < height * width);
+        return data[id];
+    }
+
+    const T &get(unsigned id) const noexcept {
+        assert(id < height * width);
+        return data[id];
+    }
+
+
     const T &get(unsigned i, unsigned j) const noexcept {
         assert(i < height && j < width);
         return data[j + i * width];

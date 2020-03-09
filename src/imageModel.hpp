@@ -67,11 +67,16 @@ public:
         // 迭代两个图案中每个像素
         for (unsigned y = ymin; y < ymax; y++) {
             for (unsigned x = xmin; x < xmax; x++) {
-                // Check if the color is the same in the two patterns in that pixel.
-                // 检查是否颜色相同
-                if (pattern1.get(y, x) != pattern2.get(y - dy, x - dx)) {
+                // 检查值是否相同
+
+
+                unsigned  x2 = x-dx;
+                unsigned  y2 = y-dy;
+
+                if (pattern1.get(x + y * pattern2.width) != pattern2.get(x2 + y2 * pattern2.width)) {
                     return false;
                 }
+
             }
         }
         return true;
