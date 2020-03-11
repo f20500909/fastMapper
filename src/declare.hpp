@@ -77,7 +77,13 @@ public:
 class DirectionSet {
 public:
 
-    DirectionSet() {}
+    DirectionSet() {
+        //初始化方向的方向
+        for (int i = 0; i < _data.size(); i++) {
+            oppositeDirectionId.push_back(4-1-i);
+        }
+
+    }
 
     std::vector<Direction> _data = {{0,  -1},
                                     {-1, 0},
@@ -85,13 +91,15 @@ public:
                                     {0,  1}};
 
 
+    std::vector<unsigned> oppositeDirectionId;
+
     Direction getDirectionFromId(unsigned directionId) {
         assert(directionId < _data.size());
         return _data[directionId];
     }
 
-    unsigned get_opposite_direction(unsigned direction) noexcept {
-        return 4 - 1 - direction;
+    unsigned get_opposite_direction(unsigned idx) noexcept {
+        return oppositeDirectionId[idx];
     }
 
     unsigned getMaxNumber() {

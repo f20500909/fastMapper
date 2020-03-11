@@ -80,7 +80,7 @@ public:
                 const std::vector<unsigned> &feature = data->propagator[p_id_2][directionId];
 
                 // For every pattern that could be placed in that cell without being in
-                // contradiction with pattern1
+                // contradiction with feature1
                 for (unsigned i = 0; i < feature.size(); i++) {
                     // We decrease the number of compatible feature in the opposite
                     // directionId If the pattern was discarded from the wave, the element

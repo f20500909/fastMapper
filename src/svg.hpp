@@ -373,19 +373,19 @@ public:
         this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),std::vector<std::vector<unsigned>>(maxDirectionNumber));
 
         //对每个特征元素
-        for (unsigned pattern1 = 0; pattern1 < this->feature.size(); pattern1++) {
+        for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
             // 应查询此点的
-            std::vector<unsigned> neighborIds = this->feature[pattern1].neighborIds;
+            std::vector<unsigned> neighborIds = this->feature[feature1].neighborIds;
 
             //对每个特征元素  的 每个邻居
             for (unsigned neighborId = 0; neighborId < neighborIds.size(); neighborId++) {
 
                 //对每个特征元素  的 每个邻居  的每个特征元素
-                for (unsigned pattern2 = 0; pattern2 < this->feature.size(); pattern2++) {
+                for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
                     //此处重载了==号操作符
-                    if (this->feature[pattern1] == this->feature[pattern2] && neighborId<this->propagator[pattern1].size()) {
+                    if (this->feature[feature1] == this->feature[feature2] && neighborId<this->propagator[feature1].size()) {
                         // 对每一个特征元素，其每一个方向，如果其相等 就把id存下
-                        this->propagator[pattern1][neighborId].push_back(pattern2);
+                        this->propagator[feature1][neighborId].push_back(feature2);
                     }
                 }
             }

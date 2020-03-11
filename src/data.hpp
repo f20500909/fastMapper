@@ -25,7 +25,6 @@ public:
     const Options options;
 
     bool isVaildPatternId(unsigned pId) {
-
         unsigned y = pId / this->options.wave_width;
         unsigned x = pId % this->options.wave_width;
 
@@ -36,6 +35,14 @@ public:
             return false;
         }
         return true;
+    }
+
+
+    vector<pair<int,int>> getIntersectData(){
+        vector<pair<int,int>> res;
+
+
+        return res;
     }
 
     DirectionSet _direction;

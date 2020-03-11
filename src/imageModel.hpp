@@ -53,18 +53,21 @@ public:
         stbi_write_png(file_path.c_str(), m.width, m.height, 3, imgData, 0);
     }
 
-    bool isIntersect(const ImgAbstractFeature &pattern1, const ImgAbstractFeature &pattern2, unsigned directionId) noexcept {
+    // 此函数用于判断两个特征 在某个方向上的重叠部分 是否完全相等
+    // 重叠部分 全都都相等 才返回true
+
+    bool isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
         Direction direction = this->_direction._data[directionId];
         int dx = direction.x;
         int dy = direction.y;
 
         unsigned xmin = max(dx, 0);
-        unsigned xmax = min(pattern2.width + dx, pattern1.width);
+        unsigned xmax = min(feature2.width + dx, feature1.width);
         unsigned ymin = max(dy, 0);
-        unsigned ymax = min(pattern2.height + dy, pattern1.width);
+        unsigned ymax = min(feature2.height + dy, feature1.width);
 
         // Iterate on every pixel contained in the intersection of the two pattern.
-        // 迭代两个图案中每个像素
+        // 以第一个特征为比较对象 比较每个重叠的元素
         for (unsigned y = ymin; y < ymax; y++) {
             for (unsigned x = xmin; x < xmax; x++) {
                 // 检查值是否相同
@@ -72,13 +75,25 @@ public:
                 unsigned x2 = x - dx;
                 unsigned y2 = y - dy;
 
-                if (pattern1.get(x + y * pattern2.width) != pattern2.get(x2 + y2 * pattern2.width)) {
+                if (feature1.get(x + y * feature2.width) != feature2.get(x2 + y2 * feature2.width)) {
                     return false;
                 }
 
             }
         }
+
+//        vector<int> intersectDat = {1,2};
+//        vector<pair<int,int>> intersectDat = {{1,1},{2,1}};
+//        vector<pair<int,int>> intersectData = this->getIntersectData(feature1,feature2,directionId);
+//
+//        for(int i=0;i<intersectData.size();i++){
+//            if (feature1.get(intersectData[i].first) != feature2.get(intersectData[i].second)) {
+//                return false;
+//            }
+//        }
         return true;
+
+
     }
 
     void generateCompatible() noexcept {
@@ -87,14 +102,14 @@ public:
         this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
                                                                            std::vector<std::vector<unsigned>>(
                                                                                    this->_direction.getMaxNumber())); //每个特征
-        for (unsigned pattern1 = 0; pattern1 < this->feature.size(); pattern1++) {
+        for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
             //每个方向
             for (int directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
-                //每个方向的每个特征
-                for (unsigned pattern2 = 0; pattern2 < this->feature.size(); pattern2++) {
+                //每个方向的所有特征 注意  需要遍历所有特征 这里的特征已经不包含位置信息了
+                for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
                     //判断是否相等  相等就压入图案到传播队列
-                    if (isIntersect(this->feature[pattern1], this->feature[pattern2], directionId)) {
-                        this->propagator[pattern1][directionId].push_back(pattern2);
+                    if (isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
+                        this->propagator[feature1][directionId].push_back(feature2);
                     }
                 }
             }
