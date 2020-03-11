@@ -24,7 +24,7 @@ private:
 
 
     /**
-     * The wave, indicating which patterns can be put in which cell.
+     * The wave, indicating which feature can be put in which cell.
      * wave，表示哪个图案应该被填入哪个格中
      */
     Wave wave;
@@ -36,7 +36,7 @@ private:
     Propagator propagator;
 
     /**
-     * Transform the wave to a valid output (a 2d array of patterns that aren't in contradiction).
+     * Transform the wave to a valid output (a 2d array of feature that aren't in contradiction).
      * This function should be used only when all cell of the wave are defined.
      * 将波转换为有效的输出（一个不矛盾的2d阵列）
      * 此函数只有当波的所有格子都被定义
@@ -44,7 +44,7 @@ private:
     Matrix<unsigned> wave_to_output() const noexcept {
         Matrix<unsigned> output_patterns(data->options.wave_height, data->options.wave_width);
         for (unsigned i = 0; i < wave.size; i++) {
-            for (unsigned k = 0; k < data->patterns.size(); k++) {
+            for (unsigned k = 0; k < data->feature.size(); k++) {
                 if (wave.get(i, k)) {
                     output_patterns.data[i] = k;
                 }
@@ -99,16 +99,16 @@ public:
 
         // 根据分布结构选择一个元素
         double s = 0;
-        for (unsigned k = 0; k < data->patterns.size(); k++) {
+        for (unsigned k = 0; k < data->feature.size(); k++) {
             s += wave.get(argmin, k) ? data->patterns_frequency[k] : 0;
         }
 
         std::uniform_real_distribution<> dis(0, s);
         double random_value = dis(gen);
-        unsigned chosen_value = data->patterns.size() - 1;
+        unsigned chosen_value = data->feature.size() - 1;
 
         //小于0时中断
-        for (unsigned k = 0; k < data->patterns.size(); k++) {
+        for (unsigned k = 0; k < data->feature.size(); k++) {
             random_value -= wave.get(argmin, k) ? data->patterns_frequency[k] : 0;
             if (random_value <= 0) {
                 chosen_value = k;
@@ -117,7 +117,7 @@ public:
         }
 
         // 根据图案定义网格
-        for (unsigned k = 0; k < data->patterns.size(); k++) {
+        for (unsigned k = 0; k < data->feature.size(); k++) {
             if (wave.get(argmin, k) != (k == chosen_value)) {
                 propagator.add_to_propagator(argmin, k);
                 wave.set(argmin, k, false);

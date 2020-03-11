@@ -6,7 +6,7 @@
 #include <string>
 #include <algorithm>
 
-#include "data.hpp"
+#include "declare.hpp"
 
 using namespace std;
 
@@ -69,8 +69,8 @@ public:
             for (unsigned x = xmin; x < xmax; x++) {
                 // 检查值是否相同
 
-                unsigned  x2 = x-dx;
-                unsigned  y2 = y-dy;
+                unsigned x2 = x - dx;
+                unsigned y2 = y - dy;
 
                 if (pattern1.get(x + y * pattern2.width) != pattern2.get(x2 + y2 * pattern2.width)) {
                     return false;
@@ -81,26 +81,19 @@ public:
         return true;
     }
 
-    /**
-* Precompute the function isEpual(pattern1, pattern2, dy, dx).
-* If isEpual(pattern1, pattern2, dy, dx), then compatible[pattern1][direction]
-* contains pattern2, where direction is the direction defined by (dy, dx) (see direction.hpp).
-* 先计算是否匹配
- 如果匹配，则合并
-*/
     void generateCompatible() noexcept {
         //图案id  方向id   此图案此方向同图案的id
         // 是一个二维矩阵  居中中的每个元素为一个非定长数组
-        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->patterns.size(),
+        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
                                                                            std::vector<std::vector<unsigned>>(
                                                                                    this->_direction.getMaxNumber())); //每个特征
-        for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
+        for (unsigned pattern1 = 0; pattern1 < this->feature.size(); pattern1++) {
             //每个方向
             for (int directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
                 //每个方向的每个特征
-                for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
+                for (unsigned pattern2 = 0; pattern2 < this->feature.size(); pattern2++) {
                     //判断是否相等  相等就压入图案到传播队列
-                    if (isIntersect(this->patterns[pattern1], this->patterns[pattern2], directionId)) {
+                    if (isIntersect(this->feature[pattern1], this->feature[pattern2], directionId)) {
                         this->propagator[pattern1][directionId].push_back(pattern2);
                     }
                 }
@@ -128,11 +121,11 @@ public:
                 symmetries[7].data = symmetries[6].reflected().data;
 
                 for (unsigned k = 0; k < this->options.symmetry; k++) {
-                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
+                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->feature.size()));
                     if (!res.second) {
                         this->patterns_frequency[res.first->second] += 1;
                     } else {
-                        this->patterns.push_back(symmetries[k]);
+                        this->feature.push_back(symmetries[k]);
                         this->patterns_frequency.push_back(1);
                     }
                 }
@@ -141,7 +134,7 @@ public:
     }
 
     /**
-    * Transform a 2D array containing the patterns id to a 2D array containing the pixels.
+    * Transform a 2D array containing the feature id to a 2D array containing the pixels.
     * 将包含2d图案的id数组转换为像素数组
     */
     ImgAbstractFeature to_image(const Matrix<unsigned> &output_patterns) const noexcept {
@@ -149,23 +142,23 @@ public:
 
         for (unsigned y = 0; y < this->options.wave_height; y++) {
             for (unsigned x = 0; x < this->options.wave_width; x++) {
-                output.get(y, x) = this->patterns[output_patterns.get(y, x)].get(0, 0);
+                output.get(y, x) = this->feature[output_patterns.get(y, x)].get(0, 0);
             }
         }
         for (unsigned y = 0; y < this->options.wave_height; y++) {
-            const ImgAbstractFeature &pattern = this->patterns[output_patterns.get(y, this->options.wave_width - 1)];
+            const ImgAbstractFeature &pattern = this->feature[output_patterns.get(y, this->options.wave_width - 1)];
             for (unsigned dx = 1; dx < this->options.N; dx++) {
                 output.get(y, this->options.wave_width - 1 + dx) = pattern.get(0, dx);
             }
         }
         for (unsigned x = 0; x < this->options.wave_width; x++) {
-            const ImgAbstractFeature &pattern = this->patterns[output_patterns.get(this->options.wave_height - 1, x)];
+            const ImgAbstractFeature &pattern = this->feature[output_patterns.get(this->options.wave_height - 1, x)];
             for (unsigned dy = 1; dy < this->options.N; dy++) {
                 output.get(this->options.wave_height - 1 + dy, x) = pattern.get(dy, 0);
             }
         }
-        const ImgAbstractFeature &pattern = this->patterns[output_patterns.get(this->options.wave_height - 1,
-                                                                               this->options.wave_width - 1)];
+        const ImgAbstractFeature &pattern = this->feature[output_patterns.get(this->options.wave_height - 1,
+                                                                              this->options.wave_width - 1)];
         for (unsigned dy = 1; dy < this->options.N; dy++) {
             for (unsigned dx = 1; dx < this->options.N; dx++) {
                 output.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = pattern.get(dy, dx);
@@ -184,7 +177,6 @@ public:
             cout << "failed!" << endl;
         }
     };
-    // 原始从输入文件读取得到的数据
     ImgAbstractFeature _data;
 
 };

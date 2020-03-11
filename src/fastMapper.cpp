@@ -5,6 +5,7 @@
 #include <random>
 #include <string>
 #include <unordered_set>
+#include <ctime>
 
 #include "include/cmdline.h"
 #include "wfc.hpp"
@@ -60,8 +61,6 @@ int main(int argc, char *argv[]) {
     string input_data = a.get<std::string>("input_data");
     string output_data = a.get<std::string>("output_data");
     string type = a.get<std::string>("type");
-
-
 
 
     cout << "height                   : " << a.get<unsigned>("height") << endl

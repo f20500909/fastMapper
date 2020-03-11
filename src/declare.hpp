@@ -32,9 +32,9 @@ public:
     const unsigned out_height;
     const unsigned out_width;
     const unsigned symmetry; // The number of symmetries (the order is defined in wfc).
-    const unsigned N; // The width and height in pixel of the patterns.
-    const std::string input_data; // The width and height in pixel of the patterns.
-    const std::string output_data; // The width and height in pixel of the patterns.
+    const unsigned N; // The width and height in pixel of the feature.
+    const std::string input_data; // The width and height in pixel of the feature.
+    const std::string output_data; // The width and height in pixel of the feature.
     const std::string type;        // 模式
 
     const unsigned wave_height;  // The height of the output in pixels.

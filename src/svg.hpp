@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <functional>
 
-#include "data.hpp"
+#include "declare.hpp"
 #include "MyRtree.hpp"
 #include "unti.hpp"
 #include "./include/bitMap.h"
@@ -357,11 +357,11 @@ public:
                 symmetries[7] = symmetries[6].reflected();
 
                 for (unsigned k = 0; k < this->options.symmetry; k++) {
-                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->patterns.size()));
+                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->feature.size()));
                     if (!res.second) {
                         this->patterns_frequency[res.first->second] += 1;
                     } else {
-                        this->patterns.push_back(symmetries[k]);
+                        this->feature.push_back(symmetries[k]);
                         this->patterns_frequency.push_back(1);
                     }
                 }
@@ -370,20 +370,20 @@ public:
     }
 
     void generateCompatible() noexcept {
-        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->patterns.size(),std::vector<std::vector<unsigned>>(maxDirectionNumber));
+        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),std::vector<std::vector<unsigned>>(maxDirectionNumber));
 
         //对每个特征元素
-        for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
+        for (unsigned pattern1 = 0; pattern1 < this->feature.size(); pattern1++) {
             // 应查询此点的
-            std::vector<unsigned> neighborIds = this->patterns[pattern1].neighborIds;
+            std::vector<unsigned> neighborIds = this->feature[pattern1].neighborIds;
 
             //对每个特征元素  的 每个邻居
             for (unsigned neighborId = 0; neighborId < neighborIds.size(); neighborId++) {
 
                 //对每个特征元素  的 每个邻居  的每个特征元素
-                for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
+                for (unsigned pattern2 = 0; pattern2 < this->feature.size(); pattern2++) {
                     //此处重载了==号操作符
-                    if (this->patterns[pattern1] == this->patterns[pattern2] && neighborId<this->propagator[pattern1].size()) {
+                    if (this->feature[pattern1] == this->feature[pattern2] && neighborId<this->propagator[pattern1].size()) {
                         // 对每一个特征元素，其每一个方向，如果其相等 就把id存下
                         this->propagator[pattern1][neighborId].push_back(pattern2);
                     }
@@ -462,7 +462,7 @@ public:
 
             for (unsigned y = 0; y < mat.height; y++) {
 
-                AbstractFeature fea = this->patterns[mat.get(y, x)];
+                AbstractFeature fea = this->feature[mat.get(y, x)];
 
                 std::cout<<" x "<<fea.shiftLeft.x <<" y "<<fea.shiftLeft.y<<std::endl;
 

@@ -6,8 +6,6 @@
 #include <random>
 #include <vector>
 
-#include "declare.hpp"
-#include "base.hpp"
 #include "data.hpp"
 
 class Wave  {
@@ -33,7 +31,7 @@ private:
     bool is_impossible;
 
     /**
-    * The number of distinct patterns.
+    * The number of distinct feature.
     * 不同形状的图案数量
     */
     const unsigned nb_patterns;
@@ -139,7 +137,7 @@ public:
         log_sum[index] = log(sum[index]);
         nb_patterns_vec[index]--;
         entropy_vec[index] = log_sum[index] - plogp_sum[index] / sum[index];
-        // If there is no patterns possible in the cell, then there is a
+        // If there is no feature possible in the cell, then there is a
         // contradiction.
         if (nb_patterns_vec[index] == 0) is_impossible = true;
     }
@@ -192,7 +190,7 @@ public:
     std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
     std::vector<double> sum;       // The sum of p'(pattern).
     std::vector<double> log_sum;   // The log of sum.
-    std::vector<unsigned> nb_patterns_vec; // The number of patterns present
+    std::vector<unsigned> nb_patterns_vec; // The number of feature present
     std::vector<double> entropy_vec;       // The entropy of the cell.c
 };
 

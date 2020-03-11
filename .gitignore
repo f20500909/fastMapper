@@ -8,6 +8,7 @@
 /test_temp
 /output
 /out
+/res/*
 /samples
 /.idea
 /.vs

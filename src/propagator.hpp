@@ -9,7 +9,7 @@
 #include "wave.hpp"
 
 /**
- * Propagate information about patterns in the wave.
+ * Propagate information about feature in the wave.
  */
 class Propagator {
 public:
@@ -22,12 +22,12 @@ private:
     void init_compatible() noexcept {
 
         //可能的图案id
-        compatible = Array2D<std::vector<int>>(data->options.wave_size, data->patterns.size());
+        compatible = Array2D<std::vector<int>>(data->options.wave_size, data->feature.size());
 
         //对所有输出的尺寸
         for (unsigned id = 0; id < data->options.wave_size; id++) {
             //对所有提取的特征图案id
-            for (unsigned pattern = 0; pattern < data->patterns.size(); pattern++) {
+            for (unsigned pattern = 0; pattern < data->feature.size(); pattern++) {
 
                 std::vector<int> value(data->_direction.getMaxNumber());
 
@@ -76,17 +76,17 @@ public:
                     continue;
                 }
 
-                // The index of the second cell, and the patterns compatible
-                const std::vector<unsigned> &patterns = data->propagator[p_id_2][directionId];
+                // The index of the second cell, and the feature compatible
+                const std::vector<unsigned> &feature = data->propagator[p_id_2][directionId];
 
                 // For every pattern that could be placed in that cell without being in
                 // contradiction with pattern1
-                for (unsigned i = 0; i < patterns.size(); i++) {
-                    // We decrease the number of compatible patterns in the opposite
+                for (unsigned i = 0; i < feature.size(); i++) {
+                    // We decrease the number of compatible feature in the opposite
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
 
-                    std::vector<int> &value = compatible.get(p_id_3, patterns[i]);
+                    std::vector<int> &value = compatible.get(p_id_3, feature[i]);
 
                     //方向自减
                     value[directionId]--;
@@ -94,8 +94,8 @@ public:
                     //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
                     //并且将此wave的传播状态设置为不需要传播
                     if (value[directionId] == 0) {
-                        add_to_propagator(p_id_3, patterns[i]);
-                        wave.set(p_id_3, patterns[i], false);
+                        add_to_propagator(p_id_3, feature[i]);
+                        wave.set(p_id_3, feature[i], false);
                     }
                 }
             }

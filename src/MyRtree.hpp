@@ -26,7 +26,6 @@ public:
         float x3 = this->x;
         float y3 = this->y;
 
-
         float theta = atan2(x1 - x3, y1 - y3) - atan2(x2 - x3, y2 - y3);
         if (theta > M_PI)
             theta -= 2 * M_PI;
