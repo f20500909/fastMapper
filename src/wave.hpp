@@ -85,8 +85,8 @@ public:
     Wave( Data<int,AbstractFeature> *data) noexcept
             : plogp_patterns_frequency(get_plogp(data->patterns_frequency)),
               half_min_plogp(get_half_min(plogp_patterns_frequency)), is_impossible(false),
-              nb_patterns(data->patterns_frequency.size()), mat(data->options.wave_width * data->options.wave_height, nb_patterns, 1),
-              size(data->options.wave_height * data->options.wave_width), data(data) {
+              nb_patterns(data->patterns_frequency.size()), mat(data->options.wave_size, nb_patterns, 1),
+              size(data->options.wave_size), data(data) {
 
         double base_entropy = 0;
         double base_s = 0;
@@ -188,7 +188,6 @@ public:
 
         return argmin;
     }
-
 
     std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
     std::vector<double> sum;       // The sum of p'(pattern).

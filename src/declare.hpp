@@ -13,7 +13,6 @@
 
 #include "include/stb_image_write.h"
 
-class Cell;
 
 template<typename T>
 class Matrix;
@@ -21,26 +20,11 @@ class Matrix;
 class SvgAbstractFeature;
 
 
-
 enum ObserveStatus {
     success, // wfc完成并取得成功
     failure, // wfc完成并失败
     to_continue // wfc没有完成
 };
-
-//方向值
-class Direction {
-public:
-    Direction(int x, int y) : x(x), y(y) {
-    }
-
-    Direction(unsigned x, unsigned y) : x(static_cast<int>(x)), y(static_cast<int>(y)) {
-    }
-
-    int x;
-    int y;
-};
-
 
 
 class Options {
@@ -75,12 +59,25 @@ public:
             wave_size(wave_height * wave_width) {}
 };
 
+
+//方向值
+class Direction {
+public:
+    Direction(int x, int y) : x(x), y(y) {
+    }
+
+    Direction(unsigned x, unsigned y) : x(static_cast<int>(x)), y(static_cast<int>(y)) {
+    }
+
+    int x;
+    int y;
+};
+
+//需要弱化方向的概念 让方向与模型适配
 class DirectionSet {
 public:
 
-    DirectionSet() {
-    }
-
+    DirectionSet() {}
 
     std::vector<Direction> _data = {{0,  -1},
                                     {-1, 0},
@@ -97,58 +94,16 @@ public:
         return 4 - 1 - direction;
     }
 
-    unsigned  getMaxNumber(){
+    unsigned getMaxNumber() {
         return _data.size();
     }
 
-    unsigned movePatternByDirection(Direction po, unsigned wave_width){
-        return   po.x + po.y *wave_width;
+    unsigned movePatternByDirection(unsigned dId, unsigned wave_width) {
+        Direction direction = _data[dId];
+        return direction.x + direction.y * wave_width;
     }
 };
 
-struct Entropy {
-    std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
-    std::vector<double> sum;       // The sum of p'(pattern).
-    std::vector<double> log_sum;   // The log of sum.
-    std::vector<unsigned> nb_patterns_vec; // The number of patterns present
-    std::vector<double> entropy;       // The entropy of the cell.
-};
-
-/**
-* Represent a 24-bit rgb color.
-*/
-class Cell {
-public:
-    Cell() {
-        data[0] = 0;
-        data[1] = 0;
-        data[2] = 0;
-    }
-
-    Cell(unsigned char r, unsigned char g, unsigned char b) {
-        data[0] = r;
-        data[1] = g;
-        data[2] = b;
-    }
-
-    unsigned char data[3];
-
-    bool operator==(const Cell &c) const noexcept {
-        for (int i = 0; i < 3; i++) {
-            if (data[i] != c.data[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    bool operator!=(const Cell &c) const noexcept { return !(c == *this); }
-};
-
-/**
-* Represent a 2D array.
-* The 2D array is stored in a single array, to improve cache usage.
-*/
 template<typename T>
 class Matrix {
 
@@ -275,21 +230,6 @@ public:
 
 
 namespace std {
-    template<>
-    class hash<Cell> {
-    public:
-        size_t operator()(const Cell &c) const {
-            return (size_t)
-                           c.data[0] + (size_t)
-                                               256 * (size_t)
-                                               c.data[1] +
-                   (size_t)
-                           256 * (size_t)
-                           256 * (size_t)
-                           c.data[2];
-        }
-    };
-
     template<typename T>
     class hash<Matrix<T>> {
     public:
@@ -304,6 +244,28 @@ namespace std {
     };
 
 }
+
+
+template<typename T>
+class Array2D {
+public:
+    unsigned depth;
+    unsigned iDsize;
+
+    std::vector<T> data;
+
+    Array2D() {
+
+    }
+
+    Array2D(unsigned iDsize, unsigned depth) noexcept : iDsize(iDsize), depth(depth), data(iDsize * depth) {}
+
+
+    T &get(unsigned id, unsigned k) noexcept {
+        return data[depth * (id) + k];
+    }
+};
+
 
 //using  AbstractFeature   = SvgAbstractFeature;
 //using AbstractFeature   = Matrix<Cell>;

@@ -6,7 +6,6 @@
 #include <array>
 #include <functional>
 
-#include "array3D.hpp"
 #include "wave.hpp"
 
 /**
@@ -23,15 +22,21 @@ private:
     void init_compatible() noexcept {
         std::vector<int> value(data->_direction.getMaxNumber());
 
-        compatible = Array2D<std::vector<int>>(data->options.wave_height, data->options.wave_width,
-                                               data->patterns.size());
+        //可能的图案id
+        compatible = Array2D<std::vector<int>>(data->options.wave_size, data->patterns.size());
 
+        //对所有输出的尺寸
         for (unsigned id = 0; id < data->options.wave_size; id++) {
+            //对所有提取的特征图案id
             for (unsigned pattern = 0; pattern < data->patterns.size(); pattern++) {
+                //对特征图案的所有方向
                 for (int direction = 0; direction < data->_direction.getMaxNumber(); direction++) {
+                    //对特征图案的所有方向的相反方向
                     unsigned oppositeDirection = data->_direction.get_opposite_direction(direction);
+                    //此方向上的值  等于 其反方向上的可传播大小
                     value[direction] = data->propagator[pattern][oppositeDirection].size();
                 }
+                //对其可能的图案id进行赋值
                 compatible.get(id, pattern) = value;
             }
         }
@@ -62,10 +67,8 @@ public:
 
             //对图案的各个方向进进行传播
             for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
-                Direction po = data->_direction.getDirectionFromId(directionId);
-
-                unsigned  shift = data->_direction.movePatternByDirection(po,data->options.wave_width);
-                p_id_3 = p_id_1 +shift;
+                unsigned shift = data->_direction.movePatternByDirection(directionId, data->options.wave_width);
+                p_id_3 = p_id_1 + shift;
 
                 if (!data->isVaildPatternId(p_id_3)) {
                     continue;

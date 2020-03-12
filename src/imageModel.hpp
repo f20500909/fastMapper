@@ -35,8 +35,7 @@ public:
         for (unsigned i = 0; i < (unsigned) height; i++) {
             for (unsigned j = 0; j < (unsigned) width; j++) {
                 unsigned index = 3 * (i * width + j);
-//				this->_data.data[i * width + j] = Cell(data[index], data[index + 1], data[index + 2]);
-                this->_data.data[i * width + j] = data[index] + (data[index + 1] << 8) + (data[index + 2] << 18);
+                this->_data.data[i * width + j] = (data[index]) | ((data[index + 1]) << 8) | ((data[index + 2]) << 16);
             }
         }
         free(data);
@@ -48,16 +47,16 @@ public:
         for (int i = 0; i < m.width * m.height; i++) {
             unsigned t = m.data[i];
             imgData[i * 3 + 0] = (unsigned char) (t & 0xFF);// 0-7位
-            imgData[i * 3 + 1] = (unsigned char) ((t&0xFF00) >> 8);// 8-15位
-            imgData[i * 3 + 2] = (unsigned char) ((t&0xFF0000) >> 16);// 16-23位
+            imgData[i * 3 + 1] = (unsigned char) ((t & 0xFF00) >> 8);// 8-15位
+            imgData[i * 3 + 2] = (unsigned char) ((t & 0xFF0000) >> 16);// 16-23位
         };
         stbi_write_png(file_path.c_str(), m.width, m.height, 3, imgData, 0);
     }
 
-    static bool
-    isEpual(const ImgAbstractFeature &pattern1, const ImgAbstractFeature &pattern2, Direction Direction) noexcept {
-        int dx = Direction.x;
-        int dy = Direction.y;
+    bool isEpual(const ImgAbstractFeature &pattern1, const ImgAbstractFeature &pattern2, unsigned directionId) noexcept {
+        Direction direction = this->_direction._data[directionId];
+        int dx = direction.x;
+        int dy = direction.y;
 
         unsigned xmin = max(dx, 0);
         unsigned xmax = min(pattern2.width + dx, pattern1.width);
@@ -87,18 +86,18 @@ public:
 */
     void generateCompatible() noexcept {
         //图案id  方向id   此图案此方向同图案的id
+        // 是一个二维矩阵  居中中的每个元素为一个非定长数组
         this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->patterns.size(),
                                                                            std::vector<std::vector<unsigned>>(
                                                                                    this->_direction.getMaxNumber())); //每个特征
         for (unsigned pattern1 = 0; pattern1 < this->patterns.size(); pattern1++) {
             //每个方向
-            for (int directionId = 0; directionId < this->_direction._data.size(); directionId++) {
-                auto direction = this->_direction.getDirectionFromId(directionId);
+            for (int directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
 
                 //每个方向的每个特征
                 for (unsigned pattern2 = 0; pattern2 < this->patterns.size(); pattern2++) {
                     //判断是否相等  相等就压入图案到传播队列
-                    if (isEpual(this->patterns[pattern1], this->patterns[pattern2], direction)) {
+                    if (isEpual(this->patterns[pattern1], this->patterns[pattern2], directionId)) {
                         this->propagator[pattern1][directionId].push_back(pattern2);
                     }
                 }
