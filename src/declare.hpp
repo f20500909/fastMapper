@@ -283,7 +283,7 @@ public:
 };
 
 
-//using  AbstractFeature   = SvgAbstractFeature;
+using  AbstractFeature   = SvgAbstractFeature;
 //using AbstractFeature   = Matrix<Cell>;
-using AbstractFeature   = Matrix<unsigned>;
+//using AbstractFeature   = Matrix<unsigned>;
 #endif

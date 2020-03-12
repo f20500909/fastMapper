@@ -6,6 +6,8 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include <unordered_map>
+#include <regex>
 
 #include "declare.hpp"
 #include "MyRtree.hpp"
@@ -24,51 +26,23 @@ public:
     }
 
 
-//    // 特征值属性
-//    bool isBegin = false;
-//    bool isEnd = false;
-//    int sameCurvePointNumber;
-//    int diffCurvePointNumber;
-//
-//    int8_t angleLeft = 0;
-//    int8_t angleRight = 0;
-//
-//    float distanceLeft = 0;
-//    float distanceRight = 0;
-//
-//    point2D shiftLeft = point2D(0, 0);
-//    point2D shiftRight = point2D(0, 0);
-//
-//
-//    float distanceRatio;
-//
-//
-//    std::vector<unsigned> neighborIds;
-//
-//    BitMap val;
-//
-//    svgPoint basePoint;
-//
-//    std::vector<svgPoint *> data;
-
-
-    SvgAbstractFeature(const SvgAbstractFeature& svg) {
+    SvgAbstractFeature(const SvgAbstractFeature &svg) {
         SvgAbstractFeature res;
-        this->isBegin =svg.isBegin;
-        this->isEnd =svg.isEnd;
-        this->sameCurvePointNumber =svg.sameCurvePointNumber;
-        this->diffCurvePointNumber =svg.diffCurvePointNumber;
-        this->angleLeft =svg.angleLeft;
-        this->angleRight =svg.angleRight;
-        this->distanceLeft =svg.distanceLeft;
-        this->distanceRight =svg.distanceRight;
-        this->shiftLeft =svg.shiftLeft;
-        this->shiftRight =svg.shiftRight;
-        this->distanceRatio =svg.distanceRatio;
-        this->neighborIds =svg.neighborIds;
-        this->val =svg.val;
-        this->basePoint =svg.basePoint;
-        this->data =svg.data;
+        this->isBegin = svg.isBegin;
+        this->isEnd = svg.isEnd;
+        this->sameCurvePointNumber = svg.sameCurvePointNumber;
+        this->diffCurvePointNumber = svg.diffCurvePointNumber;
+        this->angleLeft = svg.angleLeft;
+        this->angleRight = svg.angleRight;
+        this->distanceLeft = svg.distanceLeft;
+        this->distanceRight = svg.distanceRight;
+        this->shiftLeft = svg.shiftLeft;
+        this->shiftRight = svg.shiftRight;
+        this->distanceRatio = svg.distanceRatio;
+        this->neighborIds = svg.neighborIds;
+        this->val = svg.val;
+        this->basePoint = svg.basePoint;
+        this->data = svg.data;
     }
 
 
@@ -136,7 +110,7 @@ public:
         }
 
         _sameCurvePointNumber = uint8_t(_sameCurvePointNumber);
-        _sameCurvePointNumber = min(_sameCurvePointNumber, 0xff);
+        _sameCurvePointNumber = std::min(_sameCurvePointNumber, 0xff);
 
         val.setNumber(1, _sameCurvePointNumber);
         this->sameCurvePointNumber = _sameCurvePointNumber;
@@ -175,7 +149,7 @@ public:
             this->distanceLeft = basePoint.point.get_distance(left);
             this->shiftLeft = basePoint.point.getPointShift(left);
 
-            std::cout<<" i "<<i<<" j "<<j<<" x "<<shiftLeft.x<< " y " <<shiftLeft.y<<std::endl;
+            std::cout << " i " << i << " j " << j << " x " << shiftLeft.x << " y " << shiftLeft.y << std::endl;
         }
 
         //如果不是终点,说明右边有点
@@ -191,15 +165,6 @@ public:
         }
 
     }
-
-///**
-// * Assign the matrix a to the current matrix.
-// */
-//    SvgAbstractFeature &operator=(const SvgAbstractFeature &fea) noexcept {
-//        this->data = fea.data;
-//        this->basePoint = fea.basePoint;
-//        return *this;
-//    }
 
     //根据特征得到偏移坐标
 
@@ -318,7 +283,7 @@ bool operator==(SvgAbstractFeature left, SvgAbstractFeature right) {
 }
 
 template<class T, class AbstractFeature>
-class data;
+class Data;
 
 class Options;
 
@@ -369,23 +334,58 @@ public:
         }
     }
 
+
+    bool
+    isIntersect(const SvgAbstractFeature &feature1, const SvgAbstractFeature &feature2, unsigned directionId) noexcept {
+        // 找到fea 的 directionId的点位
+//        std::vector<svgPoint *> svgPoints_1;
+//        for (int i=0;i<feature1.data.size();i++){
+//
+//            point2D left = data[i][j - 1]->point;
+//            point2D temp = point2D(feature1.basePoint.point.x, feature1.point.y + 1000);
+//
+//            double _angle = basePoint.point.get_angle(left, temp);
+//            if (_angle>=0&&_angle<90){
+//                svgPoints_1.push_back(feature1.data[i]);
+//            }
+//        }
+//
+//        // 找到fea 反方向的元素
+//        std::vector<svgPoint *> svgPoints_1;
+//        for (int i=0;i<feature1.data.size();i++){
+//
+//            point2D left = data[i][j - 1]->point;
+//            point2D temp = point2D(feature1.basePoint.point.x, feature1.point.y + 1000);
+//
+//            double _angle = basePoint.point.get_angle(left, temp);
+//            if (_angle>=0&&_angle<90){
+//                svgPoints_1.push_back(feature1.data[i]);
+//            }
+//        }
+
+        //判断是否全等
+
+
+        return true;
+    }
+
+
     void generateCompatible() noexcept {
-        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),std::vector<std::vector<unsigned>>(maxDirectionNumber));
+        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
+                                                                           std::vector<std::vector<unsigned>>(4));
 
         //对每个特征元素
         for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
             // 应查询此点的
-            std::vector<unsigned> neighborIds = this->feature[feature1].neighborIds;
 
             //对每个特征元素  的 每个邻居
-            for (unsigned neighborId = 0; neighborId < neighborIds.size(); neighborId++) {
+            for (int directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
 
                 //对每个特征元素  的 每个邻居  的每个特征元素
                 for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
-                    //此处重载了==号操作符
-                    if (this->feature[feature1] == this->feature[feature2] && neighborId<this->propagator[feature1].size()) {
-                        // 对每一个特征元素，其每一个方向，如果其相等 就把id存下
-                        this->propagator[feature1][neighborId].push_back(feature2);
+                    // 判断在此方向上是否有重叠部分
+                    if (isIntersect(feature1, feature2, directionId)) {
+                        this->propagator[feature1][directionId].push_back(feature2);
                     }
                 }
             }
@@ -464,7 +464,7 @@ public:
 
                 AbstractFeature fea = this->feature[mat.get(y, x)];
 
-                std::cout<<" x "<<fea.shiftLeft.x <<" y "<<fea.shiftLeft.y<<std::endl;
+                std::cout << " x " << fea.shiftLeft.x << " y " << fea.shiftLeft.y << std::endl;
 
                 curPoint.shiftFormPoint(fea.shiftLeft);
 

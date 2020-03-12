@@ -25,5 +25,19 @@ namespace unit {
         return result;
     }
 
+
+
+
+    float get_angle(float x1, float y1, float x2, float y2, float x3, float y3) {
+        float theta = atan2(x1 - x3, y1 - y3) - atan2(x2 - x3, y2 - y3);
+        if (theta > M_PI)
+            theta -= 2 * M_PI;
+        if (theta < -M_PI)
+            theta += 2 * M_PI;
+
+        theta = abs(theta * 180.0 / M_PI);
+        return theta;
+    }
+
 }
 #endif //SRC_UNTI_HPP

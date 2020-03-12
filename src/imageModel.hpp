@@ -15,9 +15,19 @@ class Img : public Data<T, ImgAbstractFeature> {
 public:
 
     void init() {
+        initDirection();
         initDataWithImg();
         initPatterns();
         generateCompatible();
+    }
+
+    void initDirection() {
+
+        this->_direction._data = {{0,  1},
+                                  {1,  0},
+                                  {0,  -1},
+                                  {-1, 0},
+        };
     }
 
     Img(const Options &op) : Data<T, ImgAbstractFeature>(op) {
@@ -56,7 +66,8 @@ public:
     // 此函数用于判断两个特征 在某个方向上的重叠部分 是否完全相等
     // 重叠部分 全都都相等 才返回true
 
-    bool isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
+    bool
+    isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
         Direction direction = this->_direction._data[directionId];
         int dx = direction.x;
         int dy = direction.y;
