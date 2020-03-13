@@ -292,10 +292,21 @@ class Svg : public Data<T, AbstractFeature> {
 public:
 
     Svg(const Options &op) : Data<T, AbstractFeature>(op) {
+        initDirection();
         parseData();
         initPatterns();
         generateCompatible();
     }
+
+    void initDirection() {
+
+        this->_direction._data = {{0,  1},
+                                  {1,  0},
+                                  {0,  -1},
+                                  {-1, 0},
+        };
+    }
+
 
     void initPatterns() {
         // 将图案插入到rtree中
@@ -336,37 +347,60 @@ public:
 
 
     bool
-    isIntersect(const SvgAbstractFeature &feature1, const SvgAbstractFeature &feature2, unsigned directionId) noexcept {
+    isIntersect(const SvgAbstractFeature &feature1, const SvgAbstractFeature &feature2, unsigned directionId) {
         // 找到fea 的 directionId的点位
-//        std::vector<svgPoint *> svgPoints_1;
-//        for (int i=0;i<feature1.data.size();i++){
-//
-//            point2D left = data[i][j - 1]->point;
-//            point2D temp = point2D(feature1.basePoint.point.x, feature1.point.y + 1000);
-//
-//            double _angle = basePoint.point.get_angle(left, temp);
-//            if (_angle>=0&&_angle<90){
-//                svgPoints_1.push_back(feature1.data[i]);
-//            }
-//        }
-//
-//        // 找到fea 反方向的元素
-//        std::vector<svgPoint *> svgPoints_1;
-//        for (int i=0;i<feature1.data.size();i++){
-//
-//            point2D left = data[i][j - 1]->point;
-//            point2D temp = point2D(feature1.basePoint.point.x, feature1.point.y + 1000);
-//
-//            double _angle = basePoint.point.get_angle(left, temp);
-//            if (_angle>=0&&_angle<90){
-//                svgPoints_1.push_back(feature1.data[i]);
-//            }
-//        }
+        std::vector<svgPoint *> svgPoints_1;
+        std::vector<svgPoint *> svgPoints_2;
 
+        std::vector<std::pair<float, float>> angleThreshold = {
+                {0,   90},
+                {90,  180},
+                {180, 270},
+                {270, 360},
+        };
+
+
+        std::vector<std::pair<float, float>> angleThresholdOpp = {
+                {180, 270},
+                {270, 360},
+                {0,   90},
+                {90,  180},
+        };
+
+
+        for (int i = 0; i < feature1.data.size(); i++) {
+            float minAngle = angleThreshold[i].first;
+            float maxAngle = angleThreshold[i].second;
+            //计算点位的方位角
+            point2D po = feature1.data[i]->point;
+            float _angle = feature1.basePoint.point.get_azimuth(po);
+            if (_angle >= minAngle && _angle < maxAngle) {
+                svgPoints_1.push_back(feature1.data[i]);
+            }
+        }
+
+        // 找到fea 反方向的元素
+        for (int i = 0; i < feature2.data.size(); i++) {
+            float minAngle = angleThresholdOpp[i].first;
+            float maxAngle = angleThresholdOpp[i].second;
+            //计算点位的方位角
+            point2D po = feature2.data[i]->point;
+            float _angle = feature2.basePoint.point.get_azimuth(po);
+            if (_angle >= minAngle && _angle < maxAngle) {
+                svgPoints_2.push_back(feature2.data[i]);
+            }
+        }
+
+        if (svgPoints_1.size() != 0 && svgPoints_1.size() == svgPoints_2.size()) {
+            return true;
+        }
+
+//        if (svgPoints_1.size() == svgPoints_2.size()) {
+//            return true;
+//        }
+//        
         //判断是否全等
-
-
-        return true;
+        return false;
     }
 
 
@@ -379,12 +413,12 @@ public:
             // 应查询此点的
 
             //对每个特征元素  的 每个邻居
-            for (int directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
+            for (unsigned directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
 
                 //对每个特征元素  的 每个邻居  的每个特征元素
                 for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
                     // 判断在此方向上是否有重叠部分
-                    if (isIntersect(feature1, feature2, directionId)) {
+                    if (this->isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
                         this->propagator[feature1][directionId].push_back(feature2);
                     }
                 }

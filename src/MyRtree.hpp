@@ -36,6 +36,28 @@ public:
         return theta;
     }
 
+
+    float get_azimuth(point2D &p2) const{
+
+        float x1 = this->x;
+        float y1 = this->y+1000;
+
+        float x2 = p2.x;
+        float y2 = p2.y;
+
+        float x3 = this->x;
+        float y3 = this->y;
+
+        float theta = atan2(x1 - x3, y1 - y3) - atan2(x2 - x3, y2 - y3);
+        if (theta > M_PI)
+            theta -= 2 * M_PI;
+        if (theta < -M_PI)
+            theta += 2 * M_PI;
+
+        theta = abs(theta * 180.0 / M_PI);
+        return theta;
+    }
+
     float get_distance(point2D &p) {
         float x2 = p.x;
         float y2 = p.y;
