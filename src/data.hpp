@@ -49,7 +49,7 @@ public:
 
     std::vector<std::vector<std::vector<unsigned>> > propagator;
     std::vector<AbstractFeature> feature;                             //图案数据
-    std::vector<double> patterns_frequency;                            //图案频率
+    std::vector<double> features_frequency;                            //图案频率
 
 };
 

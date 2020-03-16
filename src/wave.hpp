@@ -16,7 +16,7 @@ private:
     * The precomputation of p * log(p).
     * p*log（p）的值
     */
-    const std::vector<double> plogp_patterns_frequency;
+    const std::vector<double> plogp_features_frequency;
 
     /**
     * The precomputation of min (p * log(p)) / 2.
@@ -34,7 +34,7 @@ private:
     * The number of distinct feature.
     * 不同形状的图案数量
     */
-    const unsigned nb_patterns;
+    const unsigned nb_features;
 
     /**
     * The actual wave. mat.get(index, pattern) is equal to 0 if the pattern can
@@ -81,19 +81,19 @@ public:
     * 初始化wave中每个cell
     */
     Wave( Data<int,AbstractFeature> *data) noexcept
-            : plogp_patterns_frequency(get_plogp(data->patterns_frequency)),
-              half_min_plogp(get_half_min(plogp_patterns_frequency)), is_impossible(false),
-              nb_patterns(data->patterns_frequency.size()), mat(data->options.wave_size, nb_patterns, 1),
+            : plogp_features_frequency(get_plogp(data->features_frequency)),
+              half_min_plogp(get_half_min(plogp_features_frequency)), is_impossible(false),
+              nb_features(data->features_frequency.size()), mat(data->options.wave_size, nb_features, 1),
               size(data->options.wave_size), data(data) {
 
         double base_entropy = 0;
         double base_s = 0;
         double half_min_plogp = std::numeric_limits<double>::infinity();
 
-        for (unsigned i = 0; i < nb_patterns; i++) {
-            half_min_plogp = std::min(half_min_plogp, plogp_patterns_frequency[i] / 2.0);
-            base_entropy += plogp_patterns_frequency[i];// plogp 的和
-            base_s += data->patterns_frequency[i];// 频率的和
+        for (unsigned i = 0; i < nb_features; i++) {
+            half_min_plogp = std::min(half_min_plogp, plogp_features_frequency[i] / 2.0);
+            base_entropy += plogp_features_frequency[i];// plogp 的和
+            base_s += data->features_frequency[i];// 频率的和
         }
         double log_base_s = log(base_s);
         double entropy_base = log_base_s - base_entropy / base_s;
@@ -101,7 +101,7 @@ public:
         plogp_sum = std::vector<double>(size, base_entropy);
         sum = std::vector<double>(size, base_s);
         log_sum = std::vector<double>(size, log_base_s);
-        nb_patterns_vec = std::vector<unsigned>(size, nb_patterns);
+        features_number_vec = std::vector<unsigned>(size, nb_features);
         entropy_vec = std::vector<double>(size, entropy_base);
     }
 
@@ -132,14 +132,14 @@ public:
 
         // Otherwise, the memoisation should be updated.
         mat.get(index, pattern) = value;
-        plogp_sum[index] -= plogp_patterns_frequency[pattern];
-        sum[index] -= data->patterns_frequency[pattern];
+        plogp_sum[index] -= plogp_features_frequency[pattern];
+        sum[index] -= data->features_frequency[pattern];
         log_sum[index] = log(sum[index]);
-        nb_patterns_vec[index]--;
+        features_number_vec[index]--;
         entropy_vec[index] = log_sum[index] - plogp_sum[index] / sum[index];
         // If there is no feature possible in the cell, then there is a
         // contradiction.
-        if (nb_patterns_vec[index] == 0) is_impossible = true;
+        if (features_number_vec[index] == 0) is_impossible = true;
     }
 
     /**
@@ -149,7 +149,7 @@ public:
     */
     int get_min_entropy(std::minstd_rand &gen) const noexcept {
         if (is_impossible) {
-            return -2;
+            return failure;
         }
 
         std::uniform_real_distribution<> dis(0, abs(half_min_plogp));
@@ -160,8 +160,8 @@ public:
         for (int i = 0; i < size; i++) {
             // If the cell is decided, we do not compute the entropy (which is equal to 0).
             // 如果cell被决定，我们不用再计算信息熵
-            double nb_patterns = nb_patterns_vec[i];
-            if (nb_patterns == 1) {
+            double nb_features = features_number_vec[i];
+            if (nb_features == 1) {
                 continue;
             }
 
@@ -190,7 +190,7 @@ public:
     std::vector<double> plogp_sum; // The sum of p'(pattern) * log(p'(pattern)).
     std::vector<double> sum;       // The sum of p'(pattern).
     std::vector<double> log_sum;   // The log of sum.
-    std::vector<unsigned> nb_patterns_vec; // The number of feature present
+    std::vector<unsigned> features_number_vec; // The number of feature present
     std::vector<double> entropy_vec;       // The entropy of the cell.c
 };
 

@@ -42,15 +42,15 @@ private:
      * 此函数只有当波的所有格子都被定义
      */
     Matrix<unsigned> wave_to_output() const noexcept {
-        Matrix<unsigned> output_patterns(data->options.wave_height, data->options.wave_width);
+        Matrix<unsigned> output_features(data->options.wave_height, data->options.wave_width);
         for (unsigned i = 0; i < wave.size; i++) {
             for (unsigned k = 0; k < data->feature.size(); k++) {
                 if (wave.get(i, k)) {
-                    output_patterns.data[i] = k;
+                    output_features.data[i] = k;
                 }
             }
         }
-        return output_patterns;
+        return output_features;
     }
 
 public:
@@ -87,12 +87,12 @@ public:
         // 得到具有最低熵的网格
         int argmin = wave.get_min_entropy(gen);
         // 检查冲突，返回failure
-        if (argmin == -2) {
+        if (argmin == failure) {
             return failure;
         }
 
         // 如果最低熵是-1，那么算法成功并完成
-        if (argmin == -1) {
+        if (argmin ==success) {
             wave_to_output();
             return success;
         }
@@ -100,7 +100,7 @@ public:
         // 根据分布结构选择一个元素
         double s = 0;
         for (unsigned k = 0; k < data->feature.size(); k++) {
-            s += wave.get(argmin, k) ? data->patterns_frequency[k] : 0;
+            s += wave.get(argmin, k) ? data->features_frequency[k] : 0;
         }
 
         std::uniform_real_distribution<> dis(0, s);
@@ -109,7 +109,7 @@ public:
 
         //小于0时中断
         for (unsigned k = 0; k < data->feature.size(); k++) {
-            random_value -= wave.get(argmin, k) ? data->patterns_frequency[k] : 0;
+            random_value -= wave.get(argmin, k) ? data->features_frequency[k] : 0;
             if (random_value <= 0) {
                 chosen_value = k;
                 break;

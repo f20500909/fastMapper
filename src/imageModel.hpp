@@ -17,7 +17,7 @@ public:
     void init() {
         initDirection();
         initDataWithImg();
-        initPatterns();
+        initfeatures();
         generateCompatible();
     }
 
@@ -127,8 +127,8 @@ public:
         }
     }
 
-    void initPatterns() noexcept {
-        std::unordered_map<ImgAbstractFeature, unsigned> patterns_id;
+    void initfeatures() noexcept {
+        std::unordered_map<ImgAbstractFeature, unsigned> features_id;
         std::vector<ImgAbstractFeature> symmetries(this->options.symmetry,
                                                    ImgAbstractFeature(this->options.N, this->options.N));
 
@@ -147,12 +147,12 @@ public:
                 symmetries[7].data = symmetries[6].reflected().data;
 
                 for (unsigned k = 0; k < this->options.symmetry; k++) {
-                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->feature.size()));
+                    auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));
                     if (!res.second) {
-                        this->patterns_frequency[res.first->second] += 1;
+                        this->features_frequency[res.first->second] += 1;
                     } else {
                         this->feature.push_back(symmetries[k]);
-                        this->patterns_frequency.push_back(1);
+                        this->features_frequency.push_back(1);
                     }
                 }
             }
@@ -163,27 +163,27 @@ public:
     * Transform a 2D array containing the feature id to a 2D array containing the pixels.
     * 将包含2d图案的id数组转换为像素数组
     */
-    ImgAbstractFeature to_image(const Matrix<unsigned> &output_patterns) const noexcept {
+    ImgAbstractFeature to_image(const Matrix<unsigned> &output_features) const noexcept {
         ImgAbstractFeature output = ImgAbstractFeature(this->options.out_height, this->options.out_width);
 
         for (unsigned y = 0; y < this->options.wave_height; y++) {
             for (unsigned x = 0; x < this->options.wave_width; x++) {
-                output.get(y, x) = this->feature[output_patterns.get(y, x)].get(0, 0);
+                output.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
             }
         }
         for (unsigned y = 0; y < this->options.wave_height; y++) {
-            const ImgAbstractFeature &pattern = this->feature[output_patterns.get(y, this->options.wave_width - 1)];
+            const ImgAbstractFeature &pattern = this->feature[output_features.get(y, this->options.wave_width - 1)];
             for (unsigned dx = 1; dx < this->options.N; dx++) {
                 output.get(y, this->options.wave_width - 1 + dx) = pattern.get(0, dx);
             }
         }
         for (unsigned x = 0; x < this->options.wave_width; x++) {
-            const ImgAbstractFeature &pattern = this->feature[output_patterns.get(this->options.wave_height - 1, x)];
+            const ImgAbstractFeature &pattern = this->feature[output_features.get(this->options.wave_height - 1, x)];
             for (unsigned dy = 1; dy < this->options.N; dy++) {
                 output.get(this->options.wave_height - 1 + dy, x) = pattern.get(dy, 0);
             }
         }
-        const ImgAbstractFeature &pattern = this->feature[output_patterns.get(this->options.wave_height - 1,
+        const ImgAbstractFeature &pattern = this->feature[output_features.get(this->options.wave_height - 1,
                                                                               this->options.wave_width - 1)];
         for (unsigned dy = 1; dy < this->options.N; dy++) {
             for (unsigned dx = 1; dx < this->options.N; dx++) {

@@ -61,7 +61,6 @@ int main(int argc, char *argv[]) {
     string output_data = a.get<std::string>("output_data");
     string type = a.get<std::string>("type");
 
-
     cout << "height                   : " << a.get<unsigned>("height") << endl
          << "width                    : " << a.get<unsigned>("width") << endl
          << "symmetry                 : " << a.get<unsigned>("symmetry") << endl
@@ -70,16 +69,6 @@ int main(int argc, char *argv[]) {
          << "input_data               : " << a.get<string>("input_data") << endl
          << "output_data              : " << a.get<string>("output_data") << endl
          << "type                     : " << a.get<string>("type") << endl;
-
-//    unsigned height =  40;
-//    unsigned width =  40;
-//    unsigned symmetry = 8 ;
-//    unsigned N = 2;
-//    int channels = 3;
-//    string input_data ="../samples/City2.png" ;
-//    string output_data ="../res/done.jpg ";
-//    string type = "img";
-
 
     single_run(height, width, symmetry, N, channels, input_data, output_data, type);
     return 0;

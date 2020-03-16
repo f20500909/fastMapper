@@ -294,7 +294,7 @@ public:
     Svg(const Options &op) : Data<T, AbstractFeature>(op) {
         initDirection();
         parseData();
-        initPatterns();
+        initfeatures();
         generateCompatible();
     }
 
@@ -308,7 +308,7 @@ public:
     }
 
 
-    void initPatterns() {
+    void initfeatures() {
         // 将图案插入到rtree中
         unsigned id = 0;
         for (int i = 0; i < data.size(); i++) {
@@ -318,7 +318,7 @@ public:
         }
 
         // 获取一个点临近的点位，点位附近的最近点做为特征图案
-        std::unordered_map<SvgAbstractFeature, unsigned> patterns_id;
+        std::unordered_map<SvgAbstractFeature, unsigned> features_id;
         std::vector<SvgAbstractFeature> symmetries(8);
 
         for (int i = 0; i < data.size(); i++) {
@@ -333,12 +333,12 @@ public:
                 symmetries[7] = symmetries[6].reflected();
 
                 for (unsigned k = 0; k < this->options.symmetry; k++) {
-                    auto res = patterns_id.insert(std::make_pair(symmetries[k], this->feature.size()));
+                    auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));
                     if (!res.second) {
-                        this->patterns_frequency[res.first->second] += 1;
+                        this->features_frequency[res.first->second] += 1;
                     } else {
                         this->feature.push_back(symmetries[k]);
-                        this->patterns_frequency.push_back(1);
+                        this->features_frequency.push_back(1);
                     }
                 }
             }
@@ -399,8 +399,8 @@ public:
 //            return true;
 //        }
 //        
-        //判断是否全等
-        return false;
+//        return false;
+        return true;
     }
 
 
@@ -481,7 +481,7 @@ public:
 
 
     virtual void showResult(Matrix<unsigned> mat) {
-        svg::Dimensions dimensions(1000, 1000);
+        svg::Dimensions dimensions(3000, 3000);
         svg::Document doc("../res/res.svg", svg::Layout(dimensions, svg::Layout::BottomLeft));
         unsigned cnt = 0;
         for (unsigned x = 0; x < mat.width; x++) {
@@ -489,20 +489,26 @@ public:
             svg::Polyline polyline_a(svg::Stroke(.5, svg::Color::Blue));
 
             //第一个点写为基准点
-            polyline_a << svg::Point(0, 0);
+//            polyline_a << svg::Point(0, 0);
             point2D curPoint(0, 0);
 
+
+            polyline_a << svg::Point(curPoint.x , curPoint.y);
             //在基准点后写入点位
 
             for (unsigned y = 0; y < mat.height; y++) {
 
                 AbstractFeature fea = this->feature[mat.get(y, x)];
 
-                std::cout << " x " << fea.shiftLeft.x << " y " << fea.shiftLeft.y << std::endl;
+
+//                fea.shiftLeft.x = fea.shiftLeft.x * ratio1;
+//                fea.shiftLeft.y = fea.shiftLeft.y * ratio2;
+//                std::cout << " x " << fea.shiftLeft.x << " y " << fea.shiftLeft.y << std::endl;
 
                 curPoint.shiftFormPoint(fea.shiftLeft);
 
-                polyline_a << svg::Point(curPoint.x, curPoint.x);
+                polyline_a << svg::Point(curPoint.x, curPoint.y);
+                std::cout << "w x " << curPoint.x << "w y " << curPoint.y << std::endl;
             }
 
             doc << polyline_a;
