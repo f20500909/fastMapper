@@ -262,8 +262,7 @@ public:
 
     SvgAbstractFeature getSubFeature(int i, int j, std::vector<std::vector<svgPoint *>> &data) {
         svgPoint *point = data[i][j];
-//        SvgAbstractFeature res;
-        std::vector<svgPoint *> nearPoints = this->rtree.getSameBranchPoint(point);
+        std::vector<svgPoint *> nearPoints = this->rtree.get_nearest(point);
         SvgAbstractFeature res(nearPoints, *point, data);
         return res;
     }
@@ -305,6 +304,8 @@ public:
                                   {0,  -1},
                                   {-1, 0},
         };
+
+        this->_direction.oppositeDirectionId={};
     }
 
 
@@ -391,15 +392,24 @@ public:
             }
         }
 
+        //首先判断点位数量是否相等
         if (svgPoints_1.size() != 0 && svgPoints_1.size() == svgPoints_2.size()) {
-            return true;
+            return false;
         }
-
-//        if (svgPoints_1.size() == svgPoints_2.size()) {
-//            return true;
-//        }
-//        
-//        return false;
+        //进行搜寻 如果集合1中的每个元素都在集合2中出现 就返回true 否则返回false
+        //TODO 在构建集合2的时候就做次判定
+        for (int i = 0; i < svgPoints_1.size(); i++) {
+            svgPoint *temp = svgPoints_1[i];
+            bool isFind =false;
+            for (int j = 0; j < svgPoints_2.size(); j++) {
+                if(svgPoints_2[j]==temp){
+                    isFind = true;
+                }
+            }
+            if (!isFind){
+                return false;
+            }
+        }
         return true;
     }
 
@@ -481,7 +491,7 @@ public:
 
 
     virtual void showResult(Matrix<unsigned> mat) {
-        svg::Dimensions dimensions(3000, 3000);
+        svg::Dimensions dimensions(0, 0);
         svg::Document doc("../res/res.svg", svg::Layout(dimensions, svg::Layout::BottomLeft));
         unsigned cnt = 0;
         for (unsigned x = 0; x < mat.width; x++) {
@@ -492,18 +502,12 @@ public:
 //            polyline_a << svg::Point(0, 0);
             point2D curPoint(0, 0);
 
-
-            polyline_a << svg::Point(curPoint.x , curPoint.y);
+            polyline_a << svg::Point(curPoint.x, curPoint.y);
             //在基准点后写入点位
 
             for (unsigned y = 0; y < mat.height; y++) {
 
                 AbstractFeature fea = this->feature[mat.get(y, x)];
-
-
-//                fea.shiftLeft.x = fea.shiftLeft.x * ratio1;
-//                fea.shiftLeft.y = fea.shiftLeft.y * ratio2;
-//                std::cout << " x " << fea.shiftLeft.x << " y " << fea.shiftLeft.y << std::endl;
 
                 curPoint.shiftFormPoint(fea.shiftLeft);
 

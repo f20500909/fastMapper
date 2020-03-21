@@ -38,13 +38,6 @@ public:
     }
 
 
-    vector<pair<int,int>> getIntersectData(){
-        vector<pair<int,int>> res;
-
-
-        return res;
-    }
-
     DirectionSet _direction;
 
     std::vector<std::vector<std::vector<unsigned>> > propagator;

@@ -2,9 +2,11 @@
 #define SRC_MYRTREE_HPP
 
 #include <functional>
-#include "./include/RTree.h"
+#include "include/rtree.hpp"
 
 #define M_PI 3.14159265358979323846
+using namespace std;
+using namespace rtree;
 
 class point2D {
 public:
@@ -148,26 +150,28 @@ public:
     }
 
     //回调函数需要返回true
-    std::vector<svgPoint *> getNearPoints(svgPoint *pSvgPoint, float distance) {
+//    std::vector<svgPoint *> getNearPoints(svgPoint *pSvgPoint, float distance) {
+//        std::vector<svgPoint *> res;
+//        point2D point = pSvgPoint->point;
+//
+//
+//        float min[2] = {point.x - distance, point.y - distance};
+//        float max[2] = {point.y + distance, point.y + distance};
+//
+//        std::function<bool(svgPoint *)> func = [&](svgPoint *po) {
+//            res.push_back(po);
+//            return true;
+//        };
+//
+//        rtree.Search(min, max, func);
+//        return res;
+//    }
+
+
+    std::vector<svgPoint *> get_nearest(svgPoint *pSvgPoint) {
         std::vector<svgPoint *> res;
-        point2D point = pSvgPoint->point;
-
-
-        float min[2] = {point.x - distance, point.y - distance};
-        float max[2] = {point.y + distance, point.y + distance};
-
-        std::function<bool(svgPoint *)> func = [&](svgPoint *po) {
-            res.push_back(po);
-            return true;
-        };
-
-        rtree.Search(min, max, func);
+        rtree.nearest_search(Point(0, 0), 10, res);
         return res;
-    }
-
-
-    std::vector<svgPoint *> getSameBranchPoint(svgPoint *pSvgPoint) {
-        return this->rtree.getSameBranchData(pSvgPoint);
     }
 
     //knn
@@ -182,13 +186,15 @@ public:
     void insert(svgPoint *pSvgPoint) {
         point2D point = pSvgPoint->point;
 
-        float min[2] = {point.x, point.y};
-        float max[2] = {point.x + 1, point.y + 1};
 
-        rtree.Insert(min, max, pSvgPoint);
+        rtree.insert(Rect(point.x, point.y, point.x +1, point.y +1),pSvgPoint);
+
     }
 
-    RTree<svgPoint *, float, 2, float> rtree;
+//    RTree<svgPoint *, float, 2, float> rtree;
+//    RTree<svgPoint *, float, 2, float> rtree;
+    R_tree<svgPoint *> rtree;
+
 };
 
 

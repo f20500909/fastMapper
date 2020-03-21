@@ -72,6 +72,7 @@ public:
                 unsigned shift = data->_direction.movePatternByDirection(directionId, data->options.wave_width);
                 p_id_3 = p_id_1 + shift;
 
+                //只有有效的feature才传播
                 if (!data->isVaildPatternId(p_id_3)) {
                     continue;
                 }
