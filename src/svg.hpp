@@ -209,9 +209,6 @@ public:
     std::vector<svgPoint *> data;
 };
 
-
-
-
 //TODO 完成hash函数
 namespace std {
     template<>

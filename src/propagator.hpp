@@ -22,6 +22,8 @@ private:
     void init_compatible() noexcept {
 
         //可能的图案id
+
+        //储存的信息 -> 每一个输出元素中 的 每一个特征的数量
         compatible = Array2D<std::vector<int>>(data->options.wave_size, data->feature.size());
 
         //对所有输出的尺寸
@@ -39,6 +41,7 @@ private:
                     value[direction] = data->propagator[pattern][oppositeDirection].size();
                 }
 
+                //设置一个 id 对应图案id 的 特征频次
                 compatible.get(id, pattern) = value;
             }
         }

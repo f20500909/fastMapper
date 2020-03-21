@@ -104,6 +104,7 @@ public:
 
     unsigned getMaxNumber() {
         return _data.size();
+//        return 100;
     }
 
     unsigned movePatternByDirection(unsigned dId, unsigned wave_width) {
