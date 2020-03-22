@@ -169,21 +169,6 @@ public:
 
     }
 
-    //根据特征得到偏移坐标
-
-    point2D getShiftCoor() {
-        point2D res(0, 0);
-        //起始点无偏移
-        if (this->isBegin) {
-            return res;
-        }
-        //终点偏移只与前一个点有关
-        if (this->isEnd) {
-
-        }
-
-    }
-
     // 特征值属性
     bool isBegin = false;
     bool isEnd = false;
@@ -232,7 +217,6 @@ namespace std {
 class SpatialSvg {
 public:
     SpatialSvg() {
-        setDistanceThreshold(5);
     }
 
     void insert(svgPoint *svgPoint) {
@@ -240,28 +224,6 @@ public:
 //        std::cout << *svgPoint;
     }
 
-    const point2D getPoint(svgPoint *svgPoint) {
-        return svgPoint->point;
-    }
-
-    unsigned getSvgPatternId(svgPoint *svgPoint) {
-        return svgPoint->curve_id;
-    }
-
-    unsigned getSvgPointId(svgPoint *svgPoint) {
-        return svgPoint->point_id;
-    }
-
-    unsigned getSvgUniqueId(svgPoint *svgPoint) {
-        return svgPoint->id;
-    }
-
-    void setDistanceThreshold(int dis) {
-        distanceThreshold = dis;
-    }
-
-
-    int distanceThreshold;
     MyRtree rtree;
 };
 
@@ -312,7 +274,6 @@ public:
     void initDirection() {
 
     }
-
 
     void initfeatures() {
         // 将图案插入到rtree中
@@ -439,7 +400,6 @@ public:
         //将有效片段分割
         for (int i = 0; i < strVector.size(); i++) {
             std::vector<svgPoint *> singlePolylinePoint;
-            unsigned lenSum = 0;
 
             std::string &singlePolylineStr = strVector[i];
             std::vector<std::string> vecSegTag = unit::split_str(singlePolylineStr, " ");
@@ -452,8 +412,6 @@ public:
                 svgPoint *tempSvgPoint = new svgPoint(tempPoint2D, i, j, cnt++);
                 singlePolylinePoint.push_back(tempSvgPoint);
             }
-            lenSum += singlePolylinePoint.size();
-            len.push_back(lenSum);
             this->data.push_back(singlePolylinePoint);
         }
     }
@@ -509,9 +467,7 @@ public:
     };
 
 private:
-    std::vector<unsigned> len;                       //累计的长度列表
     SpatialSvg spatialSvg;                        //封裝好的rtree  svg接口
-    unsigned limit;                               //限制距离
 };
 
 #endif //SRC_SVG_HPP

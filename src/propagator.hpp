@@ -9,9 +9,6 @@
 #include "wave.hpp"
 #include "svg.hpp"
 
-/**
- * Propagate information about feature in the wave.
- */
 class Propagator {
 private:
 
@@ -66,7 +63,7 @@ public:
         //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
         while (!propagating.empty()) {
             // The cell and pattern that has been set to false.
-            unsigned fea_id_1, fea_id_2, fea_id_3;
+            int fea_id_1, fea_id_2, fea_id_3;
             std::tie(fea_id_1, fea_id_2) = propagating.back();
             propagating.pop_back();
 
@@ -74,7 +71,7 @@ public:
             for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
                 //更具此fea的id 和一个方向id  确定下一个fea的id
 
-                auto temp = this->data->feature[fea_id_1];
+                AbstractFeature temp = this->data->feature[fea_id_1];
                 fea_id_3 = temp.direction_fea_id_vec[directionId];
 
                 //只有有效的feature才传播

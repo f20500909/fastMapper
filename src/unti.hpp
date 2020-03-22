@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include "svg.hpp"
 
 namespace unit {
 

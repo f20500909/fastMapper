@@ -14,6 +14,7 @@
 
 #include "include/stb_image_write.h"
 
+using namespace std;
 
 template<typename T>
 class Matrix;
@@ -42,7 +43,6 @@ public:
     const unsigned wave_width;   // The width of the output in pixels.
 
     const unsigned wave_size;   // The width of the output in pixels.
-    const int directionSize = 4;
     const int channels;
 
     Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels,
@@ -60,19 +60,6 @@ public:
             wave_size(wave_height * wave_width) {}
 };
 
-
-//方向值
-class Direction {
-public:
-    Direction(int x, int y) : x(x), y(y) {
-    }
-
-    Direction(unsigned x, unsigned y) : x(static_cast<int>(x)), y(static_cast<int>(y)) {
-    }
-
-    int x;
-    int y;
-};
 
 //需要弱化方向的概念 让方向与模型适配
 class DirectionSet {
@@ -109,13 +96,6 @@ public:
 
     std::vector<std::pair<float, float>> _data_opp_angle; // 角度反方向数组   <角度上限，角度下限>  依次规律递增
 
-    std::pair<float, float> get_angle(unsigned direction) {
-        return _data_angle[direction];
-    }
-
-    std::pair<float, float> get_opp_angle(unsigned direction) {
-        return _data_opp_angle[direction];
-    }
 
     unsigned get_opposite_direction(unsigned id) noexcept {
         return ((directionNumbers >> 1) + id) % directionNumbers;
@@ -125,20 +105,9 @@ public:
         return directionNumbers;
     }
 
-    unsigned get_feature_id_by_direction(unsigned feature_id, unsigned direction_id) {
-        return feature_id + direction_id;
-    }
 
     int get_angle_direction_id(float angle, bool is_opp) {
         return std::min(angle / increment_angle, static_cast<float>(directionNumbers - 1));
-
-//        float min_angle = get_angle(direction_id).first;
-//        float max_angle = get_angle(direction_id).second;
-//        if (is_opp) {
-//            min_angle = get_opp_angle(direction_id).first;
-//            max_angle = get_opp_angle(direction_id).second;
-//        }
-//        return angle >= min_angle && angle < max_angle;
     }
 
     const float increment_angle;  // 360除以 8   每个方向即是45度
@@ -149,31 +118,22 @@ template<typename T>
 class Matrix {
 
 public:
-    /**
-    * Height and width of the 2D array.
-    */
+
     unsigned height;
     unsigned width;
 
-    /**
-    * The array containing the data of the 2D array.
-    */
     std::vector<T> data;
 
-    /**
-    * Build a 2D array given its height and width.
-    * All the array elements are initialized to default value.
-    */
     Matrix() {
 
     };
 
+    std::vector<int> direction_fea_id_vec;
+
+
     Matrix(unsigned height, unsigned width) noexcept : height(height), width(width), data(width * height) {}
 
-    /**
-    * Build a 2D array given its height and width.
-    * All the array elements are initialized to value.
-    */
+
     Matrix(unsigned height, unsigned width, T value) noexcept
             : height(height), width(width), data(width * height, value) {}
 
@@ -194,16 +154,9 @@ public:
         return data[j + i * width];
     }
 
-    const T &getByPoint(Direction op) const noexcept {
-        unsigned i = op.x;
-        unsigned j = op.y;
-        return data[j + i * width];
-    }
 
-    /**
-    * Return a reference to the element in the i-th line and j-th column.
-    * i must be lower than height and j lower than width.
-    */
+
+
     T &get(unsigned i, unsigned j) noexcept {
         assert(i < height && j < width);
         return data[j + i * width];
@@ -247,6 +200,7 @@ public:
                 sub_array_2d.get(ki, kj) = get((y + ki) % height, (x + kj) % width);
             }
         }
+
         return sub_array_2d;
     }
 
@@ -275,6 +229,9 @@ public:
         }
         return true;
     }
+
+
+
 };
 
 namespace std {
@@ -316,6 +273,5 @@ public:
 
 
 using AbstractFeature   = SvgAbstractFeature;
-//using AbstractFeature   = Matrix<Cell>;
 //using AbstractFeature   = Matrix<unsigned>;
 #endif

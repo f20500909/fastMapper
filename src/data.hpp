@@ -23,10 +23,6 @@ public:
     };
 
 
-    virtual int get_feature_id_by_direction(int fea_id,int direction_id) {
-        return 0;
-    };
-
     const Options options;
 
     bool isVaildPatternId(unsigned pId) {
@@ -43,7 +39,7 @@ public:
     }
 
 
-    DirectionSet _direction  = DirectionSet(8);
+    DirectionSet _direction  = DirectionSet(4);
 
     std::vector<std::vector<svgPoint *>> data;      //原始的数据
     std::vector<std::vector<std::vector<unsigned>> > propagator;

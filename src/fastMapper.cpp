@@ -9,11 +9,10 @@
 
 #include "include/cmdline.h"
 #include "wfc.hpp"
-#include "imageModel.hpp"
+//#include "imageModel.hpp"
 #include "svg.hpp"
 
 using namespace std;
-
 
 
 /* TODO shell脚本批量生成
