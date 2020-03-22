@@ -40,6 +40,9 @@ public:
         this->shiftRight = svg.shiftRight;
         this->distanceRatio = svg.distanceRatio;
         this->neighborIds = svg.neighborIds;
+        this->direction_fea_id_vec=svg.direction_fea_id_vec;
+
+
         this->val = svg.val;
         this->basePoint = svg.basePoint;
         this->data = svg.data;
@@ -199,8 +202,8 @@ public:
 
     float distanceRatio;
 
-
     std::vector<unsigned> neighborIds;
+    std::vector<int> direction_fea_id_vec;
 
     BitMap val;
 
@@ -257,12 +260,6 @@ public:
         distanceThreshold = dis;
     }
 
-    SvgAbstractFeature getSubFeature(int i, int j, std::vector<std::vector<svgPoint *>> &data) {
-        svgPoint *point = data[i][j];
-        std::vector<svgPoint *> nearPoints = this->rtree.get_nearest(point);
-        SvgAbstractFeature res(nearPoints, *point, data);
-        return res;
-    }
 
     int distanceThreshold;
     MyRtree rtree;
@@ -287,6 +284,24 @@ template<class T, class AbstractFeature>
 class Svg : public Data<T, AbstractFeature> {
 public:
 
+    SvgAbstractFeature getSubFeature(SpatialSvg& spatialSvg, int i, int j, std::vector<std::vector<svgPoint *>> &data) {
+        svgPoint *point = data[i][j];
+        std::vector<svgPoint *> nearPoints = spatialSvg.rtree.get_nearest(point); // 拿到最近的几个点了  依据这个生成方向数组
+        //遍历所有附件的点位  拿到方向值
+        vector<int> direction_fea_id_vec = vector<int>(nearPoints.size(), -1);
+        for (unsigned i = 0; i < nearPoints.size(); i++) {
+            point2D po = nearPoints[i]->point;
+            float _angle = (*point).point.get_azimuth(po);
+            int directionn_id = this->_direction.get_angle_direction_id(_angle, false);
+            direction_fea_id_vec[directionn_id] = nearPoints[i]->id;
+        }
+
+        SvgAbstractFeature res(nearPoints, *point, data);
+        res.direction_fea_id_vec = direction_fea_id_vec;
+
+        return res;
+    }
+
     Svg(const Options &op) : Data<T, AbstractFeature>(op) {
         initDirection();
         parseData();
@@ -296,22 +311,15 @@ public:
 
     void initDirection() {
 
-        this->_direction._data = {{0,  1},
-                                  {1,  0},
-                                  {0,  -1},
-                                  {-1, 0},
-        };
-
-        this->_direction.oppositeDirectionId={};
     }
 
 
     void initfeatures() {
         // 将图案插入到rtree中
         unsigned id = 0;
-        for (int i = 0; i < data.size(); i++) {
-            for (unsigned j = 0; j < data[i].size(); j++) {
-                spatialSvg.insert(data[i][j]);
+        for (int i = 0; i < this->data.size(); i++) {
+            for (unsigned j = 0; j < this->data[i].size(); j++) {
+                spatialSvg.insert(this->data[i][j]);
             }
         }
 
@@ -319,9 +327,9 @@ public:
         std::unordered_map<SvgAbstractFeature, unsigned> features_id;
         std::vector<SvgAbstractFeature> symmetries(8);
 
-        for (int i = 0; i < data.size(); i++) {
-            for (unsigned j = 0; j < data[i].size(); j++) {
-                symmetries[0] = spatialSvg.getSubFeature(i, j, data);
+        for (int i = 0; i < this->data.size(); i++) {
+            for (unsigned j = 0; j < this->data[i].size(); j++) {
+                symmetries[0] = this->getSubFeature(spatialSvg,i, j, this->data);
                 symmetries[1] = symmetries[0].reflected();
                 symmetries[2] = symmetries[0].rotated();
                 symmetries[3] = symmetries[2].reflected();
@@ -344,47 +352,28 @@ public:
     }
 
 
-    bool
-    isIntersect(const SvgAbstractFeature &feature1, const SvgAbstractFeature &feature2, unsigned directionId) {
+    bool isIntersect(const SvgAbstractFeature &feature1, const SvgAbstractFeature &feature2, unsigned directionId) {
         // 找到fea 的 directionId的点位
         std::vector<svgPoint *> svgPoints_1;
         std::vector<svgPoint *> svgPoints_2;
 
-        std::vector<std::pair<float, float>> angleThreshold = {
-                {0,   90},
-                {90,  180},
-                {180, 270},
-                {270, 360},
-        };
-
-
-        std::vector<std::pair<float, float>> angleThresholdOpp = {
-                {180, 270},
-                {270, 360},
-                {0,   90},
-                {90,  180},
-        };
-
-
         for (int i = 0; i < feature1.data.size(); i++) {
-            float minAngle = angleThreshold[i].first;
-            float maxAngle = angleThreshold[i].second;
             //计算点位的方位角
             point2D po = feature1.data[i]->point;
             float _angle = feature1.basePoint.point.get_azimuth(po);
-            if (_angle >= minAngle && _angle < maxAngle) {
+
+            if (this->_direction.get_angle_direction_id(_angle, false) == directionId) {
                 svgPoints_1.push_back(feature1.data[i]);
             }
         }
 
         // 找到fea 反方向的元素
         for (int i = 0; i < feature2.data.size(); i++) {
-            float minAngle = angleThresholdOpp[i].first;
-            float maxAngle = angleThresholdOpp[i].second;
             //计算点位的方位角
             point2D po = feature2.data[i]->point;
             float _angle = feature2.basePoint.point.get_azimuth(po);
-            if (_angle >= minAngle && _angle < maxAngle) {
+
+            if (this->_direction.get_angle_direction_id(_angle, true) == directionId) {
                 svgPoints_2.push_back(feature2.data[i]);
             }
         }
@@ -393,27 +382,27 @@ public:
         if (svgPoints_1.size() != 0 && svgPoints_1.size() == svgPoints_2.size()) {
             return false;
         }
+
         //进行搜寻 如果集合1中的每个元素都在集合2中出现 就返回true 否则返回false
         //TODO 在构建集合2的时候就做次判定
         for (int i = 0; i < svgPoints_1.size(); i++) {
             svgPoint *temp = svgPoints_1[i];
-            bool isFind =false;
+            bool isFind = false;
             for (int j = 0; j < svgPoints_2.size(); j++) {
-                if(svgPoints_2[j]==temp){
+                if (svgPoints_2[j] == temp) {
                     isFind = true;
                 }
             }
-            if (!isFind){
+            if (!isFind) {
                 return false;
             }
         }
         return true;
     }
 
-
     void generateCompatible() noexcept {
         this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
-                                                                           std::vector<std::vector<unsigned>>(4));
+                                                                           std::vector<std::vector<unsigned>>(this->_direction.getMaxNumber()));
 
         //对每个特征元素
         for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
@@ -465,7 +454,7 @@ public:
             }
             lenSum += singlePolylinePoint.size();
             len.push_back(lenSum);
-            data.push_back(singlePolylinePoint);
+            this->data.push_back(singlePolylinePoint);
         }
     }
 
@@ -488,7 +477,7 @@ public:
 
 
     virtual void showResult(Matrix<unsigned> mat) {
-        svg::Dimensions dimensions(0, 0);
+        svg::Dimensions dimensions(100, 110);
         svg::Document doc("../res/res.svg", svg::Layout(dimensions, svg::Layout::BottomLeft));
         unsigned cnt = 0;
         for (unsigned x = 0; x < mat.width; x++) {
@@ -520,7 +509,6 @@ public:
     };
 
 private:
-    std::vector<std::vector<svgPoint *>> data;      //原始的数据
     std::vector<unsigned> len;                       //累计的长度列表
     SpatialSvg spatialSvg;                        //封裝好的rtree  svg接口
     unsigned limit;                               //限制距离

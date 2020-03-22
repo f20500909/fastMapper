@@ -97,14 +97,14 @@ public:
     //得到点的偏移量 返回的是一个包含偏移信息的坐标
     point2D getPointShift(point2D &p) {
         point2D shift;
-        shift.x = p.x - this->x;
-        shift.y = p.y - this->y;
+        shift.x =  this->x -p.x;
+        shift.y =  this->y -p.y;
         return shift;
     }
 
     void shiftFormPoint(point2D &p) {
-        this->x -= p.x;
-        this->y -= p.y;
+        this->x += p.x;
+        this->y += p.y;
 
     }
 

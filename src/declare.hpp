@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -77,40 +78,71 @@ public:
 class DirectionSet {
 public:
 
-    DirectionSet() {
+    DirectionSet(int directionNumbers) : directionNumbers(directionNumbers), increment_angle(360.0 / directionNumbers) {
+
+
         //初始化方向的方向
-        for (int i = 0; i < _data.size(); i++) {
-            oppositeDirectionId.push_back(4-1-i);
+        initDirectionWithAngle();
+    }
+
+    //初始化角度
+    void initDirectionWithAngle() {
+        _data_angle = std::vector<std::pair<float, float>>(directionNumbers, {0, 0});
+        _data_opp_angle = std::vector<std::pair<float, float>>(directionNumbers, {0, 0});
+        for (unsigned i = 0; i < directionNumbers; i++) {
+            _data_angle[i] = {i * increment_angle, (i + 1) * increment_angle};
         }
 
+        for (unsigned i = 0; i < directionNumbers; i++) {
+            unsigned index = get_opposite_direction(i);
+            _data_opp_angle[i] = _data_angle[index];
+        }
     }
 
-    std::vector<Direction> _data = {{0,  -1},
-                                    {-1, 0},
-                                    {1,  0},
-                                    {0,  1}};
 
+    std::vector<std::pair<int, int>> _data = {{0,  -1},
+                                              {-1, 0},
+                                              {1,  0},
+                                              {0,  1}};
 
-    std::vector<unsigned> oppositeDirectionId;
+    std::vector<std::pair<float, float>> _data_angle; // 角度方向数组   <角度上限，角度下限>  依次规律递增
 
-    Direction getDirectionFromId(unsigned directionId) {
-        assert(directionId < _data.size());
-        return _data[directionId];
+    std::vector<std::pair<float, float>> _data_opp_angle; // 角度反方向数组   <角度上限，角度下限>  依次规律递增
+
+    std::pair<float, float> get_angle(unsigned direction) {
+        return _data_angle[direction];
     }
 
-    unsigned get_opposite_direction(unsigned idx) noexcept {
-        return oppositeDirectionId[idx];
+    std::pair<float, float> get_opp_angle(unsigned direction) {
+        return _data_opp_angle[direction];
+    }
+
+    unsigned get_opposite_direction(unsigned id) noexcept {
+        return ((directionNumbers >> 1) + id) % directionNumbers;
     }
 
     unsigned getMaxNumber() {
-        return _data.size();
-//        return 100;
+        return directionNumbers;
     }
 
-    unsigned movePatternByDirection(unsigned dId, unsigned wave_width) {
-        Direction direction = _data[dId];
-        return direction.x + direction.y * wave_width;
+    unsigned get_feature_id_by_direction(unsigned feature_id, unsigned direction_id) {
+        return feature_id + direction_id;
     }
+
+    int get_angle_direction_id(float angle, bool is_opp) {
+        return std::min(angle / increment_angle, static_cast<float>(directionNumbers - 1));
+
+//        float min_angle = get_angle(direction_id).first;
+//        float max_angle = get_angle(direction_id).second;
+//        if (is_opp) {
+//            min_angle = get_opp_angle(direction_id).first;
+//            max_angle = get_opp_angle(direction_id).second;
+//        }
+//        return angle >= min_angle && angle < max_angle;
+    }
+
+    const float increment_angle;  // 360除以 8   每个方向即是45度
+    const int directionNumbers = 8;
 };
 
 template<typename T>
@@ -245,7 +277,6 @@ public:
     }
 };
 
-
 namespace std {
     template<typename T>
     class hash<Matrix<T>> {
@@ -284,7 +315,7 @@ public:
 };
 
 
-using  AbstractFeature   = SvgAbstractFeature;
+using AbstractFeature   = SvgAbstractFeature;
 //using AbstractFeature   = Matrix<Cell>;
 //using AbstractFeature   = Matrix<unsigned>;
 #endif

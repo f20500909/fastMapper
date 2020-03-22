@@ -69,11 +69,17 @@ public:
             // 定义未定义的网格值
             ObserveStatus result = observe();
             // 检查算法是否结束
-            assert(result != failure);
             if (result == success) {
                 data->showResult(wave_to_output());
                 return;
             }
+
+            if (result == failure) {
+                data->showResult(wave_to_output());
+                assert(result != failure);
+            }
+
+
             // 传递信息
             propagator.propagate(wave);
         }
