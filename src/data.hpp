@@ -39,7 +39,7 @@ public:
     }
 
 
-    DirectionSet _direction  = DirectionSet(4);
+    DirectionSet _direction  = DirectionSet(8);
 
     std::vector<std::vector<svgPoint *>> data;      //原始的数据
     std::vector<std::vector<std::vector<unsigned>> > propagator;

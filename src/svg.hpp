@@ -39,7 +39,7 @@ public:
         this->shiftLeft = svg.shiftLeft;
         this->shiftRight = svg.shiftRight;
         this->distanceRatio = svg.distanceRatio;
-        this->neighborIds = svg.neighborIds;
+//        this->neighborIds = svg.neighborIds;
         this->direction_fea_id_vec=svg.direction_fea_id_vec;
 
 
@@ -54,7 +54,6 @@ public:
 
         // 把对此点的相对坐标写入  data 作为特征数据
         for (int i = 0; i < nearPoints.size(); i++) {
-//            data(nearPoints),
             svgPoint *temp = nearPoints[i];
             temp->point.x -= basePoint.point.x;
             temp->point.y -= basePoint.point.y;
@@ -79,7 +78,6 @@ public:
     }
 
     //得到旋转后的图形
-
 
     /*
      * 位图法标识
@@ -187,7 +185,7 @@ public:
 
     float distanceRatio;
 
-    std::vector<unsigned> neighborIds;
+    std::vector<int> neighborIds;
     std::vector<int> direction_fea_id_vec;
 
     BitMap val;
@@ -250,7 +248,7 @@ public:
         svgPoint *point = data[i][j];
         std::vector<svgPoint *> nearPoints = spatialSvg.rtree.get_nearest(point); // 拿到最近的几个点了  依据这个生成方向数组
         //遍历所有附件的点位  拿到方向值
-        vector<int> direction_fea_id_vec = vector<int>(nearPoints.size(), -1);
+        vector<int> direction_fea_id_vec = vector<int>(8, -1);
         for (unsigned i = 0; i < nearPoints.size(); i++) {
             point2D po = nearPoints[i]->point;
             float _angle = (*point).point.get_azimuth(po);

@@ -72,6 +72,7 @@ public:
                 //更具此fea的id 和一个方向id  确定下一个fea的id
 
                 AbstractFeature temp = this->data->feature[fea_id_1];
+
                 fea_id_3 = temp.direction_fea_id_vec[directionId];
 
                 //只有有效的feature才传播

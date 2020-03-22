@@ -39,10 +39,10 @@ public:
     }
 
 
-    float get_azimuth(point2D &p2) const{
+    float get_azimuth(point2D &p2) const {
 
         float x1 = this->x;
-        float y1 = this->y+1000;
+        float y1 = this->y + 1000;
 
         float x2 = p2.x;
         float y2 = p2.y;
@@ -97,8 +97,8 @@ public:
     //得到点的偏移量 返回的是一个包含偏移信息的坐标
     point2D getPointShift(point2D &p) {
         point2D shift;
-        shift.x =  this->x -p.x;
-        shift.y =  this->y -p.y;
+        shift.x = this->x - p.x;
+        shift.y = this->y - p.y;
         return shift;
     }
 
@@ -169,8 +169,14 @@ public:
 
 
     std::vector<svgPoint *> get_nearest(svgPoint *pSvgPoint) {
+        std::vector<svgPoint *> temp;
         std::vector<svgPoint *> res;
-        rtree.nearest_search(Point(0, 0), 10, res);
+        rtree.nearest_search(Point(0, 0), 8 + 1, temp);
+        for (int i = 0; i < temp.size(); i++) {
+            if(pSvgPoint->id!=temp[i]->id){
+                res.push_back(temp[i]);
+            }
+        }
         return res;
     }
 
@@ -187,7 +193,7 @@ public:
         point2D point = pSvgPoint->point;
 
 
-        rtree.insert(Rect(point.x, point.y, point.x +1, point.y +1),pSvgPoint);
+        rtree.insert(Rect(point.x, point.y, point.x + 1, point.y + 1), pSvgPoint);
 
     }
 
