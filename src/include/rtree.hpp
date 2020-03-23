@@ -1,7 +1,6 @@
-#pragma once
 
-#include <math.h>           //abs
-#include <assert.h>         //assert
+#include <cmath>           //abs
+#include <cassert>         //assert
 #include <algorithm>        //swap
 #include <functional>       //std::equal_to
 #include <iterator>         //std::iterator
@@ -20,10 +19,8 @@ namespace rtree {
     public:
         typedef long coord_type;
 
-        Point(long x, long y)
-                :
-                x_(x),
-                y_(y) {
+        Point(long x, long y) : x_(x),
+                                y_(y) {
         }
 
 
@@ -43,39 +40,31 @@ namespace rtree {
 
     class Rect {
     public:
-
-        Rect()
-                :
-                left_(numeric_limits<long>::max()),
-                right_(numeric_limits<long>::min()),
-                bottom_(numeric_limits<long>::max()),
-                top_(numeric_limits<long>::min()) {
+        Rect() : left_(numeric_limits<long>::max()),
+                 right_(numeric_limits<long>::min()),
+                 bottom_(numeric_limits<long>::max()),
+                 top_(numeric_limits<long>::min()) {
         }
 
 
-        Rect(long x1, long y1, long x2, long y2)
-                :
-                left_(min(x1, x2)),
-                right_(max(x1, x2)),
-                bottom_(min(y1, y2)),
-                top_(max(y1, y2)) {
+        Rect(long x1, long y1, long x2, long y2) : left_(min(x1, x2)),
+                                                   right_(max(x1, x2)),
+                                                   bottom_(min(y1, y2)),
+                                                   top_(max(y1, y2)) {
         }
 
 
-        long
-        left() const {
+        long left() const {
             return left_;
         }
 
 
-        long
-        right() const {
+        long right() const {
             return right_;
         }
 
 
-        long
-        top() const {
+        long top() const {
             return top_;
         }
 
@@ -93,13 +82,11 @@ namespace rtree {
 
         }
 
-        long
-        width() const {
+        long width() const {
             return abs(right_ - left_);
         }
 
-        long
-        height() const {
+        long height() const {
             return abs(top_ - bottom_);
         }
 
@@ -142,27 +129,12 @@ namespace rtree {
         res.outersect(rhs);
     }
 
-//returns true if rhs intersets lhs i.e. area(intersection(lhs, rhs)) > 0
-    bool intersects(Rect const &lhs, Rect const &rhs) {
-        return !(lhs.left() >= rhs.right() ||
-                 lhs.right() <= rhs.left() ||
-                 lhs.bottom() >= rhs.top() ||
-                 lhs.top() <= rhs.bottom());
-    }
-
-//returns true if circle with origin point and radius intersects lhs
-    bool intersects(Rect const &rect, Point const &point, long radius) {
-        return sqare_distance(rect, point) < radius * radius;
-    }
-
-
     template<class T>
     struct lowest {
         static T value() {
             return std::numeric_limits<T>::min();
         }
     };
-
 
     template<class T, size_t F>
     struct tree_node {
@@ -257,8 +229,7 @@ namespace rtree {
         Rect bbox_;          //bounding box
         tree_node *childs_[F];
 
-        typename std::aligned_storage<sizeof(T),
-                std::alignment_of<T>::value>::type data_;
+        typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type data_;
 
 
     private:
@@ -273,13 +244,10 @@ namespace rtree {
         typedef tree_node<typename std::remove_const<T>::type, F> tree_node;;
 
     public:
-        tree_iterator(tree_node *root = nullptr)
-                : node_(move_to_child(root)) {
+        tree_iterator(tree_node *root = nullptr) : node_(move_to_child(root)) {
         }
 
-        tree_iterator(tree_iterator<typename std::remove_const<T>::type, F> const &oth)//allow constructing from non-const iterator
-                :
-                node_(oth.node()) {
+        tree_iterator(tree_iterator<typename std::remove_const<T>::type, F> const &oth) : node_(oth.node()) {
         }
 
         T &operator*() const {
@@ -437,7 +405,6 @@ namespace rtree {
         std::vector<heap_data<T> > data_;
     };
 
-
 //R_tree implementation
     template<class T, size_t F = 2, class Alloc = std::allocator<T> >
     class R_tree {
@@ -455,7 +422,7 @@ namespace rtree {
         typedef tree_iterator<const T, kMaxFill> const_iterator;
 
         //R_tree definition
-        R_tree() : cached_size_(0), root_(nullptr) {
+        R_tree() : root_(nullptr) {
         }
 
         ~R_tree() {
@@ -478,60 +445,25 @@ namespace rtree {
             return const_iterator(nullptr);
         }
 
-        iterator find(Rect const &query, T const &val) const {
-            if (!root_)
-                return iterator(nullptr);
 
-            return find_internal(root_, query, std::bind1st(std::equal_to<T>(), val));
-        }
-
-        template<class Pred>
-        iterator find(Rect const &query, Pred const &pred) const {
-            if (!root_)
-                return iterator(nullptr);
-
-            return find_internal(root_, query, pred);
-        }
-
-
+        //插入一个元素到rtree中
         void insert(Rect const &bbox, T const &data) {
-            //create new leaf node
-            tree_node *leaf = create_node(bbox, data);
+            //创建子节点
+            tree_node *leaf = create_node(bbox, data); //子节点的大小是输入大小  数据绑定到输入数据
 
-            try {
-                insert_internal(leaf);
-            }
-            catch (std::bad_alloc &) {
-                //cached_size_ = compute_size();
-                throw;
-            }
-
-            //update cached size
-            ++cached_size_;
+            //实际干活的插入函数
+            insert_internal(leaf);
         }
 
-        //returns all elements that intersect query rectnagle
-        void rect_search(Rect const &query, vector<int> &found) const {
-            if (!root_)
-                return;
-            rect_search(root_, query, found);
-        }
-
-        //returns all elemens that intersect circle with origin
-
-        void rad_search(Point const &origin, coord_type dist, vector<int> &found) const {
-            if (!root_)
-                return;
-
-            rad_search(root_, origin, dist, found);
-        }
-
+        //搜索一个点最近的几个点
         void nearest_search(Point const &query, size_t k, vector<T> &found) const {
             if (!root_)
                 return;
 
+            //数据储存在堆中
             K_nearest_heap<T> heap(k);
-            //nearest search using heap
+
+            //实际干活的函数
             nearest_search(root_, query, heap);
 
             //copy to output container
@@ -539,12 +471,6 @@ namespace rtree {
                 found.push_back(heap.top().data());
                 heap.pop();
             }
-        }
-
-        void swap(R_tree &oth) {
-            std::swap(cached_size_, oth.cached_size_);
-            std::swap(root_, oth.root_);
-            std::swap(nalloc_, oth.nalloc_);
         }
 
     private:
@@ -571,14 +497,7 @@ namespace rtree {
             tree_node *node = nalloc_.allocate(1);
             new(static_cast<void *>(node)) tree_node(0, bbox);//no throw
 
-            try {
-                new(static_cast<void *>(node->data())) T(val);
-            }
-            catch (...) {
-                node->~tree_node();
-                nalloc_.deallocate(node, 1);
-                throw;
-            }
+            new(static_cast<void *>(node->data())) T(val);
 
             return node;
         }
@@ -598,75 +517,6 @@ namespace rtree {
             }
 
             destroy_node(node);
-        }
-
-        template<class Pred>
-        iterator find_internal(tree_node *node, Rect const &query, Pred const &pred) const {
-            assert(node);
-
-            if (!intersects(node->bbox(), query))
-                return iterator(nullptr);
-            else if (node->is_leaf()) {
-                if (pred(*(node->data())))
-                    return iterator(node);
-
-                return iterator(nullptr);
-            }
-
-            //iterate untill nothing is found
-            iterator found, end;
-            for (size_t ind = 0; ind < node->count() && found == end; ++ind) {
-                found = find_internal(node->get_child(ind), query, pred);
-            }
-            return found;
-        }
-
-
-        void rect_search2(tree_node *node, Rect const &query, vector<int> &found) const {
-            assert(node);
-
-            if (!intersects(node->bbox(), query))
-                return;
-            else if (node->is_leaf()) {
-                found.push_back(iterator(node));
-                return;
-            }
-
-            for (size_t ind = 0; ind < node->count(); ++ind) {
-                //search recursively
-                rect_search2(node->get_child(ind), query, found);
-            }
-        }
-
-
-        void rect_search(tree_node *node, Rect const &query, vector<int> &found) const {
-            assert(node);
-
-            if (!intersects(node->bbox(), query))
-                return;
-            else if (node->is_leaf()) {
-                found.push_back(*(node->data()));
-                return;
-            }
-
-            for (size_t ind = 0; ind < node->count(); ++ind) {
-                rect_search(node->get_child(ind), query, found);
-            }
-        }
-
-        void rad_search(tree_node *node, Point const &origin, coord_type dist, vector<int> &found) const {
-            assert(node);
-
-            if (!intersects(node->bbox(), origin, dist))
-                return;
-            else if (node->is_leaf()) {
-                found.push_back(*(node->data()));
-                return;
-            }
-
-            for (size_t ind = 0; ind < node->count(); ++ind) {
-                rad_search(node->get_child(ind), origin, dist, found);
-            }
         }
 
         void nearest_search(tree_node *node, Point const &query, K_nearest_heap<T> &heap) const {
@@ -706,11 +556,12 @@ namespace rtree {
             assert(leaf);
             assert(leaf->level() == 0);
 
+            //选择一个pnode
             tree_node *pnode = nullptr;
             if (root_ && root_->level() > 0) {
-                pnode = root_;
+                pnode = root_;//从根节点开始找
                 while (pnode->level() > 1) {
-                    size_t ind = pick_branch(pnode, leaf->bbox());
+                    size_t ind = pick_branch(pnode, leaf->bbox());//选择一个分支
                     pnode = pnode->get_child(ind);
                 }
             }
@@ -720,15 +571,13 @@ namespace rtree {
                 //update parent bbox
                 //if pnode is being splitted then we recompute bbox in quadratic split
                 //if it isn't then bbox has to be outersected with child bbox
-                outersection(pnode->bbox(), leaf->bbox(), pnode->bbox());
+                outersection(pnode->bbox(), leaf->bbox(), pnode->bbox()); //向外扩展box
                 if (split) {
                     assert(validate_bbox(split));
-
                     split = add_branch(pnode, split); //add split node to parent and update parent bbox
                 }
 
                 assert(validate_bbox(pnode));
-
                 pnode = pnode->parent();
             }
             if (split) {
@@ -737,10 +586,8 @@ namespace rtree {
                     root_ = split_root(split);
                 else {
                     assert(split == leaf);
-
                     root_ = split;
                 }
-
                 assert(validate_bbox(root_));
             }
         }
@@ -749,13 +596,8 @@ namespace rtree {
             assert(root_ && split && split->level() == root_->level());
 
             tree_node *nroot;
-            try {
-                nroot = create_node(root_->level() + 1);
-            }
-            catch (std::bad_alloc &) {
-                clean(split, clean_all);
-                throw;
-            }
+            nroot = create_node(root_->level() + 1);
+
 
             nroot->add_child(root_);
             nroot->add_child(split);
@@ -778,7 +620,6 @@ namespace rtree {
             Select branch which needs least enlargement to include new branch. When there are more
             qualify entries, the entry with the rectangle of the smallest area is chosen
         */
-
         size_t pick_branch(tree_node *node, Rect const &bbox) const {
             assert(node && node->count() > 0);
 
@@ -820,8 +661,7 @@ namespace rtree {
                 has too few entries that all the rest must be assigned to it in order for it to
                 have the minimum number m, then assign them and break up
         */
-        void quadractic_split(tree_node *node, tree_node *split, tree_node *child) /*throw()*/
-        {
+        void quadractic_split(tree_node *node, tree_node *split, tree_node *child) {
             assert(child && node && node->count() == kMaxFill);
 
             tree_node *branches[kMaxFill + 1];
@@ -985,14 +825,7 @@ namespace rtree {
             }
 
             tree_node *splitted;
-            try {
-                splitted = create_node(node->level());
-            }
-            catch (...) {
-                //the only thing we can do here is just to clear child subtree that we can't insert into the parent node
-                clean(child);
-                throw;
-            }
+            splitted = create_node(node->level());
 
             quadractic_split(node, splitted, child);
             return splitted;
@@ -1011,18 +844,13 @@ namespace rtree {
         }
 
     private:
-        size_t cached_size_;
         tree_node *root_;
 
-        //tree_node_allocator nalloc_;
-        typename Alloc::template rebind<tree_node>::other
-                nalloc_;
+        typename Alloc::template rebind<tree_node>::other nalloc_;
 
-        R_tree(R_tree const &);
+        R_tree(R_tree const &) = delete;
 
-        R_tree &operator=(R_tree const &);
+        R_tree &operator=(R_tree const &) = delete;
     };
-
-
 
 }//namspace rtree_1
