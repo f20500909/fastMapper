@@ -104,7 +104,6 @@ namespace rtree {
         return rect.width() * rect.height();
     }
 
-
     long sqare_distance(Rect const &rect, Point const &point) {
         long dist = 0;
 
@@ -198,14 +197,14 @@ namespace rtree {
 
 
         //returns child branch
-        tree_node *get_child(size_t ind) {
-            assert(ind < count_);
-            return childs_[ind];
+        tree_node *get_child(size_t i) {
+            assert(i < count_);
+            return childs_[i];
         }
 
-        tree_node const *get_child(size_t ind) const {
-            assert(ind < count_);
-            return childs_[ind];
+        tree_node const *get_child(size_t i) const {
+            assert(i < count_);
+            return childs_[i];
         }
 
         //insert new child branch into the node and reset child/parent links
@@ -492,7 +491,6 @@ namespace rtree {
             return node;
         }
 
-        //used to create leaf nodes
         tree_node *create_node(Rect const &bbox, T const &val) {
             tree_node *node = nalloc_.allocate(1);
             new(static_cast<void *>(node)) tree_node(0, bbox);//no throw
@@ -501,7 +499,6 @@ namespace rtree {
 
             return node;
         }
-
 
         static bool clean_all(tree_node *node) {
             return true;
@@ -512,8 +509,8 @@ namespace rtree {
                 return;
             }
 
-            for (size_t ind = 0; ind < node->count(); ++ind) {
-                clean(node->get_child(ind), pred);
+            for (size_t i = 0; i < node->count(); ++i) {
+                clean(node->get_child(i), pred);
             }
 
             destroy_node(node);
@@ -530,16 +527,16 @@ namespace rtree {
 
             //sort bracnhes by distance to query point
             std::vector<heap_data<size_t> > sorted;
-            for (size_t ind = 0; ind < node->count(); ++ind) {
-                coord_type distance = sqare_distance(node->get_child(ind)->bbox(), query);
-                sorted.push_back(heap_data<size_t>(distance, ind));
+            for (size_t i = 0; i < node->count(); ++i) {
+                coord_type distance = sqare_distance(node->get_child(i)->bbox(), query);
+                sorted.push_back(heap_data<size_t>(distance, i));
             }
             std::sort(sorted.begin(), sorted.end());
 
 
-            for (size_t ind = 0; ind < sorted.size(); ++ind) {
-                size_t current_branch = sorted[ind].data();
-                coord_type current_distance = sorted[ind].distance();
+            for (size_t i = 0; i < sorted.size(); ++i) {
+                size_t current_branch = sorted[i].data();
+                coord_type current_distance = sorted[i].distance();
 
                 //check if heap contains k elemenents
                 if (heap.max_distance() < current_distance) {
@@ -560,9 +557,9 @@ namespace rtree {
             tree_node *pnode = nullptr;
             if (root_ && root_->level() > 0) {
                 pnode = root_;//从根节点开始找
-                while (pnode->level() > 1) {
-                    size_t ind = pick_branch(pnode, leaf->bbox());//选择一个分支
-                    pnode = pnode->get_child(ind);
+                while (pnode->level() > 1) {//遍历查找
+                    size_t i = pick_branch(pnode, leaf->bbox());//选择一个分支
+                    pnode = pnode->get_child(i);
                 }
             }
 
@@ -598,7 +595,6 @@ namespace rtree {
             tree_node *nroot;
             nroot = create_node(root_->level() + 1);
 
-
             nroot->add_child(root_);
             nroot->add_child(split);
             nroot->bbox() = recompute_bbox(nroot);
@@ -614,7 +610,6 @@ namespace rtree {
             return bbox;
         }
 
-
         /*
         [Pick branch]
             Select branch which needs least enlargement to include new branch. When there are more
@@ -628,23 +623,24 @@ namespace rtree {
             coord_type increase = std::numeric_limits<coord_type>::max();
             Rect merged;
 
-            for (size_t ind = 0; ind < node->count(); ++ind) {
-                //compute bounding box
-                outersection(bbox, node->get_child(ind)->bbox(), merged);
+            //遍历所有节点
+            for (size_t i = 0; i < node->count(); ++i) {
+                //计算其扩展的边界
+                outersection(bbox, node->get_child(i)->bbox(), merged);
                 //current branch area
-                coord_type branch_area = area(node->get_child(ind)->bbox());
+                coord_type branch_area = area(node->get_child(i)->bbox());
 
                 //required enlargement
                 coord_type increase_area = area(merged) - branch_area;
 
                 //choose branch with smallest enlargement and smallest area
                 if (increase_area < increase) {
-                    res = ind;
+                    res = i;
                     increase = increase_area;
                     min_area = branch_area;
                 } else if (increase_area == increase &&
                            branch_area < min_area) {
-                    res = ind;
+                    res = i;
                     min_area = branch_area;
                 }
             }
@@ -670,8 +666,8 @@ namespace rtree {
             const size_t branches_size = node->count() + 1;
 
             branches[0] = child;
-            for (size_t ind = 0; ind < node->count(); ++ind) {
-                branches[ind + 1] = node->get_child(ind);
+            for (size_t i = 0; i < node->count(); ++i) {
+                branches[i + 1] = node->get_child(i);
             }
 
             size_t group_0 = 0;
@@ -685,11 +681,11 @@ namespace rtree {
 
             //assign nodes
             node->clear();
-            for (size_t ind = 0; ind < branches_size; ++ind) {
-                if (groups[ind] == group_0 + 1) {
-                    node->add_child(branches[ind]);
+            for (size_t i = 0; i < branches_size; ++i) {
+                if (groups[i] == group_0 + 1) {
+                    node->add_child(branches[i]);
                 } else {
-                    split->add_child(branches[ind]);
+                    split->add_child(branches[i]);
                 }
             }
             node->bbox() = recompute_bbox(node);
@@ -749,9 +745,9 @@ namespace rtree {
 
             //distribute the rest of braches
             size_t group = nelems[0] < nelems[1] ? group_0 : group_1;
-            for (size_t ind = 0; ind < count; ++ind) {
-                if (!groups[ind])
-                    groups[ind] = group + 1;
+            for (size_t i = 0; i < count; ++i) {
+                if (!groups[i])
+                    groups[i] = group + 1;
             }
         }
 
@@ -794,22 +790,22 @@ namespace rtree {
             coord_type max_diff = lowest<coord_type>::value();
 
             Rect merged;
-            for (size_t ind = 0; ind < count; ++ind) {
-                if (groups[ind] > 0) {
+            for (size_t i = 0; i < count; ++i) {
+                if (groups[i] > 0) {
                     //already picked
                     continue;
                 }
 
                 coord_type diff = 0;
-                outersection(branches[ind]->bbox(), bbox_0, merged);
+                outersection(branches[i]->bbox(), bbox_0, merged);
                 diff += area(merged) - area(bbox_0);
 
-                outersection(branches[ind]->bbox(), bbox_1, merged);
+                outersection(branches[i]->bbox(), bbox_1, merged);
                 diff -= area(merged) - area(bbox_1);
 
                 if (max_diff < abs(diff)) {
                     max_diff = abs(diff);
-                    res = ind;
+                    res = i;
                 }
             }
 
@@ -830,7 +826,6 @@ namespace rtree {
             quadractic_split(node, splitted, child);
             return splitted;
         }
-
 
         bool validate_bbox(tree_node const *node) {
             if (!node || node->level() == 0)
