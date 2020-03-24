@@ -6,7 +6,6 @@
 #include <string>
 #include <algorithm>
 #include <functional>
-#include "svg.hpp"
 
 namespace unit {
 
@@ -25,8 +24,6 @@ namespace unit {
         }
         return result;
     }
-
-
 
 
     float get_angle(float x1, float y1, float x2, float y2, float x3, float y3) {
