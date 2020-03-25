@@ -66,11 +66,10 @@ public:
     // 此函数用于判断两个特征 在某个方向上的重叠部分 是否完全相等
     // 重叠部分 全都都相等 才返回true
 
-    bool
-    isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
-        Direction direction = this->_direction._data[directionId];
-        int dx = direction.x;
-        int dy = direction.y;
+    bool isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
+        std::pair<int,int> direction = this->_direction._data[directionId];
+        int dx = direction.first;
+        int dy = direction.second;
 
         unsigned xmin = max(dx, 0);
         unsigned xmax = min(feature2.width + dx, feature1.width);
@@ -93,18 +92,7 @@ public:
             }
         }
 
-//        vector<int> intersectDat = {1,2};
-//        vector<pair<int,int>> intersectDat = {{1,1},{2,1}};
-//        vector<pair<int,int>> intersectData = this->getIntersectData(feature1,feature2,directionId);
-//
-//        for(int i=0;i<intersectData.size();i++){
-//            if (feature1.get(intersectData[i].first) != feature2.get(intersectData[i].second)) {
-//                return false;
-//            }
-//        }
         return true;
-
-
     }
 
     void generateCompatible() noexcept {

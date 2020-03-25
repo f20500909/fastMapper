@@ -105,6 +105,15 @@ public:
         return directionNumbers;
     }
 
+    inline unsigned getSize(){
+        return _data.size();
+    }
+
+    unsigned movePatternByDirection(unsigned dId, unsigned wave_width) {
+       std::pair<int,int>  direction = _data[dId];
+        return direction.first + direction.second * wave_width;
+    }
+
 
     int get_angle_direction_id(float angle, bool is_opp) {
         return std::min(angle / increment_angle, static_cast<float>(directionNumbers - 1));
@@ -197,7 +206,7 @@ public:
         Matrix<T> sub_array_2d = Matrix<T>(sub_width, sub_height);
         for (unsigned ki = 0; ki < sub_height; ki++) {
             for (unsigned kj = 0; kj < sub_width; kj++) {
-                sub_array_2d.get(ki, kj) = get((y + ki) % height, (x + kj) % width);
+                sub_array_2d.get(ki, kj) = this->get((y + ki) % height, (x + kj) % width);
             }
         }
 
@@ -272,6 +281,6 @@ public:
 };
 
 
-using AbstractFeature   = SvgAbstractFeature;
-//using AbstractFeature   = Matrix<unsigned>;
+//using AbstractFeature   = SvgAbstractFeature;
+using AbstractFeature   = Matrix<unsigned>;
 #endif

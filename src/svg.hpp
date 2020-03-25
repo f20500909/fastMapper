@@ -244,7 +244,7 @@ template<class T, class AbstractFeature>
 class Svg : public Data<T, AbstractFeature> {
 public:
 
-    SvgAbstractFeature getSubFeature(SpatialSvg& spatialSvg, int i, int j, std::vector<std::vector<svgPoint *>> &data) {
+    AbstractFeature getSubFeature(SpatialSvg& spatialSvg, int i, int j, std::vector<std::vector<svgPoint *>> &data) {
         svgPoint *point = data[i][j];
         std::vector<svgPoint *> nearPoints = spatialSvg.rtree.get_nearest(point); // 拿到最近的几个点了  依据这个生成方向数组
         //遍历所有附件的点位  拿到方向值
@@ -256,7 +256,7 @@ public:
             direction_fea_id_vec[directionn_id] = nearPoints[i]->id;
         }
 
-        SvgAbstractFeature res(nearPoints, *point, data);
+        AbstractFeature res(nearPoints, *point, data);
         res.direction_fea_id_vec = direction_fea_id_vec;
 
         return res;
@@ -289,13 +289,13 @@ public:
         for (int i = 0; i < this->data.size(); i++) {
             for (unsigned j = 0; j < this->data[i].size(); j++) {
                 symmetries[0] = this->getSubFeature(spatialSvg,i, j, this->data);
-                symmetries[1] = symmetries[0].reflected();
-                symmetries[2] = symmetries[0].rotated();
-                symmetries[3] = symmetries[2].reflected();
-                symmetries[4] = symmetries[2].rotated();
-                symmetries[5] = symmetries[4].reflected();
-                symmetries[6] = symmetries[4].rotated();
-                symmetries[7] = symmetries[6].reflected();
+//                symmetries[1] = symmetries[0].reflected();
+//                symmetries[2] = symmetries[0].rotated();
+//                symmetries[3] = symmetries[2].reflected();
+//                symmetries[4] = symmetries[2].rotated();
+//                symmetries[5] = symmetries[4].reflected();
+//                symmetries[6] = symmetries[4].rotated();
+//                symmetries[7] = symmetries[6].reflected();
 
                 for (unsigned k = 0; k < this->options.symmetry; k++) {
                     auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));
