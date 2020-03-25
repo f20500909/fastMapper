@@ -67,7 +67,7 @@ public:
     // 重叠部分 全都都相等 才返回true
 
     bool isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
-        std::pair<int,int> direction = this->_direction._data[directionId];
+        std::pair<int, int> direction = this->_direction._data[directionId];
         int dx = direction.first;
         int dy = direction.second;
 
@@ -91,7 +91,6 @@ public:
 
             }
         }
-
         return true;
     }
 

@@ -76,7 +76,7 @@ public:
 
             if (result == failure) {
                 data->showResult(wave_to_output());
-                assert(result != failure);
+                std::cout<<"failure!!!!!!!!!!!!!!"<<std::endl;
             }
 
 

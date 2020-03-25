@@ -14,14 +14,14 @@ private:
 
     std::vector<std::tuple<unsigned, unsigned>> propagating;
 
-    Array2D<std::vector<int>> compatible;
+    Matrix<std::vector<int>> compatible;
 
     void init_compatible() noexcept {
 
         //可能的图案id
 
         //储存的信息 -> 每一个输出元素中 的 每一个特征的数量
-        compatible = Array2D<std::vector<int>>(data->options.wave_size, data->feature.size());
+        compatible = Matrix<std::vector<int>>(data->options.wave_size, data->feature.size());
 
         //对所有输出的尺寸
         for (unsigned id = 0; id < data->options.wave_size; id++) {
