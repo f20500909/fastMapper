@@ -58,7 +58,6 @@ public:
         propagating.emplace_back(fea_id_1, fea_id_2);
     }
 
-    // 核心部分，进行传递
     void propagate(Wave &wave) noexcept {
         //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
         while (!propagating.empty()) {
@@ -71,9 +70,9 @@ public:
             for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
                 //更具此fea的id 和一个方向id  确定下一个fea的id
 
-                AbstractFeature temp = this->data->feature[fea_id_1];
-
-                fea_id_3 = temp.direction_fea_id_vec[directionId];
+                int shift = data->_direction.movePatternByDirection(directionId, data->options.wave_width);
+                fea_id_3 = fea_id_1 + shift;
+                //更具此fea的id 和一个方向id  确定下一个fea的id
 
                 //只有有效的feature才传播
                 if (!data->isVaildPatternId(fea_id_3)) {

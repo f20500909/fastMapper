@@ -13,6 +13,7 @@ using namespace std;
 template<class T, class ImgAbstractFeature>
 class Img : public Data<T, ImgAbstractFeature> {
 public:
+    ImgAbstractFeature _data;
 
     void init() {
         initDirection();
@@ -45,7 +46,7 @@ public:
         for (unsigned i = 0; i < (unsigned) height; i++) {
             for (unsigned j = 0; j < (unsigned) width; j++) {
                 unsigned index = 3 * (i * width + j);
-                this->_data.data[i * width + j] = (data[index]) | ((data[index + 1]) << 8) | ((data[index + 2]) << 16);
+                this->_data.get(i * width + j) = (data[index]) | ((data[index + 1]) << 8) | ((data[index + 2]) << 16);
             }
         }
         free(data);
@@ -53,28 +54,29 @@ public:
 
     void write_image_png(const std::string &file_path, const ImgAbstractFeature &m) noexcept {
 
-        unsigned char *imgData = new unsigned char[m.width * m.height * 3];
-        for (int i = 0; i < m.width * m.height; i++) {
+        unsigned char *imgData = new unsigned char[m.getHeight() * m.getWidth() * 3];
+        for (int i = 0; i < m.getWidth() * m.getHeight(); i++) {
             unsigned t = m.data[i];
             imgData[i * 3 + 0] = (unsigned char) (t & 0xFF);// 0-7位
             imgData[i * 3 + 1] = (unsigned char) ((t & 0xFF00) >> 8);// 8-15位
             imgData[i * 3 + 2] = (unsigned char) ((t & 0xFF0000) >> 16);// 16-23位
         };
-        stbi_write_png(file_path.c_str(), m.width, m.height, 3, imgData, 0);
+        stbi_write_png(file_path.c_str(), m.getWidth(), m.getHeight(), 3, imgData, 0);
     }
 
     // 此函数用于判断两个特征 在某个方向上的重叠部分 是否完全相等
     // 重叠部分 全都都相等 才返回true
 
-    bool isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
+    bool
+    isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
         std::pair<int, int> direction = this->_direction._data[directionId];
         int dx = direction.first;
         int dy = direction.second;
 
         unsigned xmin = max(dx, 0);
-        unsigned xmax = min(feature2.width + dx, feature1.width);
+        unsigned xmax = min(feature2.getWidth() + dx, feature1.getWidth());
         unsigned ymin = max(dy, 0);
-        unsigned ymax = min(feature2.height + dy, feature1.width);
+        unsigned ymax = min(feature2.getHeight() + dy, feature1.getWidth());
 
         // Iterate on every pixel contained in the intersection of the two pattern.
         // 以第一个特征为比较对象 比较每个重叠的元素
@@ -85,7 +87,7 @@ public:
                 unsigned x2 = x - dx;
                 unsigned y2 = y - dy;
 
-                if (feature1.get(x + y * feature2.width) != feature2.get(x2 + y2 * feature2.width)) {
+                if (feature1.get(x + y * feature2.getWidth()) != feature2.get(x2 + y2 * feature2.getWidth())) {
                     return false;
                 }
 
@@ -119,8 +121,8 @@ public:
         std::vector<ImgAbstractFeature> symmetries(this->options.symmetry,
                                                    ImgAbstractFeature(this->options.N, this->options.N));
 
-        unsigned max_i = this->_data.height - this->options.N + 1;
-        unsigned max_j = this->_data.width - this->options.N + 1;
+        unsigned max_i = this->_data.getHeight() - this->options.N + 1;
+        unsigned max_j = this->_data.getWidth() - this->options.N + 1;
 
         for (unsigned i = 0; i < max_i; i++) {
             for (unsigned j = 0; j < max_j; j++) {
@@ -151,33 +153,42 @@ public:
     * 将包含2d图案的id数组转换为像素数组
     */
     ImgAbstractFeature to_image(const Matrix<unsigned> &output_features) const noexcept {
-        ImgAbstractFeature output = ImgAbstractFeature(this->options.out_height, this->options.out_width);
+        ImgAbstractFeature res = ImgAbstractFeature(this->options.out_height, this->options.out_width);
 
+        //写入主要区域的数据
         for (unsigned y = 0; y < this->options.wave_height; y++) {
             for (unsigned x = 0; x < this->options.wave_width; x++) {
-                output.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
+                res.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
             }
         }
+
+        // 下面的三次写入是处理边缘条件
+
+        //写入左边部分
         for (unsigned y = 0; y < this->options.wave_height; y++) {
             const ImgAbstractFeature &pattern = this->feature[output_features.get(y, this->options.wave_width - 1)];
             for (unsigned dx = 1; dx < this->options.N; dx++) {
-                output.get(y, this->options.wave_width - 1 + dx) = pattern.get(0, dx);
+                res.get(y, this->options.wave_width - 1 + dx) = pattern.get(0, dx);
             }
         }
+
+        //写入下边部分
         for (unsigned x = 0; x < this->options.wave_width; x++) {
             const ImgAbstractFeature &pattern = this->feature[output_features.get(this->options.wave_height - 1, x)];
             for (unsigned dy = 1; dy < this->options.N; dy++) {
-                output.get(this->options.wave_height - 1 + dy, x) = pattern.get(dy, 0);
+                res.get(this->options.wave_height - 1 + dy, x) = pattern.get(dy, 0);
             }
         }
+
+        //写入左下角的一小块
         const ImgAbstractFeature &pattern = this->feature[output_features.get(this->options.wave_height - 1,
                                                                               this->options.wave_width - 1)];
         for (unsigned dy = 1; dy < this->options.N; dy++) {
             for (unsigned dx = 1; dx < this->options.N; dx++) {
-                output.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = pattern.get(dy, dx);
+                res.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = pattern.get(dy, dx);
             }
         }
-        return output;
+        return res;
     }
 
     void showResult(Matrix<unsigned> mat) {
@@ -190,7 +201,6 @@ public:
             cout << "failed!" << endl;
         }
     };
-    ImgAbstractFeature _data;
 
 };
 

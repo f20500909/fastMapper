@@ -65,7 +65,6 @@ public:
 
     DirectionSet(int directionNumbers) : increment_angle(360.0 / directionNumbers) {
 
-
         //初始化方向的方向
         initDirectionWithAngle();
     }
@@ -104,9 +103,8 @@ public:
     }
 
 
-
     unsigned movePatternByDirection(unsigned dId, unsigned wave_width) {
-       std::pair<int,int>  direction = _data[dId];
+        std::pair<int, int> direction = _data[dId];
         return direction.first + direction.second * wave_width;
     }
 
@@ -120,13 +118,8 @@ public:
 
 template<typename T>
 class Matrix {
-
 public:
 
-    unsigned height;
-    unsigned width;
-
-    std::vector<T> data;
 
     Matrix() {
 
@@ -141,6 +134,13 @@ public:
     Matrix(unsigned height, unsigned width, T value) noexcept
             : height(height), width(width), data(width * height, value) {}
 
+    const unsigned getHeight() const {
+        return this->height;
+    }
+
+    const unsigned getWidth() const {
+        return this->width;
+    }
 
     T &get(unsigned id) noexcept {
         assert(id < height * width);
@@ -166,9 +166,6 @@ public:
         return data[j + i * width];
     }
 
-    /**
-    * Return the current 2D array reflected along the x axis.
-    */
     Matrix<T> reflected() const noexcept {
         Matrix<T> result = Matrix<T>(width, height);
         for (unsigned y = 0; y < height; y++) {
@@ -179,9 +176,6 @@ public:
         return result;
     }
 
-    /**
-    * Return the current 2D array rotated 90° anticlockwise
-    */
     Matrix<T> rotated() const noexcept {
         Matrix<T> result = Matrix<T>(width, height);
         for (unsigned y = 0; y < width; y++) {
@@ -226,6 +220,13 @@ public:
         return true;
     }
 
+    std::vector<T> data;
+private:
+    unsigned height;
+    unsigned width;
+
+
+
 };
 
 namespace std {
@@ -243,8 +244,6 @@ namespace std {
     };
 
 }
-
-
 
 //using AbstractFeature   = SvgAbstractFeature;
 using AbstractFeature   = Matrix<unsigned>;

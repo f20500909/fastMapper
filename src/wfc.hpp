@@ -46,7 +46,8 @@ private:
         for (unsigned i = 0; i < wave.size; i++) {
             for (unsigned k = 0; k < data->feature.size(); k++) {
                 if (wave.get(i, k)) {
-                    output_features.data[i] = k;
+//                    output_features.data[i] = k;
+                    output_features.get(i) = k;
                 }
             }
         }
@@ -76,9 +77,8 @@ public:
 
             if (result == failure) {
                 data->showResult(wave_to_output());
-                std::cout<<"failure!!!!!!!!!!!!!!"<<std::endl;
+                std::cout << "failure!!!!!!!!!!!!!!" << std::endl;
             }
-
 
             // 传递信息
             propagator.propagate(wave);
@@ -89,33 +89,30 @@ public:
      * Define the value of the cell with lowest entropy.
      * 定义具有最低熵的网格值
      */
+
     ObserveStatus observe() noexcept {
         // 得到具有最低熵的网格
         int argmin = wave.get_min_entropy(gen);
+
         // 检查冲突，返回failure
-        if (argmin == failure) {
-            return failure;
+        if (argmin == failure || argmin == success) {
+            return static_cast<ObserveStatus>(argmin);
         }
 
-        // 如果最低熵是-1，那么算法成功并完成
-        if (argmin ==success) {
-            wave_to_output();
-            return success;
-        }
-
-        // 根据分布结构选择一个元素
+        // 遍历所有特征  根据分布结构选择一个元素
         double s = 0;
         for (unsigned k = 0; k < data->feature.size(); k++) {
-            s += wave.get(argmin, k) ? data->features_frequency[k] : 0;
+            // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
+            s += wave.get_features_frequency(argmin, k);
         }
 
         std::uniform_real_distribution<> dis(0, s);
         double random_value = dis(gen);
         unsigned chosen_value = data->feature.size() - 1;
 
-        //小于0时中断
+        //小于0时中断 将频率自减少  为什么原作者这里random_value 是double?
         for (unsigned k = 0; k < data->feature.size(); k++) {
-            random_value -= wave.get(argmin, k) ? data->features_frequency[k] : 0;
+            random_value -= wave.get_features_frequency(argmin, k);
             if (random_value <= 0) {
                 chosen_value = k;
                 break;
@@ -124,11 +121,17 @@ public:
 
         // 根据图案定义网格
         for (unsigned k = 0; k < data->feature.size(); k++) {
+            /* 判定生效的情况：
+             如果k对应的图案在argmin中 并且不是选择的元素
+             如果k对应的团不在argmin中 并且是选择的元素
+             加上此判断主要是为了不选择自身
+             */
             if (wave.get(argmin, k) != (k == chosen_value)) {
                 propagator.add_to_propagator(argmin, k);
                 wave.set(argmin, k, false);
             }
         }
+
         return to_continue;
     }
 };
