@@ -11,11 +11,6 @@
 class Wave  {
 private:
 
-
-    /**
-    * The precomputation of p * log(p).
-    * p*log（p）的值
-    */
     const std::vector<double> plogp_features_frequency;
 
     /**
@@ -40,7 +35,7 @@ private:
     * The actual wave. mat.get(index, pattern) is equal to 0 if the pattern can
     * be placed in the cell index.
     */
-    Matrix<uint8_t> mat;
+    Matrix<int> mat;
 
     const Data<int,AbstractFeature> *data;
 
@@ -68,7 +63,6 @@ private:
         }
         return half_min;
     }
-
 
     std::vector<double> p_log_p_sum; // The sum of p'(pattern) * log(p'(pattern)).
     std::vector<double> sum;       // The sum of p'(pattern).

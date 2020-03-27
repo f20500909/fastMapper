@@ -1,7 +1,3 @@
-
-
-# 基于少样本情况下的结构化数据预测工具
-
 the project have not been done
 
 only to study wfc althorighm
