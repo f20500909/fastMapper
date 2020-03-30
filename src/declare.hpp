@@ -154,9 +154,6 @@ public:
         return data[j + i * width];
     }
 
-
-
-
     T &get(unsigned i, unsigned j) noexcept {
         assert(i < height && j < width);
         return data[j + i * width];

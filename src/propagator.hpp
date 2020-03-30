@@ -14,14 +14,14 @@ private:
 
     std::vector<std::tuple<unsigned, unsigned>> propagating;
 
-    Matrix<std::vector<int>> compatible;
+    Matrix<std::vector<int>> compatible_feature;
 
     void init_compatible() noexcept {
 
         //可能的图案id
 
         //储存的信息 -> 每一个输出元素中 的 每一个特征的数量
-        compatible = Matrix<std::vector<int>>(data->options.wave_size, data->feature.size());
+        compatible_feature = Matrix<std::vector<int>>(data->options.wave_size, data->feature.size());
 
         //对所有输出的尺寸
         for (unsigned id = 0; id < data->options.wave_size; id++) {
@@ -39,7 +39,7 @@ private:
                 }
 
                 //设置一个 id 对应图案id 的 特征频次
-                compatible.get(id, pattern) = value;
+                compatible_feature.get(id, pattern) = value;
             }
         }
     }
@@ -54,7 +54,7 @@ public:
 
     void add_to_propagator(unsigned fea_id_1, unsigned fea_id_2) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
-        compatible.get(fea_id_1, fea_id_2) = std::vector<int>(data->_direction.getMaxNumber(), 0);
+        compatible_feature.get(fea_id_1, fea_id_2) = std::vector<int>(data->_direction.getMaxNumber(), 0);
         propagating.emplace_back(fea_id_1, fea_id_2);
     }
 
@@ -76,17 +76,17 @@ public:
                     continue;
                 }
 
-                // The index of the second cell, and the feature compatible
+                // The index of the second cell, and the feature compatible_feature
                 const std::vector<unsigned> &feature = data->propagator[fea_id_2][directionId];
 
                 // For every pattern that could be placed in that cell without being in
                 // contradiction with feature1
                 for (unsigned i = 0; i < feature.size(); i++) {
-                    // We decrease the number of compatible feature in the opposite
+                    // We decrease the number of compatible_feature feature in the opposite
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
 
-                    std::vector<int> &value = compatible.get(fea_id_3, feature[i]);
+                    std::vector<int> &value = compatible_feature.get(fea_id_3, feature[i]);
 
                     //方向自减
                     value[directionId]--;

@@ -15,9 +15,6 @@
 using namespace std;
 
 
-/* TODO shell脚本批量生成
-* 数据输入模块，适配多种格式的数据
-*/
 
 void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, string input_data,
                 string output_data, string type) {
