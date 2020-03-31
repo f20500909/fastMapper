@@ -68,11 +68,8 @@ public:
 
             //对图案的各个方向进进行传播
             for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
-                //更具此fea的id 和一个方向id  确定下一个fea的id
-
-                int shift = data->_direction.movePatternByDirection(directionId, data->options.wave_width);
-                fea_id_3 = fea_id_1 + shift;
-                //更具此fea的id 和一个方向id  确定下一个fea的id
+                //跟具此fea的id 和一个方向id  确定下一个fea的id
+                fea_id_3 = fea_id_1 + data->_direction.movePatternByDirection(directionId, data->options.wave_width);
 
                 //只有有效的feature才传播
                 if (!data->isVaildPatternId(fea_id_3)) {

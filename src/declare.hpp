@@ -64,7 +64,6 @@ class DirectionSet {
 public:
 
     DirectionSet(int directionNumbers) : increment_angle(360.0 / directionNumbers) {
-
         //初始化方向的方向
         initDirectionWithAngle();
     }
@@ -102,12 +101,10 @@ public:
         return _data.size();
     }
 
-
-    unsigned movePatternByDirection(unsigned dId, unsigned wave_width) {
+    int movePatternByDirection(unsigned dId, unsigned wave_width) {
         std::pair<int, int> direction = _data[dId];
         return direction.first + direction.second * wave_width;
     }
-
 
     int get_angle_direction_id(float angle, bool is_opp) {
         return std::min(angle / increment_angle, static_cast<float>(_data.size() - 1));
@@ -126,7 +123,6 @@ public:
     };
 
     std::vector<int> direction_fea_id_vec;
-
 
     Matrix(unsigned height, unsigned width) noexcept : height(height), width(width), data(width * height) {}
 
