@@ -34,4 +34,4 @@ add_executable(main ${CPP_SRC_LIST} ../src/fastMapper.cpp)
 #导入pybind包
 find_package(pybind11)
 #链接pybind文件
-pybind11_add_module(fastMapper_pybind ./src/pybind/fastMapper_pybind.cpp)
+pybind11_add_module(fastMapper_pybind ./src/fastMapper_pybind.cpp)

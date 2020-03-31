@@ -22,9 +22,9 @@ class Matrix;
 class SvgAbstractFeature;
 
 enum ObserveStatus {
-    success, // wfc完成并取得成功
-    failure, // wfc完成并失败
-    to_continue // wfc没有完成
+    success = -10 , // wfc完成并取得成功
+    failure = -9, // wfc完成并失败
+    to_continue =-8 // wfc没有完成
 };
 
 

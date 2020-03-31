@@ -22,7 +22,6 @@ public:
         std::cout << "Data row func err res.." << std::endl;
     };
 
-
     const Options options;
 
     bool isVaildPatternId(unsigned pId) {

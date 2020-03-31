@@ -46,7 +46,6 @@ private:
         for (unsigned i = 0; i < wave.size; i++) {
             for (unsigned k = 0; k < data->feature.size(); k++) {
                 if (wave.get(i, k)) {
-//                    output_features.data[i] = k;
                     output_features.get(i) = k;
                 }
             }
@@ -65,7 +64,6 @@ public:
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
-
         while (true) {
             // 定义未定义的网格值
             ObserveStatus result = observe();
@@ -79,7 +77,6 @@ public:
                 data->showResult(wave_to_output());
                 std::cout << "failure!!!!!!!!!!!!!!" << std::endl;
             }
-
             // 传递信息
             propagator.propagate(wave);
         }
