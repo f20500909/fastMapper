@@ -67,7 +67,7 @@ public:
         for (int i = 0; i < data->options.wave_size; i++) {
 
             for (int j = 0; j < feature_number; j++) {
-                wave_map[getKey(i, j)] = true;
+                wave_map[unit::getKey(i, j)] = true;
             }
         }
     }
@@ -106,7 +106,7 @@ public:
     */
     bool get(unsigned index, unsigned pattern) const noexcept {
 
-        string key = getKey(index, pattern);
+        string key =unit::getKey(index, pattern);
         auto iter = wave_map.find(key);
         if (iter != wave_map.end()) {
             return iter->second;
@@ -119,9 +119,7 @@ public:
         return this->get(feature_id, i) ? data->features_frequency[i] : 0;
     }
 
-    string getKey(unsigned index, unsigned pattern) const {
-        return to_string(index) + "_" + to_string(pattern);
-    }
+
 
     void set(unsigned index, unsigned pattern, bool value) noexcept {
         bool old_value = this->get(index, pattern);
@@ -129,7 +127,7 @@ public:
         if (old_value == value) return;
 
         // Otherwise, the memoisation should be updated.
-        wave_map[getKey(index, pattern)] = value;
+        wave_map[unit::getKey(index, pattern)] = value;
 
         p_log_p_sum[index] -= plogp_features_frequency[pattern];
         sum[index] -= data->features_frequency[pattern];

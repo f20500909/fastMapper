@@ -13,15 +13,13 @@ class Propagator {
 private:
 
     std::vector<std::tuple<unsigned, unsigned>> propagating;
-
-    Matrix<std::vector<int>> compatible_feature;
+    unordered_map<string, int> compatible_feature_map;
 
     void init_compatible() noexcept {
 
         //可能的图案id
 
         //储存的信息 -> 每一个输出元素中 的 每一个特征的数量
-        compatible_feature = Matrix<std::vector<int>>(data->options.wave_size, data->feature.size());
 
         //对所有输出的尺寸
         for (unsigned id = 0; id < data->options.wave_size; id++) {
@@ -31,15 +29,16 @@ private:
                 std::vector<int> value(data->_direction.getMaxNumber());
 
                 //对特征图案的所有方向
-                for (int direction = 0; direction < data->_direction.getMaxNumber(); direction++) {
+                for (unsigned direction = 0; direction < data->_direction.getMaxNumber(); direction++) {
                     //对特征图案的所有方向的相反方向
                     unsigned oppositeDirection = data->_direction.get_opposite_direction(direction);
                     //此方向上的值  等于 其反方向上的可传播大小
-                    value[direction] = data->propagator[pattern][oppositeDirection].size();
+//                    value[direction] = data->propagator[pattern][oppositeDirection].size();
+                    compatible_feature_map[unit::getKey(id, pattern,
+                                                        direction)] = data->propagator[pattern][oppositeDirection].size();
                 }
 
-                //设置一个 id 对应图案id 的 特征频次
-                compatible_feature.get(id, pattern) = value;
+
             }
         }
     }
@@ -52,17 +51,27 @@ public:
         init_compatible();
     }
 
+
+
     void add_to_propagator(unsigned fea_id_1, unsigned fea_id_2) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
-        compatible_feature.get(fea_id_1, fea_id_2) = std::vector<int>(data->_direction.getMaxNumber(), 0);
+        for (unsigned i = 0; i < data->_direction.getMaxNumber(); i++) {
+            compatible_feature_map[unit::getKey(fea_id_1, fea_id_2, i)] = 0;
+        }
         propagating.emplace_back(fea_id_1, fea_id_2);
+    }
+
+    int& getDirectionCount(const unsigned& fea_id_1, const unsigned& fea_id_2,const unsigned& direction)  {
+        string key = unit::getKey(fea_id_1, fea_id_2, direction);
+        auto iter = compatible_feature_map.find(key);
+        return  iter->second;
     }
 
     void propagate(Wave &wave) noexcept {
         //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
         while (!propagating.empty()) {
             // The cell and pattern that has been set to false.
-            int fea_id_1, fea_id_2, fea_id_3;
+            unsigned fea_id_1, fea_id_2, fea_id_3;
             std::tie(fea_id_1, fea_id_2) = propagating.back();
             propagating.pop_back();
 
@@ -86,14 +95,14 @@ public:
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
 
-                    std::vector<int> &value = compatible_feature.get(fea_id_3, feature[i]);
+                    int& directionCount = getDirectionCount(fea_id_3, feature[i], directionId);
 
                     //方向自减
-                    value[directionId]--;
+                    directionCount--;
 
                     //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
                     //并且将此wave的传播状态设置为不需要传播
-                    if (value[directionId] == 0) {
+                    if (directionCount == 0) {
                         add_to_propagator(fea_id_3, feature[i]);
                         wave.set(fea_id_3, feature[i], false);
                     }

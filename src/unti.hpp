@@ -37,5 +37,13 @@ namespace unit {
         return theta;
     }
 
+    std::string getKey(unsigned index, unsigned pattern) {
+        return std::to_string(index) + "_" + std::to_string(pattern);
+    }
+    template<class T>
+    std::string getKey(T id_1, T id_2, T id_3) {
+        return std::to_string(id_1) + "_" + std::to_string(id_2) + "_" + std::to_string(id_3);
+    }
+
 }
 #endif //SRC_UNTI_HPP
