@@ -12,9 +12,9 @@
 class Wave {
 private:
 
-    const std::vector<double> plogp_features_frequency;
+    const std::vector<float> plogp_features_frequency;
 
-    const double half_min_plogp;
+    const float half_min_plogp;
 
     bool is_impossible;
 
@@ -22,11 +22,11 @@ private:
 
     Data<int, AbstractFeature> *data;
 
-    std::vector<double> p_log_p_sum; // The sum of p'(pattern) * log(p'(pattern)).
-    std::vector<double> sum;       // The sum of p'(pattern).
-    std::vector<double> log_sum;   // The log of sum.
+    std::vector<float> p_log_p_sum; // The sum of p'(pattern) * log(p'(pattern)).
+    std::vector<float> features_frequency_sum;       // The features_frequency_sum of p'(pattern).
+    std::vector<float> log_sum;   // The log of sum.
     std::vector<unsigned> features_number_vec; // The number of feature present
-    std::vector<double> entropy_vec;       // The entropy of the cell.c
+    std::vector<float> entropy_vec;       // The entropy of the cell.c
 
     const unsigned _size;
 
@@ -42,21 +42,20 @@ public:
     }
 
     void init_entropy() {
-        double base_entropy = 0;
-        double base_s = 0;
+        float base_entropy = 0;
+        float base_sum = 0;
 
         for (unsigned i = 0; i < data->feature.size(); i++) {
-            base_entropy += plogp_features_frequency[i];// plogp 的和
-            base_s += data->features_frequency[i];// 频率的和
+            base_entropy += plogp_features_frequency[i];// 累加所有  p log(p) 的和
+            base_sum += data->features_frequency[i];//     频率的和
         }
-        double log_base_s = log(base_s);
-        double entropy_base = log_base_s - base_entropy / base_s;
+        float base_log_sum = log(base_sum);
 
-        p_log_p_sum = std::vector<double>(_size, base_entropy);
-        sum = std::vector<double>(_size, base_s);
-        log_sum = std::vector<double>(_size, log_base_s);
+        p_log_p_sum = std::vector<float>(_size, base_entropy);
+        features_frequency_sum = std::vector<float>(_size, base_sum);
+        log_sum = std::vector<float>(_size, base_log_sum);
         features_number_vec = std::vector<unsigned>(_size, data->feature.size());
-        entropy_vec = std::vector<double>(_size, entropy_base);
+        entropy_vec = std::vector<float>(_size,  base_log_sum - base_entropy / base_sum);
     }
 
 
@@ -88,23 +87,22 @@ public:
         }
     }
 
-    const double get_features_frequency(unsigned feature_id, unsigned i) const {
+    const float get_features_frequency(unsigned feature_id, unsigned i) const {
         return this->get(feature_id, i) ? data->features_frequency[i] : 0;
     }
 
     void set(unsigned fea_1, unsigned fea_2, bool value) noexcept {
         bool old_value = this->get(fea_1, fea_2);
-        // If the value isn't changed, nothing needs to be done.
         if (old_value == value) return;
 
         // Otherwise, the memoisation should be updated.
         wave_map[data->getKey(fea_1, fea_2)] = value;
 
         p_log_p_sum[fea_1] -= plogp_features_frequency[fea_2];
-        sum[fea_1] -= data->features_frequency[fea_2];
-        log_sum[fea_1] = log(sum[fea_1]);
+        features_frequency_sum[fea_1] -= data->features_frequency[fea_2];
+        log_sum[fea_1] = log(features_frequency_sum[fea_1]);
         features_number_vec[fea_1]--;
-        entropy_vec[fea_1] = log_sum[fea_1] - p_log_p_sum[fea_1] / sum[fea_1];
+        entropy_vec[fea_1] = log_sum[fea_1] - p_log_p_sum[fea_1] / features_frequency_sum[fea_1];
 
         if (features_number_vec[fea_1] == 0) is_impossible = true;
     }
@@ -121,19 +119,19 @@ public:
 
         std::uniform_real_distribution<> dis(0, abs(half_min_plogp));
 
-        double min = std::numeric_limits<double>::infinity();
+        float min = std::numeric_limits<float>::infinity();
         int argmin = success;
 
         for (int i = 0; i < _size; i++) {
-            // If the cell is decided, we do not compute the entropy (which is equal to 0).
-            // 如果cell被决定，我们不用再计算信息熵
-            double feature_number = features_number_vec[i];
-            if (feature_number == 1) {
+
+            if (features_number_vec[i] == 1) {
+                // If the cell is decided, we do not compute the entropy (which is equal to 0).
+                // 如果cell被决定，我们不用再计算信息熵
                 continue;
             }
 
-            // Otherwise, we take the memoised entropy.
-            double entropy = entropy_vec[i];
+            //拿到当前的熵
+            float entropy = entropy_vec[i];
 
             // We first check if the entropy is less than the minimum.
             // This is important to reduce noise computation (which is not
@@ -143,7 +141,7 @@ public:
                 // Then, we add noise to decide randomly which will be chosen.
                 // noise is smaller than the smallest p * log(p), so the minimum entropy
                 // will always be chosen.
-                double noise = dis(gen);
+                float noise = dis(gen);
                 if (entropy + noise < min) {
                     min = std::min(entropy + noise, min);
                     argmin = i;
@@ -154,7 +152,7 @@ public:
         return argmin;
     }
 
-    inline int size() { return _size; };
+    inline int size() const noexcept { return _size; };
 
 };
 

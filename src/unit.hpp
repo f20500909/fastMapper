@@ -37,8 +37,9 @@ namespace unit {
         return theta;
     }
 
-    std::vector<double> get_plogp(const std::vector<double> &distribution) noexcept {
-        std::vector<double> plogp(distribution.size(), 0);
+    //获取 p * log(p)
+    std::vector<float> get_plogp(const std::vector<float> &distribution) noexcept {
+        std::vector<float> plogp(distribution.size(), 0);
         for (unsigned i = 0; i < distribution.size(); i++) {
             plogp[i] = distribution[i] * log(distribution[i]);
         }
@@ -46,10 +47,10 @@ namespace unit {
     }
 
 
-    double get_half_min(const std::vector<double> &v) noexcept {
-        double half_min = std::numeric_limits<double>::infinity();
+    float get_half_min(const std::vector<float> &v) noexcept {
+        float half_min = std::numeric_limits<float>::infinity();
         for (unsigned i = 0; i < v.size(); i++) {
-            half_min = std::min(half_min, v[i] / 2.0);
+            half_min = std::min(half_min, static_cast<float>(v[i] / 2.0));
         }
         return half_min;
     }
