@@ -55,7 +55,7 @@ public:
         features_frequency_sum = std::vector<float>(_size, base_sum);
         log_sum = std::vector<float>(_size, base_log_sum);
         features_number_vec = std::vector<unsigned>(_size, data->feature.size());
-        entropy_vec = std::vector<float>(_size,  base_log_sum - base_entropy / base_sum);
+        entropy_vec = std::vector<float>(_size, base_log_sum - base_entropy / base_sum);
     }
 
 
@@ -112,12 +112,12 @@ public:
     * 如果中间有contradiction在wave中，则返回-2
     * 如果所有cell都被定义，返回-1
     */
-    int get_min_entropy(std::minstd_rand &gen) const noexcept {
+    int get_min_entropy() const noexcept {
         if (is_impossible) {
             return failure;
         }
 
-        std::uniform_real_distribution<> dis(0, abs(half_min_plogp));
+//        std::uniform_real_distribution<> dis(0, abs(half_min_plogp));  //随机生成一个该区间的随机数
 
         float min = std::numeric_limits<float>::infinity();
         int argmin = success;
@@ -134,14 +134,13 @@ public:
             float entropy = entropy_vec[i];
 
             // We first check if the entropy is less than the minimum.
-            // This is important to reduce noise computation (which is not
-            // negligible).
+            // This is important to reduce noise computation (which is not* negligible).
+            //检查熵是否比最小值小  如果小才更新argmin 不过效果我测试的真的不太明显
             if (entropy <= min) {
-
                 // Then, we add noise to decide randomly which will be chosen.
                 // noise is smaller than the smallest p * log(p), so the minimum entropy
                 // will always be chosen.
-                float noise = dis(gen);
+                float noise = unit::getRand(float(0), static_cast<float>(abs(half_min_plogp)));  //随机生成一个noise
                 if (entropy + noise < min) {
                     min = std::min(entropy + noise, min);
                     argmin = i;

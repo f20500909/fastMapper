@@ -20,7 +20,7 @@ set(CPP_SRC_LIST ../src/data.hpp
         ../src/MyRtree.hpp
         ../src/propagator.hpp
         ../src/svg.hpp
-        ../src/unti.hpp
+        ../src/unit.hpp
         ../src/wave.hpp
         ../src/wfc.hpp
         )

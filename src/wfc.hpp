@@ -59,7 +59,7 @@ public:
      * 构造函数，初始化
      */
     WFC(Data<int, AbstractFeature> *data) noexcept
-            : data(data), gen(rand()), wave(data), propagator(data) {
+            : data(data), wave(data), propagator(data) {
     }
 
 //     运行算法，成功的话并返回一个结果
@@ -89,7 +89,7 @@ public:
 
     ObserveStatus observe() noexcept {
         // 得到具有最低熵的网格
-        int argmin = wave.get_min_entropy(gen);
+        int argmin = wave.get_min_entropy();
 
         // 检查冲突，返回failure
         if (argmin == failure || argmin == success) {
@@ -103,8 +103,8 @@ public:
             s += wave.get_features_frequency(argmin, k);
         }
 
-        std::uniform_real_distribution<> dis(0, s);
-        double random_value = dis(gen);
+         double random_value = unit::getRand(0.0, s);  //随机生成一个noise
+
         unsigned chosen_value = data->feature.size() - 1;
 
         //小于0时中断 将频率自减少  为什么原作者这里random_value 是double?

@@ -55,6 +55,12 @@ namespace unit {
         return half_min;
     }
 
+    template<class T>
+    double getRand(T min, T max) {
+
+        return min + (max - min) * rand() / static_cast<T>(RAND_MAX);
+    }
+
 
 }
 #endif //SRC_UNTI_HPP
