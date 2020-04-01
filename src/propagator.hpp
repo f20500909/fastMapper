@@ -13,7 +13,7 @@ class Propagator {
 private:
 
     std::vector<std::tuple<unsigned, unsigned>> propagating;
-    unordered_map<string, int> compatible_feature_map;
+    unordered_map<long long, int> compatible_feature_map;
 
     void init_compatible() noexcept {
 
@@ -33,9 +33,8 @@ private:
                     //对特征图案的所有方向的相反方向
                     unsigned oppositeDirection = data->_direction.get_opposite_direction(direction);
                     //此方向上的值  等于 其反方向上的可传播大小
-//                    value[direction] = data->propagator[pattern][oppositeDirection].size();
-                    compatible_feature_map[unit::getKey(id, pattern,
-                                                        direction)] = data->propagator[pattern][oppositeDirection].size();
+                    long long  key = data->getKey(id, pattern, direction);
+                    compatible_feature_map[key] = data->propagator[pattern][oppositeDirection].size();
                 }
 
 
@@ -52,19 +51,17 @@ public:
     }
 
 
-
     void add_to_propagator(unsigned fea_id_1, unsigned fea_id_2) noexcept {
         // All the direction are set to 0, since the pattern cannot be set in (y,x).
         for (unsigned i = 0; i < data->_direction.getMaxNumber(); i++) {
-            compatible_feature_map[unit::getKey(fea_id_1, fea_id_2, i)] = 0;
+            compatible_feature_map[data->getKey(fea_id_1, fea_id_2, i)] = 0;
         }
         propagating.emplace_back(fea_id_1, fea_id_2);
     }
 
-    int& getDirectionCount(const unsigned& fea_id_1, const unsigned& fea_id_2,const unsigned& direction)  {
-        string key = unit::getKey(fea_id_1, fea_id_2, direction);
-        auto iter = compatible_feature_map.find(key);
-        return  iter->second;
+    int &getDirectionCount(const unsigned &fea_id_1, const unsigned &fea_id_2, const unsigned &direction) {
+        auto iter = compatible_feature_map.find(data->getKey(fea_id_1, fea_id_2, direction));
+        return iter->second;
     }
 
     void propagate(Wave &wave) noexcept {
@@ -95,7 +92,7 @@ public:
                     // directionId If the pattern was discarded from the wave, the element
                     // is still negative, which is not a problem
 
-                    int& directionCount = getDirectionCount(fea_id_3, feature[i], directionId);
+                    int &directionCount = getDirectionCount(fea_id_3, feature[i], directionId);
 
                     //方向自减
                     directionCount--;

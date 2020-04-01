@@ -37,13 +37,23 @@ namespace unit {
         return theta;
     }
 
-    std::string getKey(unsigned index, unsigned pattern) {
-        return std::to_string(index) + "_" + std::to_string(pattern);
+    std::vector<double> get_plogp(const std::vector<double> &distribution) noexcept {
+        std::vector<double> plogp(distribution.size(), 0);
+        for (unsigned i = 0; i < distribution.size(); i++) {
+            plogp[i] = distribution[i] * log(distribution[i]);
+        }
+        return plogp;
     }
-    template<class T>
-    std::string getKey(T id_1, T id_2, T id_3) {
-        return std::to_string(id_1) + "_" + std::to_string(id_2) + "_" + std::to_string(id_3);
+
+
+    double get_half_min(const std::vector<double> &v) noexcept {
+        double half_min = std::numeric_limits<double>::infinity();
+        for (unsigned i = 0; i < v.size(); i++) {
+            half_min = std::min(half_min, v[i] / 2.0);
+        }
+        return half_min;
     }
+
 
 }
 #endif //SRC_UNTI_HPP

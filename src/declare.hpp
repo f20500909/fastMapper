@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
-#include "unti.hpp"
+#include "unit.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 

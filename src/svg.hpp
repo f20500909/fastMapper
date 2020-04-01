@@ -11,7 +11,7 @@
 
 #include "declare.hpp"
 #include "MyRtree.hpp"
-#include "unti.hpp"
+#include "unit.hpp"
 #include "./include/bitMap.h"
 #include "./include/simple_svg.hpp"
 

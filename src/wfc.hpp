@@ -41,9 +41,9 @@ private:
      * 将波转换为有效的输出（一个不矛盾的2d阵列）
      * 此函数只有当波的所有格子都被定义
      */
-    Matrix<unsigned> wave_to_output() const noexcept {
+    Matrix<unsigned> wave_to_output()  noexcept {
         Matrix<unsigned> output_features(data->options.wave_height, data->options.wave_width);
-        for (unsigned i = 0; i < wave.size; i++) {
+        for (unsigned i = 0; i < wave.size(); i++) {
             for (unsigned k = 0; k < data->feature.size(); k++) {
                 if (wave.get(i, k)) {
                     output_features.get(i) = k;

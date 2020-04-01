@@ -14,44 +14,13 @@ private:
 
     const std::vector<double> plogp_features_frequency;
 
-    /**
-    * The precomputation of min (p * log(p)) / 2.
-    * This is used to define the maximum value of the noise.
-    */
     const double half_min_plogp;
 
     bool is_impossible;
 
-    const unsigned feature_number;
+    unordered_map<long long, bool> wave_map;
 
-    /**
-    * The actual wave. mat.get(index, pattern) is equal to 0 if the pattern can
-    * be placed in the cell index.
-    */
-    unordered_map<string, bool> wave_map;
-
-    const Data<int, AbstractFeature> *data;
-
-    /**
-    * Return distribution * log(distribution).
-    * 计算p*log（p）
-    */
-    static std::vector<double>
-    get_plogp(const std::vector<double> &distribution) noexcept {
-        std::vector<double> plogp;
-        for (unsigned i = 0; i < distribution.size(); i++) {
-            plogp.push_back(distribution[i] * log(distribution[i]));
-        }
-        return plogp;
-    }
-
-    static double get_half_min(const std::vector<double> &v) noexcept {
-        double half_min = std::numeric_limits<double>::infinity();
-        for (unsigned i = 0; i < v.size(); i++) {
-            half_min = std::min(half_min, v[i] / 2.0);
-        }
-        return half_min;
-    }
+    Data<int, AbstractFeature> *data;
 
     std::vector<double> p_log_p_sum; // The sum of p'(pattern) * log(p'(pattern)).
     std::vector<double> sum;       // The sum of p'(pattern).
@@ -59,59 +28,63 @@ private:
     std::vector<unsigned> features_number_vec; // The number of feature present
     std::vector<double> entropy_vec;       // The entropy of the cell.c
 
-public:
+    const unsigned _size;
 
-    const unsigned size;
+public:
 
     void init_map() {
         for (int i = 0; i < data->options.wave_size; i++) {
 
-            for (int j = 0; j < feature_number; j++) {
-                wave_map[unit::getKey(i, j)] = true;
+            for (int j = 0; j < data->feature.size(); j++) {
+                wave_map[data->getKey(i, j)] = true;
             }
         }
     }
 
-    /**
-    * Initialize the wave with every cell being able to have every pattern.
-    * 初始化wave中每个cell
-    */
-    Wave(Data<int, AbstractFeature> *data) noexcept
-            : plogp_features_frequency(get_plogp(data->features_frequency)),
-              half_min_plogp(get_half_min(plogp_features_frequency)), is_impossible(false),
-              feature_number(data->features_frequency.size()),
-              size(data->options.wave_size), data(data) {
-        init_map();
-
+    void init_entropy() {
         double base_entropy = 0;
         double base_s = 0;
 
-        for (unsigned i = 0; i < feature_number; i++) {
+        for (unsigned i = 0; i < data->feature.size(); i++) {
             base_entropy += plogp_features_frequency[i];// plogp 的和
             base_s += data->features_frequency[i];// 频率的和
         }
         double log_base_s = log(base_s);
         double entropy_base = log_base_s - base_entropy / base_s;
 
-        p_log_p_sum = std::vector<double>(size, base_entropy);
-        sum = std::vector<double>(size, base_s);
-        log_sum = std::vector<double>(size, log_base_s);
-        features_number_vec = std::vector<unsigned>(size, feature_number);
-        entropy_vec = std::vector<double>(size, entropy_base);
+        p_log_p_sum = std::vector<double>(_size, base_entropy);
+        sum = std::vector<double>(_size, base_s);
+        log_sum = std::vector<double>(_size, log_base_s);
+        features_number_vec = std::vector<unsigned>(_size, data->feature.size());
+        entropy_vec = std::vector<double>(_size, entropy_base);
+    }
+
+
+    /**
+    * Initialize the wave with every cell being able to have every pattern.
+    * 初始化wave中每个cell
+    */
+    Wave(Data<int, AbstractFeature> *data) noexcept
+            : plogp_features_frequency(unit::get_plogp(data->features_frequency)),
+              half_min_plogp(unit::get_half_min(plogp_features_frequency)),
+              _size(data->options.wave_size), data(data) {
+        init_map();
+        init_entropy();
+        is_impossible = false;
     }
 
     /**
     * Return true if pattern can be placed in cell index.
     * 返回true如果图案能放入cell
     */
-    bool get(unsigned index, unsigned pattern) const noexcept {
+    bool get(unsigned index, unsigned pattern) const {
 
-        string key =unit::getKey(index, pattern);
+        long long key = data->getKey(index, pattern);
         auto iter = wave_map.find(key);
         if (iter != wave_map.end()) {
             return iter->second;
         } else {
-            return 0;
+            return false;
         }
     }
 
@@ -119,23 +92,21 @@ public:
         return this->get(feature_id, i) ? data->features_frequency[i] : 0;
     }
 
-
-
-    void set(unsigned index, unsigned pattern, bool value) noexcept {
-        bool old_value = this->get(index, pattern);
+    void set(unsigned fea_1, unsigned fea_2, bool value) noexcept {
+        bool old_value = this->get(fea_1, fea_2);
         // If the value isn't changed, nothing needs to be done.
         if (old_value == value) return;
 
         // Otherwise, the memoisation should be updated.
-        wave_map[unit::getKey(index, pattern)] = value;
+        wave_map[data->getKey(fea_1, fea_2)] = value;
 
-        p_log_p_sum[index] -= plogp_features_frequency[pattern];
-        sum[index] -= data->features_frequency[pattern];
-        log_sum[index] = log(sum[index]);
-        features_number_vec[index]--;
-        entropy_vec[index] = log_sum[index] - p_log_p_sum[index] / sum[index];
+        p_log_p_sum[fea_1] -= plogp_features_frequency[fea_2];
+        sum[fea_1] -= data->features_frequency[fea_2];
+        log_sum[fea_1] = log(sum[fea_1]);
+        features_number_vec[fea_1]--;
+        entropy_vec[fea_1] = log_sum[fea_1] - p_log_p_sum[fea_1] / sum[fea_1];
 
-        if (features_number_vec[index] == 0) is_impossible = true;
+        if (features_number_vec[fea_1] == 0) is_impossible = true;
     }
 
     /**
@@ -153,7 +124,7 @@ public:
         double min = std::numeric_limits<double>::infinity();
         int argmin = success;
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < _size; i++) {
             // If the cell is decided, we do not compute the entropy (which is equal to 0).
             // 如果cell被决定，我们不用再计算信息熵
             double feature_number = features_number_vec[i];
@@ -182,6 +153,9 @@ public:
 
         return argmin;
     }
+
+    inline int size() { return _size; };
+
 };
 
 #endif // FAST_WFC_WAVE_HPP_
