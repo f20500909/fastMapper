@@ -140,7 +140,7 @@ public:
                 // Then, we add noise to decide randomly which will be chosen.
                 // noise is smaller than the smallest p * log(p), so the minimum entropy
                 // will always be chosen.
-                float noise = unit::getRand(float(0), static_cast<float>(abs(half_min_plogp)));  //随机生成一个noise
+                float noise = unit::getRand(float(0), abs(half_min_plogp));  //随机生成一个noise
                 if (entropy + noise < min) {
                     min = std::min(entropy + noise, min);
                     argmin = i;

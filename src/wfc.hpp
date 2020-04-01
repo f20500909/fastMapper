@@ -41,7 +41,7 @@ private:
      * 将波转换为有效的输出（一个不矛盾的2d阵列）
      * 此函数只有当波的所有格子都被定义
      */
-    Matrix<unsigned> wave_to_output()  noexcept {
+    Matrix<unsigned> wave_to_output() noexcept {
         Matrix<unsigned> output_features(data->options.wave_height, data->options.wave_width);
         for (unsigned i = 0; i < wave.size(); i++) {
             for (unsigned k = 0; k < data->feature.size(); k++) {
@@ -97,13 +97,13 @@ public:
         }
 
         // 遍历所有特征  根据分布结构选择一个元素
-        double s = 0;
+        float s = 0;
         for (unsigned k = 0; k < data->feature.size(); k++) {
             // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
             s += wave.get_features_frequency(argmin, k);
         }
 
-         double random_value = unit::getRand(0.0, s);  //随机生成一个noise
+        float random_value = unit::getRand(float(0), s);  //随机生成一个noise
 
         unsigned chosen_value = data->feature.size() - 1;
 

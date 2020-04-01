@@ -56,7 +56,7 @@ namespace unit {
     }
 
     template<class T>
-    double getRand(T min, T max) {
+    float getRand(T min, T max) {
 
         return min + (max - min) * rand() / static_cast<T>(RAND_MAX);
     }
