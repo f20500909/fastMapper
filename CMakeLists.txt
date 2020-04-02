@@ -4,6 +4,14 @@ project(fastMapper)
 set(CMAKE_CXX_STANDARD 11)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
+ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
+
+
+
+# 设置警告级别
+
+# 设置警告级别结束
+
 add_compile_options("-D_hypot=hypot")
 
 include_directories(./src)
@@ -12,14 +20,12 @@ include_directories(./src/include)
 aux_source_directory(SOURCE_FILES ./src)
 aux_source_directory(SOURCE_FILES_LIB ./src/include)
 
-file(GLOB CPP_SRC_LIST ${CMAKE_CURRENT_LIST_DIR}/src/*.[c|h]pp)
-
 set(CPP_SRC_LIST ../src/data.hpp
         ../src/declare.hpp
         ../src/imageModel.hpp
-        ../src/MyRtree.hpp
+#        ../src/MyRtree.hpp
         ../src/propagator.hpp
-        ../src/svg.hpp
+#        ../src/svg.hpp
         ../src/unit.hpp
         ../src/wave.hpp
         ../src/wfc.hpp

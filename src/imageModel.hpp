@@ -1,4 +1,4 @@
-#ifndef SRC_IMAGEMODEL_HPP
+﻿#ifndef SRC_IMAGEMODEL_HPP
 #define SRC_IMAGEMODEL_HPP
 
 #include <iostream>
@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "declare.hpp"
+
 
 using namespace std;
 
@@ -50,12 +51,14 @@ public:
             }
         }
         free(data);
+        cout << "read img success..." << endl;
+        cout << "input img width  " << width << "  height  " << width << "  num_components  " << num_components << endl;
     }
 
     void write_image_png(const std::string &file_path, const ImgAbstractFeature &m) noexcept {
 
         unsigned char *imgData = new unsigned char[m.getHeight() * m.getWidth() * 3];
-        for (int i = 0; i < m.getWidth() * m.getHeight(); i++) {
+        for (unsigned i = 0; i < m.getWidth() * m.getHeight(); i++) {
             unsigned t = m.data[i];
             imgData[i * 3 + 0] = (unsigned char) (t & 0xFF);// 0-7位
             imgData[i * 3 + 1] = (unsigned char) ((t & 0xFF00) >> 8);// 8-15位
@@ -99,21 +102,29 @@ public:
     void generateCompatible() noexcept {
         //图案id  方向id   此图案此方向同图案的id
         // 是一个二维矩阵  居中中的每个元素为一个非定长数组
-        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
-                                                                           std::vector<std::vector<unsigned>>(
-                                                                                   this->_direction.getMaxNumber())); //每个特征
+        //记录了一个特征在某一个方向上是否能进行传播
+        this->propagator =
+                std::vector<std::vector<std::vector<unsigned>>>
+                        (this->feature.size(),
+                         std::vector<std::vector<unsigned>>(this->_direction.getMaxNumber())); //每个特征
+         long long cnt =0;
         for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
             //每个方向
-            for (int directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
+            for (unsigned directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
                 //每个方向的所有特征 注意  需要遍历所有特征 这里的特征已经不包含位置信息了
                 for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
                     //判断是否相等  相等就压入图案到传播队列
                     if (isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
                         this->propagator[feature1][directionId].push_back(feature2);
+                        cnt++;
                     }
                 }
             }
         }
+
+        cout << "feature1 size  " << this->feature.size() << "  max direction number " << this->_direction.getMaxNumber()
+            <<" propagator count  "<<cnt
+             << endl;
     }
 
     void initfeatures() noexcept {
@@ -146,6 +157,9 @@ public:
                 }
             }
         }
+
+        cout << "features size  " << this->feature.size() << "  features_frequency size " << this->features_frequency.size()
+             << endl;
     }
 
     /**
@@ -161,7 +175,6 @@ public:
                 res.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
             }
         }
-
         // 下面的三次写入是处理边缘条件
 
         //写入左边部分

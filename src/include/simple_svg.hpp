@@ -90,17 +90,17 @@ namespace svg
 
     struct Dimensions
     {
-        Dimensions(double width, double height) : width(width), height(height) { }
-        Dimensions(double combined = 0) : width(combined), height(combined) { }
-        double width;
-        double height;
+        Dimensions(float width, float height) : width(width), height(height) { }
+        Dimensions(float combined = 0) : width(combined), height(combined) { }
+        float width;
+        float height;
     };
 
     struct Point
     {
-        Point(double x = 0, double y = 0) : x(x), y(y) { }
-        double x;
-        double y;
+        Point(float x = 0, float y = 0) : x(x), y(y) { }
+        float x;
+        float y;
     };
     inline optional<Point> getMinPoint(std::vector<Point> const & points)
     {
@@ -137,16 +137,16 @@ namespace svg
         enum Origin { TopLeft, BottomLeft, TopRight, BottomRight };
 
         Layout(Dimensions const & dimensions = Dimensions(400, 300), Origin origin = BottomLeft,
-            double scale = 1, Point const & origin_offset = Point(0, 0))
+            float scale = 1, Point const & origin_offset = Point(0, 0))
             : dimensions(dimensions), scale(scale), origin(origin), origin_offset(origin_offset) { }
         Dimensions dimensions;
-        double scale;
+        float scale;
         Origin origin;
         Point origin_offset;
     };
 
     // Convert coordinates in user space to SVG native space.
-    inline double translateX(double x, Layout const & layout)
+    inline float translateX(float x, Layout const & layout)
     {
         if (layout.origin == Layout::BottomRight || layout.origin == Layout::TopRight)
             return layout.dimensions.width - ((x + layout.origin_offset.x) * layout.scale);
@@ -154,14 +154,14 @@ namespace svg
             return (layout.origin_offset.x + x) * layout.scale;
     }
 
-    inline double translateY(double y, Layout const & layout)
+    inline float translateY(float y, Layout const & layout)
     {
         if (layout.origin == Layout::BottomLeft || layout.origin == Layout::BottomRight)
             return layout.dimensions.height - ((y + layout.origin_offset.y) * layout.scale);
         else
             return (layout.origin_offset.y + y) * layout.scale;
     }
-    inline double translateScale(double dimension, Layout const & layout)
+    inline float translateScale(float dimension, Layout const & layout)
     {
         return dimension * layout.scale;
     }
@@ -247,7 +247,7 @@ namespace svg
     class Stroke : public Serializeable
     {
     public:
-        Stroke(double width = -1, Color color = Color::Transparent, bool nonScalingStroke = false)
+        Stroke(float width = -1, Color color = Color::Transparent, bool nonScalingStroke = false)
             : width(width), color(color), nonScaling(nonScalingStroke) { }
         std::string toString(Layout const & layout) const
         {
@@ -262,7 +262,7 @@ namespace svg
             return ss.str();
         }
     private:
-        double width;
+        float width;
         Color color;
         bool nonScaling;
     };
@@ -270,7 +270,7 @@ namespace svg
     class Font : public Serializeable
     {
     public:
-        Font(double size = 12, std::string const & family = "Verdana") : size(size), family(family) { }
+        Font(float size = 12, std::string const & family = "Verdana") : size(size), family(family) { }
         std::string toString(Layout const & layout) const
         {
             std::stringstream ss;
@@ -278,7 +278,7 @@ namespace svg
             return ss.str();
         }
     private:
-        double size;
+        float size;
         std::string family;
     };
 
@@ -307,7 +307,7 @@ namespace svg
     class Circle : public Shape
     {
     public:
-        Circle(Point const & center, double diameter, Fill const & fill,
+        Circle(Point const & center, float diameter, Fill const & fill,
             Stroke const & stroke = Stroke())
             : Shape(fill, stroke), center(center), radius(diameter / 2) { }
         std::string toString(Layout const & layout) const
@@ -326,13 +326,13 @@ namespace svg
         }
     private:
         Point center;
-        double radius;
+        float radius;
     };
 
     class Elipse : public Shape
     {
     public:
-        Elipse(Point const & center, double width, double height,
+        Elipse(Point const & center, float width, float height,
             Fill const & fill = Fill(), Stroke const & stroke = Stroke())
             : Shape(fill, stroke), center(center), radius_width(width / 2),
             radius_height(height / 2) { }
@@ -353,14 +353,14 @@ namespace svg
         }
     private:
         Point center;
-        double radius_width;
-        double radius_height;
+        float radius_width;
+        float radius_height;
     };
 
     class Rectangle : public Shape
     {
     public:
-        Rectangle(Point const & edge, double width, double height,
+        Rectangle(Point const & edge, float width, float height,
             Fill const & fill = Fill(), Stroke const & stroke = Stroke())
             : Shape(fill, stroke), edge(edge), width(width),
             height(height) { }
@@ -381,8 +381,8 @@ namespace svg
         }
     private:
         Point edge;
-        double width;
-        double height;
+        float width;
+        float height;
     };
 
     class Line : public Shape
@@ -573,7 +573,7 @@ namespace svg
     class LineChart : public Shape
     {
     public:
-        LineChart(Dimensions margin = Dimensions(), double scale = 1,
+        LineChart(Dimensions margin = Dimensions(), float scale = 1,
                   Stroke const & axis_stroke = Stroke(.5, Color::Purple))
             : axis_stroke(axis_stroke), margin(margin), scale(scale) { }
         LineChart & operator<<(Polyline const & polyline)
@@ -603,7 +603,7 @@ namespace svg
     private:
         Stroke axis_stroke;
         Dimensions margin;
-        double scale;
+        float scale;
         std::vector<Polyline> polylines;
 
         optional<Dimensions> getDimensions() const
@@ -633,8 +633,8 @@ namespace svg
                 return "";
 
             // Make the axis 10% wider and higher than the data points.
-            double width = dimensions->width * 1.1;
-            double height = dimensions->height * 1.1;
+            float width = dimensions->width * 1.1;
+            float height = dimensions->height * 1.1;
 
             // Draw the axis.
             Polyline axis(Color::Transparent, axis_stroke);

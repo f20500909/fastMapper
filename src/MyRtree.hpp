@@ -4,7 +4,7 @@
 #include <functional>
 #include "include/rtree.hpp"
 
-#define M_PI 3.14159265358979323846
+#define M_PI float(3.14159265358979323846)
 using namespace std;
 using namespace rtree;
 
@@ -192,7 +192,6 @@ public:
     void insert(svgPoint *pSvgPoint) {
         point2D point = pSvgPoint->point;
 
-
         rtree.insert(Rect(point.x, point.y, point.x + 1, point.y + 1), pSvgPoint);
 
     }
@@ -202,6 +201,5 @@ public:
     R_tree<svgPoint *> rtree;
 
 };
-
 
 #endif //SRC_MYRTREE_HPP

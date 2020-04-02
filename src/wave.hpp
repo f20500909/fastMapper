@@ -1,4 +1,4 @@
-#ifndef FAST_WFC_WAVE_HPP_
+﻿#ifndef FAST_WFC_WAVE_HPP_
 #define FAST_WFC_WAVE_HPP_
 
 #include <iostream>
@@ -28,14 +28,14 @@ private:
     std::vector<unsigned> features_number_vec; // The number of feature present
     std::vector<float> entropy_vec;       // The entropy of the cell.c
 
-    const unsigned _size;
+    const unsigned wave_size;
 
 public:
 
     void init_map() {
-        for (int i = 0; i < data->options.wave_size; i++) {
+        for (unsigned i = 0; i < data->options.wave_size; i++) {
 
-            for (int j = 0; j < data->feature.size(); j++) {
+            for (unsigned j = 0; j < data->feature.size(); j++) {
                 wave_map[data->getKey(i, j)] = true;
             }
         }
@@ -51,11 +51,11 @@ public:
         }
         float base_log_sum = log(base_sum);
 
-        p_log_p_sum = std::vector<float>(_size, base_entropy);
-        features_frequency_sum = std::vector<float>(_size, base_sum);
-        log_sum = std::vector<float>(_size, base_log_sum);
-        features_number_vec = std::vector<unsigned>(_size, data->feature.size());
-        entropy_vec = std::vector<float>(_size, base_log_sum - base_entropy / base_sum);
+        p_log_p_sum = std::vector<float>(wave_size, base_entropy);
+        features_frequency_sum = std::vector<float>(wave_size, base_sum);
+        log_sum = std::vector<float>(wave_size, base_log_sum);
+        features_number_vec = std::vector<unsigned>(wave_size, data->feature.size());
+        entropy_vec = std::vector<float>(wave_size, base_log_sum - base_entropy / base_sum);
     }
 
 
@@ -66,7 +66,7 @@ public:
     Wave(Data<int, AbstractFeature> *data) noexcept
             : plogp_features_frequency(unit::get_plogp(data->features_frequency)),
               half_min_plogp(unit::get_half_min(plogp_features_frequency)),
-              _size(data->options.wave_size), data(data) {
+              wave_size(data->options.wave_size), data(data) {
         init_map();
         init_entropy();
         is_impossible = false;
@@ -76,7 +76,7 @@ public:
     * Return true if pattern can be placed in cell index.
     * 返回true如果图案能放入cell
     */
-    bool get(unsigned index, unsigned pattern) const {
+    const bool get(unsigned index, unsigned pattern) const {
 
         long long key = data->getKey(index, pattern);
         auto iter = wave_map.find(key);
@@ -104,7 +104,10 @@ public:
         features_number_vec[fea_1]--;
         entropy_vec[fea_1] = log_sum[fea_1] - p_log_p_sum[fea_1] / features_frequency_sum[fea_1];
 
-        if (features_number_vec[fea_1] == 0) is_impossible = true;
+        // 判定终止条件
+        if (features_number_vec[fea_1] == 0){
+            is_impossible = true;
+        }
     }
 
     /**
@@ -112,17 +115,15 @@ public:
     * 如果中间有contradiction在wave中，则返回-2
     * 如果所有cell都被定义，返回-1
     */
-    int get_min_entropy() const noexcept {
+    const int get_min_entropy() const noexcept {
         if (is_impossible) {
             return failure;
         }
 
-//        std::uniform_real_distribution<> dis(0, abs(half_min_plogp));  //随机生成一个该区间的随机数
-
         float min = std::numeric_limits<float>::infinity();
         int argmin = success;
 
-        for (int i = 0; i < _size; i++) {
+        for (unsigned i = 0; i < wave_size; i++) {
 
             if (features_number_vec[i] == 1) {
                 // If the cell is decided, we do not compute the entropy (which is equal to 0).
@@ -140,7 +141,7 @@ public:
                 // Then, we add noise to decide randomly which will be chosen.
                 // noise is smaller than the smallest p * log(p), so the minimum entropy
                 // will always be chosen.
-                float noise = unit::getRand(float(0), static_cast<float>(abs(half_min_plogp)));  //随机生成一个noise
+                float noise = unit::getRand(float(0), abs(half_min_plogp));  //随机生成一个noise
                 if (entropy + noise < min) {
                     min = std::min(entropy + noise, min);
                     argmin = i;
@@ -151,7 +152,7 @@ public:
         return argmin;
     }
 
-    inline int size() const noexcept { return _size; };
+    inline unsigned size() const noexcept { return wave_size; };
 
 };
 

@@ -128,7 +128,7 @@ public:
         //如果是起点或者终点，角度默认设为0
         //既不是起点 也不是终点
         if (!val.get(0) && !val.get(1)) {
-//            double _angle = basePoint.point.get_angle(p1, p3);
+//            float _angle = basePoint.point.get_angle(p1, p3);
 //            _angle = (int8_t) (_angle / 30);
 //            std::cout << _angle << std::endl;
 //            val.set(3, _angle);
@@ -142,7 +142,7 @@ public:
             point2D left = data[i][j - 1]->point;
             point2D temp = point2D(basePoint.point.x, basePoint.point.y + 1000);
 
-            double _angle = basePoint.point.get_angle(left, temp);
+            float _angle = basePoint.point.get_angle(left, temp);
             _angle = (int8_t) (_angle / 30);
 
             this->angleLeft = _angle;
@@ -157,7 +157,7 @@ public:
         if (!this->isEnd) {
             point2D right = data[i][j + 1]->point;
             point2D temp = point2D(basePoint.point.x, basePoint.point.y + 1000);
-            double _angle = basePoint.point.get_angle(right, temp);
+            float _angle = basePoint.point.get_angle(right, temp);
             _angle = (int8_t) (_angle / 30);
             this->angleLeft = _angle;
 

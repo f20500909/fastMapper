@@ -1,7 +1,8 @@
-#ifndef SRC_DECLARE_HPP
+﻿#ifndef SRC_DECLARE_HPP
 #define SRC_DECLARE_HPP
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -15,6 +16,7 @@
 
 #include "include/stb_image_write.h"
 
+
 using namespace std;
 
 template<typename T>
@@ -23,9 +25,9 @@ class Matrix;
 class SvgAbstractFeature;
 
 enum ObserveStatus {
-    success = -10 , // wfc完成并取得成功
+    success = -10, // wfc完成并取得成功
     failure = -9, // wfc完成并失败
-    to_continue =-8 // wfc没有完成
+    to_continue = -8 // wfc没有完成
 };
 
 
@@ -35,6 +37,8 @@ public:
     const unsigned out_width;
     const unsigned symmetry; // The number of symmetries (the order is defined in wfc).
     const unsigned N; // The width and height in pixel of the feature.
+    const unsigned channels; // The width and height in pixel of the feature.
+    const int log;
     const std::string input_data; // The width and height in pixel of the feature.
     const std::string output_data; // The width and height in pixel of the feature.
     const std::string type;        // 模式
@@ -43,28 +47,45 @@ public:
     const unsigned wave_width;   // The width of the output in pixels.
 
     const unsigned wave_size;   // The width of the output in pixels.
-    const int channels;
 
-    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels,
-            std::string input_data, std::string output_data, std::string type) :
+    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, int log,
+            string input_data, std::string output_data, std::string type) :
             out_height(out_height),
             out_width(out_width),
             symmetry(symmetry),
             N(N),
-            input_data(input_data),
-            output_data(output_data),
-            type(type),
+            channels(channels),
+            log(log),
+            input_data(std::move(input_data)),
+            output_data(std::move(output_data)),
+            type(std::move(type)),
             wave_height(out_height - N + 1),
             wave_width(out_width - N + 1),
-            channels(channels),
-            wave_size(wave_height * wave_width) {}
+            wave_size(wave_height * wave_width) {
+        showLog();
+
+
+    }
+
+    void showLog(){
+
+        cout << "height                   : " << this->out_height << endl
+             << "width                    : " <<  this->out_width << endl
+             << "symmetry                 : " <<  this->symmetry  << endl
+             << "N                        : " << this->N  << endl
+             << "channels                 : " <<  this->channels  << endl
+             << "log                      : " <<  this->log  << endl
+             << "input_data               : " <<  this->input_data << endl
+             << "output_data              : " <<  this->output_data  << endl
+             << "type                     : " <<  this->type << endl;
+    }
 };
 
 //需要弱化方向的概念 让方向与模型适配
 class DirectionSet {
 public:
 
-    DirectionSet(int directionNumbers) : increment_angle(360.0 / directionNumbers) {
+    DirectionSet(int directionNumbers) : increment_angle(M_ANGLE_ROUND / directionNumbers) {
         //初始化方向的方向
         initDirectionWithAngle();
     }
@@ -102,14 +123,15 @@ public:
         return _data.size();
     }
 
-    int movePatternByDirection(unsigned dId, unsigned wave_width) {
-        std::pair<int, int> direction = _data[dId];
-        return direction.first + direction.second * wave_width;
+    int movePatternByDirection(unsigned fea_id, unsigned dId, unsigned wave_width) {
+        std::pair<int, int> &direction = _data[dId];
+        return fea_id + direction.first + direction.second * wave_width;
     }
 
-    int get_angle_direction_id(float angle, bool is_opp) {
-        return std::min(angle / increment_angle, static_cast<float>(_data.size() - 1));
-    }
+
+//    int get_angle_direction_id(float angle, bool is_opp) {
+//        return std::min(angle / increment_angle, static_cast<float>(_data.size() - 1));
+//    }
 
     const float increment_angle;  // 360除以 8   每个方向即是45度
 };
@@ -218,7 +240,6 @@ public:
 private:
     unsigned height;
     unsigned width;
-
 
 
 };

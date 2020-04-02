@@ -2,12 +2,15 @@
 #define SRC_UNTI_HPP
 
 #include <iostream>
+#include <cmath>
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <functional>
 
 namespace unit {
+#define M_PI  float(3.14159265358979323846)
+#define M_ANGLE_ROUND  float(180)
 
     std::vector<std::string> split_str(std::string str, std::string pattern) {
         std::string::size_type pos;
@@ -33,7 +36,7 @@ namespace unit {
         if (theta < -M_PI)
             theta += 2 * M_PI;
 
-        theta = abs(theta * 180.0 / M_PI);
+        theta = abs(theta *float(180.0) / M_PI);
         return theta;
     }
 
@@ -56,8 +59,7 @@ namespace unit {
     }
 
     template<class T>
-    double getRand(T min, T max) {
-
+    float getRand(T min, T max) {
         return min + (max - min) * rand() / static_cast<T>(RAND_MAX);
     }
 

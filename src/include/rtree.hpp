@@ -1,4 +1,5 @@
-
+#ifndef SRC_INCLUDE_RTREE_HPP
+#define SRC_INCLUDE_RTREE_HPP
 #include <cmath>           //abs
 #include <cassert>         //assert
 #include <algorithm>        //swap
@@ -444,13 +445,59 @@ namespace rtree {
             return const_iterator(nullptr);
         }
 
+        void insert_internal(tree_node *leaf) {
+            assert(leaf);
+            assert(leaf->level() == 0);
+
+            //选择一个pnode
+            tree_node *pnode = nullptr;
+            if (root_ && root_->level() > 0) {
+                pnode = root_;//从根节点开始找
+                while (pnode->level() > 1) {//遍历查找
+                    size_t i = pick_branch(pnode, leaf->bbox());//选择一个分支
+                    pnode = pnode->get_child(i);
+                }
+            }
+
+            tree_node *split = leaf;
+            while (pnode) {
+                //update parent bbox
+                //if pnode is being splitted then we recompute bbox in quadratic split
+                //if it isn't then bbox has to be outersected with child bbox
+                outersection(pnode->bbox(), leaf->bbox(), pnode->bbox()); //向外扩展box
+                if (split) {
+                    assert(validate_bbox(split));
+                    split = add_branch(pnode, split); //add split node to parent and update parent bbox
+                }
+
+                assert(validate_bbox(pnode));
+                pnode = pnode->parent();
+            }
+            if (split) {
+                //root_ is nullptr or was splitted
+                if (root_)
+                    root_ = split_root(split);
+                else {
+                    assert(split == leaf);
+                    root_ = split;
+                }
+                assert(validate_bbox(root_));
+            }
+        }
+
+        tree_node *create_node(Rect const &bbox, T const &val) {
+            tree_node *node = nalloc_.allocate(1);
+            new(static_cast<void *>(node)) tree_node(0, bbox);//no throw
+
+            new(static_cast<void *>(node->data())) T(val);
+
+            return node;
+        }
 
         //插入一个元素到rtree中
-        void insert(Rect const &bbox, T const &data) {
-            //创建子节点
-            tree_node *leaf = create_node(bbox, data); //子节点的大小是输入大小  数据绑定到输入数据
+        void insert(Rect const &bbox, T const &data){
+            tree_node *leaf = this->create_node(bbox, data);
 
-            //实际干活的插入函数
             insert_internal(leaf);
         }
 
@@ -491,14 +538,7 @@ namespace rtree {
             return node;
         }
 
-        tree_node *create_node(Rect const &bbox, T const &val) {
-            tree_node *node = nalloc_.allocate(1);
-            new(static_cast<void *>(node)) tree_node(0, bbox);//no throw
 
-            new(static_cast<void *>(node->data())) T(val);
-
-            return node;
-        }
 
         static bool clean_all(tree_node *node) {
             return true;
@@ -549,45 +589,6 @@ namespace rtree {
             }
         }
 
-        void insert_internal(tree_node *leaf) {
-            assert(leaf);
-            assert(leaf->level() == 0);
-
-            //选择一个pnode
-            tree_node *pnode = nullptr;
-            if (root_ && root_->level() > 0) {
-                pnode = root_;//从根节点开始找
-                while (pnode->level() > 1) {//遍历查找
-                    size_t i = pick_branch(pnode, leaf->bbox());//选择一个分支
-                    pnode = pnode->get_child(i);
-                }
-            }
-
-            tree_node *split = leaf;
-            while (pnode) {
-                //update parent bbox
-                //if pnode is being splitted then we recompute bbox in quadratic split
-                //if it isn't then bbox has to be outersected with child bbox
-                outersection(pnode->bbox(), leaf->bbox(), pnode->bbox()); //向外扩展box
-                if (split) {
-                    assert(validate_bbox(split));
-                    split = add_branch(pnode, split); //add split node to parent and update parent bbox
-                }
-
-                assert(validate_bbox(pnode));
-                pnode = pnode->parent();
-            }
-            if (split) {
-                //root_ is nullptr or was splitted
-                if (root_)
-                    root_ = split_root(split);
-                else {
-                    assert(split == leaf);
-                    root_ = split;
-                }
-                assert(validate_bbox(root_));
-            }
-        }
 
         tree_node *split_root(tree_node *split) {
             assert(root_ && split && split->level() == root_->level());
@@ -849,3 +850,6 @@ namespace rtree {
     };
 
 }//namspace rtree_1
+
+
+#endif //SRC_INCLUDE_RTREE_HPP
