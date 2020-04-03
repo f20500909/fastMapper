@@ -1,9 +1,7 @@
 ﻿#ifndef FAST_WFC_WFC_HPP_
 #define FAST_WFC_WFC_HPP_
 
-#include <cmath>
 #include <limits>
-#include <random>
 #include <unordered_map>
 
 #include "propagator.hpp"
@@ -43,9 +41,7 @@ private:
 
 public:
 
-    WFC(Data<int, AbstractFeature> *data) noexcept
-            : data(data), wave(data), propagator(data) {
-    }
+    WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data), propagator(data) {}
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
@@ -69,19 +65,19 @@ public:
     }
 
     ObserveStatus observe() noexcept {
-        // 得到具有最低熵的网格
-        int argmin = wave.get_min_entropy();
+        // 得到具有最低熵的wave_id
+        int wave_min_id = wave.get_min_entropy();
 
         // 检查冲突，返回failure
-        if (argmin == failure || argmin == success) {
-            return static_cast<ObserveStatus>(argmin);
+        if (wave_min_id == failure || wave_min_id == success) {
+            return static_cast<ObserveStatus>(wave_min_id);
         }
 
         // 遍历所有特征  根据分布结构选择一个元素
         float s = 0;
         for (unsigned k = 0; k < data->feature.size(); k++) {
             // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
-            s += wave.get_features_frequency(argmin, k);
+            s += wave.get_features_frequency(wave_min_id, k);
         }
 
 //        // 随机数逐步减小 小于0时中断
@@ -89,11 +85,11 @@ public:
         float random_value = unit::getRand(float(0), s);  //随机生成一个noise
 
         while (chosen_value < data->feature.size() && random_value > 0) {
-            random_value -= wave.get_features_frequency(argmin, chosen_value);
+            random_value -= wave.get_features_frequency(wave_min_id, chosen_value);
             chosen_value++;
         }
 
-        if(chosen_value!=0)chosen_value--;
+        if (chosen_value != 0)chosen_value--;
 
 
         // 根据图案定义网格
@@ -101,10 +97,10 @@ public:
             /* 判定生效的情况：
              如果k对应的图案在argmin中 并且不是选择的元素
              */
-            if (wave.get(argmin, k) && !(k == chosen_value)) {
-                propagator.add_to_propagator(argmin, k);
-                wave.set(argmin, k, false);
-//                std::cout<<" argmin "<< argmin<<" k "<<k<<" chosen_value "<<chosen_value<<"   "<<data->feature.size()<<std::endl;
+            if (wave.get(wave_min_id, k) && !(k == chosen_value)) {
+                propagator.add_to_propagator(wave_min_id, k);
+                wave.set(wave_min_id, k, false);
+//                std::cout<<" wave_min_id "<< wave_min_id<<" k "<<k<<" chosen_value "<<chosen_value<<"   "<<data->feature.size()<<std::endl;
             }
 
         }

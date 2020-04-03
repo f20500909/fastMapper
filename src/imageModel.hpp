@@ -81,7 +81,7 @@ public:
         unsigned ymin = max(dy, 0);
         unsigned ymax = min(feature2.getHeight() + dy, feature1.getWidth());
 
-        // Iterate on every pixel contained in the intersection of the two pattern.
+        // Iterate on every pixel contained in the intersection of the two fea.
         // 以第一个特征为比较对象 比较每个重叠的元素
         for (unsigned y = ymin; y < ymax; y++) {
             for (unsigned x = xmin; x < xmax; x++) {
@@ -179,26 +179,26 @@ public:
 
         //写入左边部分
         for (unsigned y = 0; y < this->options.wave_height; y++) {
-            const ImgAbstractFeature &pattern = this->feature[output_features.get(y, this->options.wave_width - 1)];
+            const ImgAbstractFeature &fea = this->feature[output_features.get(y, this->options.wave_width - 1)];
             for (unsigned dx = 1; dx < this->options.N; dx++) {
-                res.get(y, this->options.wave_width - 1 + dx) = pattern.get(0, dx);
+                res.get(y, this->options.wave_width - 1 + dx) = fea.get(0, dx);
             }
         }
 
         //写入下边部分
         for (unsigned x = 0; x < this->options.wave_width; x++) {
-            const ImgAbstractFeature &pattern = this->feature[output_features.get(this->options.wave_height - 1, x)];
+            const ImgAbstractFeature &fea = this->feature[output_features.get(this->options.wave_height - 1, x)];
             for (unsigned dy = 1; dy < this->options.N; dy++) {
-                res.get(this->options.wave_height - 1 + dy, x) = pattern.get(dy, 0);
+                res.get(this->options.wave_height - 1 + dy, x) = fea.get(dy, 0);
             }
         }
 
         //写入左下角的一小块
-        const ImgAbstractFeature &pattern = this->feature[output_features.get(this->options.wave_height - 1,
+        const ImgAbstractFeature &fea = this->feature[output_features.get(this->options.wave_height - 1,
                                                                               this->options.wave_width - 1)];
         for (unsigned dy = 1; dy < this->options.N; dy++) {
             for (unsigned dx = 1; dx < this->options.N; dx++) {
-                res.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = pattern.get(dy, dx);
+                res.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = fea.get(dy, dx);
             }
         }
         return res;

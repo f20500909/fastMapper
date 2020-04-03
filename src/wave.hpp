@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <limits>
-#include <random>
 #include <vector>
 #include <unordered_map>
 
@@ -22,8 +21,8 @@ private:
 
     Data<int, AbstractFeature> *data;
 
-    std::vector<float> p_log_p_sum; // The sum of p'(pattern) * log(p'(pattern)).
-    std::vector<float> features_frequency_sum;       // The features_frequency_sum of p'(pattern).
+    std::vector<float> p_log_p_sum; // The sum of p'(fea) * log(p'(fea)).
+    std::vector<float> features_frequency_sum;       // The features_frequency_sum of p'(fea).
     std::vector<float> log_sum;   // The log of sum.
     std::vector<unsigned> features_number_vec; // The number of feature present
     std::vector<float> entropy_vec;       // The entropy of the cell.c
@@ -60,7 +59,7 @@ public:
 
 
     /**
-    * Initialize the wave with every cell being able to have every pattern.
+    * Initialize the wave with every cell being able to have every fea.
     * 初始化wave中每个cell
     */
     Wave(Data<int, AbstractFeature> *data) noexcept
@@ -73,12 +72,12 @@ public:
     }
 
     /**
-    * Return true if pattern can be placed in cell index.
+    * Return true if fea can be placed in cell index.
     * 返回true如果图案能放入cell
     */
-    const bool get(unsigned index, unsigned pattern) const {
+    const bool get(unsigned index, unsigned fea_id) const {
 
-        long long key = data->getKey(index, pattern);
+        long long key = data->getKey(index, fea_id);
         auto iter = wave_map.find(key);
         if (iter != wave_map.end()) {
             return iter->second;
@@ -120,9 +119,11 @@ public:
             return failure;
         }
 
-        float min = std::numeric_limits<float>::infinity();
+        float min = std::numeric_limits<float>::infinity();// float的最小值
+
         int argmin = success;
 
+        //遍历所有 wave  选取一个最小值 不过这里的最小值是加了噪声的
         for (unsigned i = 0; i < wave_size; i++) {
 
             if (features_number_vec[i] == 1) {
@@ -143,7 +144,7 @@ public:
                 // will always be chosen.
                 float noise = unit::getRand(float(0), abs(half_min_plogp));  //随机生成一个noise
                 if (entropy + noise < min) {
-                    min = std::min(entropy + noise, min);
+                    min = std::min(entropy + noise, min);  //注意 这里有加了噪点  min值可能没更新
                     argmin = i;
                 }
             }

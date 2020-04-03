@@ -12,7 +12,6 @@
 
 using namespace std;
 
-
 void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels,int log, string input_data,
                 string output_data, string type) {
     srand((unsigned) time(NULL));

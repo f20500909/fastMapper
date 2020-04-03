@@ -38,8 +38,8 @@ public:
     }
 
 
-    long long getKey(unsigned index, unsigned pattern) {
-        return index * this->options.wave_size + pattern;
+    long long getKey(unsigned wave_id, unsigned fea_id) {
+        return wave_id * this->options.wave_size + fea_id;
     }
 
     template<class KEY>
