@@ -39,6 +39,10 @@ private:
         return output_features;
     }
 
+
+
+
+
 public:
 
     WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data), propagator(data) {}
@@ -51,6 +55,7 @@ public:
             // 检查算法是否结束
             if (result == success) {
                 data->showResult(wave_to_output());
+//                data->showResult2(wave);
                 return;
             }
 
@@ -72,39 +77,23 @@ public:
         if (wave_min_id == failure || wave_min_id == success) {
             return static_cast<ObserveStatus>(wave_min_id);
         }
+        unsigned sum = wave.get_wave_all_frequency(wave_min_id); //得到此wave 在所有feature中出现的次数的总合
 
-        // 遍历所有特征  根据分布结构选择一个元素
-        float s = 0;
+        unsigned chosen_value = wave.get_chosen_value_by_random(wave_min_id,sum);
+
+//      如果k对应的图案在argmin中 并且不是选择的元素
         for (unsigned k = 0; k < data->feature.size(); k++) {
-            // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
-            s += wave.get_features_frequency(wave_min_id, k);
-        }
-
-//        // 随机数逐步减小 小于0时中断
-        unsigned chosen_value = 0;
-        float random_value = unit::getRand(float(0), s);  //随机生成一个noise
-
-        while (chosen_value < data->feature.size() && random_value > 0) {
-            random_value -= wave.get_features_frequency(wave_min_id, chosen_value);
-            chosen_value++;
-        }
-
-        if (chosen_value != 0)chosen_value--;
-
-
-        // 根据图案定义网格
-        for (unsigned k = 0; k < data->feature.size(); k++) {
-            /* 判定生效的情况：
-             如果k对应的图案在argmin中 并且不是选择的元素
-             */
-            if (wave.get(wave_min_id, k) && !(k == chosen_value)) {
+            if (wave.get(wave_min_id, k) && k != chosen_value) {
+                //添加到传播队列
                 propagator.add_to_propagator(wave_min_id, k);
+                //设置成已传播的状态
                 wave.set(wave_min_id, k, false);
 //                std::cout<<" wave_min_id "<< wave_min_id<<" k "<<k<<" chosen_value "<<chosen_value<<"   "<<data->feature.size()<<std::endl;
             }
 
         }
 
+        //观察结束  继续进行计算
         return to_continue;
     }
 };

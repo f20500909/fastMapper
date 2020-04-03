@@ -11,7 +11,7 @@
 class Wave {
 private:
 
-    const std::vector<float> plogp_features_frequency;
+    const std::vector<unsigned> plogp_features_frequency;
 
     const float half_min_plogp;
 
@@ -86,9 +86,35 @@ public:
         }
     }
 
-    const float get_features_frequency(unsigned feature_id, unsigned i) const {
+    const unsigned get_features_frequency(unsigned feature_id, unsigned i) const {
         return this->get(feature_id, i) ? data->features_frequency[i] : 0;
     }
+
+    const unsigned get_wave_all_frequency(unsigned wave_id) const {
+        // 遍历所有特征  根据分布结构选择一个元素
+        unsigned s = 0;
+        for (unsigned k = 0; k < data->feature.size(); k++) {
+            // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
+            s += this->get_features_frequency(wave_id, k);
+        }
+        return  s;
+    }
+
+
+        // 随机数逐步减小 小于0时中断
+    const unsigned get_chosen_value_by_random(unsigned wave_id,unsigned sum) const {
+        unsigned chosen_value = 0;
+        float random_value = unit::getRand(0, sum);  //随机生成一个noise
+
+        while (chosen_value < data->feature.size() && random_value > 0) {
+            random_value -= this->get_features_frequency(wave_id, chosen_value);
+            chosen_value++;
+        }
+
+        if (chosen_value != 0) chosen_value--;
+        return chosen_value;
+    }
+
 
     void set(unsigned fea_1, unsigned fea_2, bool value) noexcept {
         bool old_value = this->get(fea_1, fea_2);
@@ -114,6 +140,7 @@ public:
     * 如果中间有contradiction在wave中，则返回-2
     * 如果所有cell都被定义，返回-1
     */
+    // TODO 利用堆来实现
     const int get_min_entropy() const noexcept {
         if (is_impossible) {
             return failure;
@@ -121,19 +148,19 @@ public:
 
         float min = std::numeric_limits<float>::infinity();// float的最小值
 
-        int argmin = success;
+        int wave_min_id = success;
 
         //遍历所有 wave  选取一个最小值 不过这里的最小值是加了噪声的
-        for (unsigned i = 0; i < wave_size; i++) {
+        for (unsigned wave_id = 0; wave_id < wave_size; wave_id++) {
 
-            if (features_number_vec[i] == 1) {
+            if (features_number_vec[wave_id] == 1) {
                 // If the cell is decided, we do not compute the entropy (which is equal to 0).
                 // 如果cell被决定，我们不用再计算信息熵
                 continue;
             }
 
             //拿到当前的熵
-            float entropy = entropy_vec[i];
+            float entropy = entropy_vec[wave_id];
 
             // We first check if the entropy is less than the minimum.
             // This is important to reduce noise computation (which is not* negligible).
@@ -145,12 +172,12 @@ public:
                 float noise = unit::getRand(float(0), abs(half_min_plogp));  //随机生成一个noise
                 if (entropy + noise < min) {
                     min = std::min(entropy + noise, min);  //注意 这里有加了噪点  min值可能没更新
-                    argmin = i;
+                    wave_min_id = wave_id;
                 }
             }
         }
 
-        return argmin;
+        return wave_min_id;
     }
 
     inline unsigned size() const noexcept { return wave_size; };

@@ -7,9 +7,9 @@
 #include <algorithm>
 #include <functional>
 #include <cmath>
+#include <cassert>
 
 namespace unit {
-#define M_PI  float(3.14159265358979323846)
 #define M_ANGLE_ROUND  float(180)
 
     std::vector<std::string> split_str(std::string str, std::string pattern) {
@@ -36,13 +36,13 @@ namespace unit {
         if (theta < -M_PI)
             theta += 2 * M_PI;
 
-        theta = abs(theta *float(180.0) / M_PI);
+        theta = std::abs(theta *float(180.0) / M_PI);
         return theta;
     }
 
     //获取 p * log(p)
-    std::vector<float> get_plogp(const std::vector<float> &distribution) noexcept {
-        std::vector<float> plogp(distribution.size(), 0);
+    std::vector<unsigned> get_plogp(const std::vector<unsigned> &distribution) noexcept {
+        std::vector<unsigned> plogp(distribution.size(), 0);
         for (unsigned i = 0; i < distribution.size(); i++) {
             plogp[i] = distribution[i] * log(distribution[i]);
         }
@@ -50,7 +50,7 @@ namespace unit {
     }
 
 
-    float get_half_min(const std::vector<float> &v) noexcept {
+    float get_half_min(const std::vector<unsigned> &v) noexcept {
         float half_min = std::numeric_limits<float>::infinity();
         for (unsigned i = 0; i < v.size(); i++) {
             half_min = std::min(half_min, static_cast<float>(v[i] / 2.0));
@@ -58,9 +58,13 @@ namespace unit {
         return half_min;
     }
 
-    template<class T>
-    float getRand(T min, T max) {
-        return min + (max - min) * rand() / static_cast<T>(RAND_MAX);
+    template<class T1,class T2>
+    float getRand(T1 min, T2 max) {
+        assert(min<max);
+        float _min(min);
+        float _max(max);
+
+        return _min + (_max - _min) * rand() / static_cast<float>(RAND_MAX);
     }
 
 

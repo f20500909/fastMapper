@@ -55,8 +55,6 @@ int main(int argc, char *argv[]) {
     string output_data = a.get<std::string>("output_data");
     string type = a.get<std::string>("type");
 
-
-
     single_run(height, width, symmetry, N, channels,log, input_data, output_data, type);
     return 0;
 }

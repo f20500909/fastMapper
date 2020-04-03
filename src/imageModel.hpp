@@ -25,7 +25,7 @@ public:
 
     void initDirection() {
 
-        this->_direction._data = {{0,  1},
+        this->_direction.getDirect() = {{0,  1},
                                   {1,  0},
                                   {0,  -1},
                                   {-1, 0},
@@ -72,9 +72,9 @@ public:
 
     bool
     isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
-        std::pair<int, int> direction = this->_direction._data[directionId];
-        int dx = direction.first;
-        int dy = direction.second;
+//        std::pair<int, int> direction = this->_direction._data[directionId];
+        int dx = this->_direction.getX(directionId);
+        int dy = this->_direction.getY(directionId);
 
         unsigned xmin = max(dx, 0);
         unsigned xmax = min(feature2.getWidth() + dx, feature1.getWidth());
@@ -193,7 +193,7 @@ public:
             }
         }
 
-        //写入左下角的一小块
+        //写入右下角的一小块
         const ImgAbstractFeature &fea = this->feature[output_features.get(this->options.wave_height - 1,
                                                                               this->options.wave_width - 1)];
         for (unsigned dy = 1; dy < this->options.N; dy++) {
@@ -204,9 +204,26 @@ public:
         return res;
     }
 
+
+//    ImgAbstractFeature to_image2(Wave& wave) const  {
+//        ImgAbstractFeature res = ImgAbstractFeature(this->options.out_height, this->options.out_width);
+//
+//        //写入主要区域的数据
+//        for (unsigned y = 0; y < this->options.wave_height; y++) {
+//            for (unsigned x = 0; x < this->options.wave_width; x++) {
+//                if (wave.get(i, k)) {
+//                    output_features.get(i) = k;
+//                }
+////                res.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
+//                res.get(y, x) = this->feature[wave.get(y, x)].get(0, 0);
+//            }
+//        }
+//
+//        return res;
+//    }
+
     void showResult(Matrix<unsigned> mat) {
-        ImgAbstractFeature res;
-        res = to_image(mat);
+        ImgAbstractFeature res = to_image(mat);
         if (res.data.size() > 0) {
             write_image_png(this->options.output_data, res);
             cout << " finished!" << endl;
@@ -214,6 +231,17 @@ public:
             cout << "failed!" << endl;
         }
     };
+
+
+//    void showResult2(Wave& wave) {
+//        ImgAbstractFeature res = to_image2(wave);
+//        if (res.data.size() > 0) {
+//            write_image_png(this->options.output_data, res);
+//            cout << " finished!" << endl;
+//        } else {
+//            cout << "failed!" << endl;
+//        }
+//    };
 
 };
 
