@@ -14,6 +14,8 @@
 /samples
 /.idea
 /.vs
+/test_temp
+/VS_PRO
 **/cmake-build-debug/*
 *.exe
 **/.idea/*

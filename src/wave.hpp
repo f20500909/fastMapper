@@ -9,13 +9,13 @@
 #include "data.hpp"
 
 class Wave {
-private:
+public:
 
     const std::vector<unsigned> plogp_features_frequency;
 
     const float half_min_plogp;
 
-    bool is_stop;
+    bool is_impossible;
 
     unordered_map<long long, bool> wave_map;
 
@@ -29,7 +29,6 @@ private:
 
     const unsigned wave_size;
 
-public:
 
     void init_map() {
         for (unsigned i = 0; i < data->options.wave_size; i++) {
@@ -68,7 +67,7 @@ public:
               wave_size(data->options.wave_size), data(data) {
         init_map();
         init_entropy();
-        is_stop = false;
+        is_impossible = false;
     }
 
     /**
@@ -97,12 +96,12 @@ public:
             // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
             s += this->get_features_frequency(wave_id, k);
         }
-        return s;
+        return  s;
     }
 
 
     // 随机数逐步减小 小于0时中断
-    const unsigned get_chosen_value_by_random(unsigned wave_id, unsigned sum) const {
+    const unsigned get_chosen_value_by_random(unsigned wave_id,unsigned sum) const {
         unsigned chosen_value = 0;
         float random_value = unit::getRand(0, sum);  //随机生成一个noise
 
@@ -131,48 +130,7 @@ public:
 
     }
 
-    /**
-    * 返回不为0的最小熵的索引
-    * 如果中间有contradiction在wave中，则返回-2
-    * 如果所有cell都被定义，返回-1
-    */
-    // TODO 利用堆来实现
-    const int get_min_entropy() const noexcept {
 
-
-        float min = std::numeric_limits<float>::infinity();// float的最小值
-
-        int argmin = failure;
-
-        //遍历所有 wave  选取一个最小值 不过这里的最小值是加了噪声的
-        for (unsigned wave_id = 0; wave_id < wave_size; wave_id++) {
-
-            if (features_number_vec[wave_id] == 0) {
-                return failure;
-            }
-
-            //拿到当前的熵
-            float entropy = entropy_vec[wave_id];
-
-            // We first check if the entropy is less than the minimum.
-            // This is important to reduce noise computation (which is not* negligible).
-            //检查熵是否比最小值小  如果小才更新argmin 不过效果我测试的真的不太明显
-            if (entropy <= min) {
-                // Then, we add noise to decide randomly which will be chosen.
-                // noise is smaller than the smallest p * log(p), so the minimum entropy
-                // will always be chosen.
-                float noise = unit::getRand(float(0), abs(half_min_plogp));  //随机生成一个noise
-                if (entropy + noise < min) {
-                    min = std::min(entropy + noise, min);  //注意 这里有加了噪点  min值可能没更新
-                    argmin = wave_id;
-                }
-            }
-        }
-
-
-
-        return argmin;
-    }
 
     inline unsigned size() const noexcept { return wave_size; };
 

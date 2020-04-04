@@ -10,8 +10,6 @@
 #include <cassert>
 
 namespace unit {
-#define M_ANGLE_ROUND  float(180)
-#define M_PI  float(3.1415929)
 
     std::vector<std::string> split_str(std::string str, std::string pattern) {
         std::string::size_type pos;

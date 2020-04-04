@@ -40,9 +40,6 @@ private:
     }
 
 
-
-
-
 public:
 
     WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data), propagator(data) {}
@@ -71,32 +68,37 @@ public:
 
     ObserveStatus observe() noexcept {
         // 得到具有最低熵的wave_id
-        int wave_min_id = wave.get_min_entropy();
 
+        float min = std::numeric_limits<float>::infinity();// float的最小值
 
+        int wave_min_id = success;
 
+        for (unsigned wave_id = 0; wave_id < wave.wave_size; wave_id++) {
 
-//        if (argmin == -1) {
-//            observed = new int[FMX * FMY];
-//            for (int i = 0; i <wave_size ; i++)
-//                for (int j = 0; j < T; j++)
-////                    if ([i][t]) { observed[i] = t; break; }
-//                    if (this->get(i, j)) {
-//                        observed[i] = j;
-//                        break;
-//                    }
-//
-//            return true;
-//        }
+            int amount = wave.features_number_vec[wave_id];
+
+            if (amount == 0) return failure;
+
+            //拿到当前的熵
+            float entropy = wave.entropy_vec[wave_id];
+
+            if (amount > 1 && entropy <= min) {
+
+                float noise = unit::getRand(float(0), abs(wave.half_min_plogp));  //随机生成一个noise
+                if (entropy + noise < min) {
+                    min = std::min(entropy + noise, min);  //注意 这里有加了噪点  min值可能没更新
+                    wave_min_id = wave_id;
+                }
+            }
+        }
 
         // 检查冲突，返回failure
-        if (wave_min_id == failure || wave_min_id == success) {
-            return static_cast<ObserveStatus>(wave_min_id);
+        if (wave_min_id == success) {
+            return success;
         }
+
         unsigned sum = wave.get_wave_all_frequency(wave_min_id); //得到此wave 在所有feature中出现的次数的总合
-
-
-        unsigned chosen_value = wave.get_chosen_value_by_random(wave_min_id,sum);
+        unsigned chosen_value = wave.get_chosen_value_by_random(wave_min_id, sum);
 
 //      如果k对应的图案在argmin中 并且不是选择的元素
         for (unsigned k = 0; k < data->feature.size(); k++) {
