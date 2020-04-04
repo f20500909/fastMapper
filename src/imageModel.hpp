@@ -1,4 +1,4 @@
-#ifndef SRC_IMAGEMODEL_HPP
+﻿#ifndef SRC_IMAGEMODEL_HPP
 #define SRC_IMAGEMODEL_HPP
 
 #include <iostream>
@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "declare.hpp"
+
 
 using namespace std;
 
@@ -24,7 +25,7 @@ public:
 
     void initDirection() {
 
-        this->_direction._data = {{0,  1},
+        this->_direction.getDirect() = {{0,  1},
                                   {1,  0},
                                   {0,  -1},
                                   {-1, 0},
@@ -50,12 +51,14 @@ public:
             }
         }
         free(data);
+        cout << "read img success..." << endl;
+        cout << "input img width  " << width << "  height  " << width << "  num_components  " << num_components << endl;
     }
 
     void write_image_png(const std::string &file_path, const ImgAbstractFeature &m) noexcept {
 
         unsigned char *imgData = new unsigned char[m.getHeight() * m.getWidth() * 3];
-        for (int i = 0; i < m.getWidth() * m.getHeight(); i++) {
+        for (unsigned i = 0; i < m.getWidth() * m.getHeight(); i++) {
             unsigned t = m.data[i];
             imgData[i * 3 + 0] = (unsigned char) (t & 0xFF);// 0-7位
             imgData[i * 3 + 1] = (unsigned char) ((t & 0xFF00) >> 8);// 8-15位
@@ -69,16 +72,16 @@ public:
 
     bool
     isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
-        std::pair<int, int> direction = this->_direction._data[directionId];
-        int dx = direction.first;
-        int dy = direction.second;
+//        std::pair<int, int> direction = this->_direction._data[directionId];
+        int dx = this->_direction.getX(directionId);
+        int dy = this->_direction.getY(directionId);
 
         unsigned xmin = max(dx, 0);
         unsigned xmax = min(feature2.getWidth() + dx, feature1.getWidth());
         unsigned ymin = max(dy, 0);
         unsigned ymax = min(feature2.getHeight() + dy, feature1.getWidth());
 
-        // Iterate on every pixel contained in the intersection of the two pattern.
+        // Iterate on every pixel contained in the intersection of the two fea.
         // 以第一个特征为比较对象 比较每个重叠的元素
         for (unsigned y = ymin; y < ymax; y++) {
             for (unsigned x = xmin; x < xmax; x++) {
@@ -99,21 +102,29 @@ public:
     void generateCompatible() noexcept {
         //图案id  方向id   此图案此方向同图案的id
         // 是一个二维矩阵  居中中的每个元素为一个非定长数组
-        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
-                                                                           std::vector<std::vector<unsigned>>(
-                                                                                   this->_direction.getMaxNumber())); //每个特征
+        //记录了一个特征在某一个方向上是否能进行传播
+        this->propagator =
+                std::vector<std::vector<std::vector<unsigned>>>
+                        (this->feature.size(),
+                         std::vector<std::vector<unsigned>>(this->_direction.getMaxNumber())); //每个特征
+         long long cnt =0;
         for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
             //每个方向
-            for (int directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
+            for (unsigned directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
                 //每个方向的所有特征 注意  需要遍历所有特征 这里的特征已经不包含位置信息了
                 for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
                     //判断是否相等  相等就压入图案到传播队列
                     if (isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
                         this->propagator[feature1][directionId].push_back(feature2);
+                        cnt++;
                     }
                 }
             }
         }
+
+        cout << "feature1 size  " << this->feature.size() << "  max direction number " << this->_direction.getMaxNumber()
+            <<" propagator count  "<<cnt
+             << endl;
     }
 
     void initfeatures() noexcept {
@@ -146,6 +157,9 @@ public:
                 }
             }
         }
+
+        cout << "features size  " << this->feature.size() << "  features_frequency size " << this->features_frequency.size()
+             << endl;
     }
 
     /**
@@ -161,39 +175,55 @@ public:
                 res.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
             }
         }
-
         // 下面的三次写入是处理边缘条件
 
         //写入左边部分
         for (unsigned y = 0; y < this->options.wave_height; y++) {
-            const ImgAbstractFeature &pattern = this->feature[output_features.get(y, this->options.wave_width - 1)];
+            const ImgAbstractFeature &fea = this->feature[output_features.get(y, this->options.wave_width - 1)];
             for (unsigned dx = 1; dx < this->options.N; dx++) {
-                res.get(y, this->options.wave_width - 1 + dx) = pattern.get(0, dx);
+                res.get(y, this->options.wave_width - 1 + dx) = fea.get(0, dx);
             }
         }
 
         //写入下边部分
         for (unsigned x = 0; x < this->options.wave_width; x++) {
-            const ImgAbstractFeature &pattern = this->feature[output_features.get(this->options.wave_height - 1, x)];
+            const ImgAbstractFeature &fea = this->feature[output_features.get(this->options.wave_height - 1, x)];
             for (unsigned dy = 1; dy < this->options.N; dy++) {
-                res.get(this->options.wave_height - 1 + dy, x) = pattern.get(dy, 0);
+                res.get(this->options.wave_height - 1 + dy, x) = fea.get(dy, 0);
             }
         }
 
-        //写入左下角的一小块
-        const ImgAbstractFeature &pattern = this->feature[output_features.get(this->options.wave_height - 1,
+        //写入右下角的一小块
+        const ImgAbstractFeature &fea = this->feature[output_features.get(this->options.wave_height - 1,
                                                                               this->options.wave_width - 1)];
         for (unsigned dy = 1; dy < this->options.N; dy++) {
             for (unsigned dx = 1; dx < this->options.N; dx++) {
-                res.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = pattern.get(dy, dx);
+                res.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = fea.get(dy, dx);
             }
         }
         return res;
     }
 
+
+//    ImgAbstractFeature to_image2(Wave& wave) const  {
+//        ImgAbstractFeature res = ImgAbstractFeature(this->options.out_height, this->options.out_width);
+//
+//        //写入主要区域的数据
+//        for (unsigned y = 0; y < this->options.wave_height; y++) {
+//            for (unsigned x = 0; x < this->options.wave_width; x++) {
+//                if (wave.get(i, k)) {
+//                    output_features.get(i) = k;
+//                }
+////                res.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
+//                res.get(y, x) = this->feature[wave.get(y, x)].get(0, 0);
+//            }
+//        }
+//
+//        return res;
+//    }
+
     void showResult(Matrix<unsigned> mat) {
-        ImgAbstractFeature res;
-        res = to_image(mat);
+        ImgAbstractFeature res = to_image(mat);
         if (res.data.size() > 0) {
             write_image_png(this->options.output_data, res);
             cout << " finished!" << endl;
@@ -201,6 +231,17 @@ public:
             cout << "failed!" << endl;
         }
     };
+
+
+//    void showResult2(Wave& wave) {
+//        ImgAbstractFeature res = to_image2(wave);
+//        if (res.data.size() > 0) {
+//            write_image_png(this->options.output_data, res);
+//            cout << " finished!" << endl;
+//        } else {
+//            cout << "failed!" << endl;
+//        }
+//    };
 
 };
 

@@ -1,4 +1,4 @@
-#ifndef SRC_DATA_HPP
+﻿#ifndef SRC_DATA_HPP
 #define SRC_DATA_HPP
 
 #include <vector>
@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "declare.hpp"
-#include "MyRtree.hpp"
+//#include "MyRtree.hpp"
 
 using namespace std;
 
@@ -38,22 +38,22 @@ public:
     }
 
 
-    long long getKey(unsigned index, unsigned pattern) {
-        return index * this->options.wave_size + pattern;
+    long long getKey(unsigned wave_id, unsigned fea_id) {
+        return wave_id * this->options.wave_size + fea_id;
     }
 
     template<class KEY>
-    long long getKey(KEY id_1, KEY id_2, KEY id_3) {
-        return id_1 * this->options.wave_size + id_2 * this->feature.size() + id_3;
+    long long getKey(KEY wave_id, KEY fea_id, KEY direction_id) {
+        return wave_id * this->options.wave_size + fea_id * this->feature.size() + direction_id;
     }
 
 
     DirectionSet _direction = DirectionSet(8);
 
-    std::vector<std::vector<svgPoint *>> data;      //原始的数据
+//    std::vector<std::vector<svgPoint *>> data;      //原始的数据
     std::vector<std::vector<std::vector<unsigned>>> propagator;
     std::vector<AbstractFeature> feature;                             //图案数据
-    std::vector<float> features_frequency;                            //图案频率
+    std::vector<unsigned> features_frequency;                            //图案频率
 
 };
 

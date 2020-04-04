@@ -1,11 +1,8 @@
-#ifndef FAST_WFC_WFC_HPP_
+﻿#ifndef FAST_WFC_WFC_HPP_
 #define FAST_WFC_WFC_HPP_
 
-#include <cmath>
 #include <limits>
-#include <random>
 #include <unordered_map>
-#include <optional>
 
 #include "propagator.hpp"
 
@@ -16,17 +13,6 @@ class WFC {
 private:
     Data<int, AbstractFeature> *data;
 
-    /**
-     * The random number generator.
-     * 随机种子
-     */
-    std::minstd_rand gen;
-
-
-    /**
-     * The wave, indicating which feature can be put in which cell.
-     * wave，表示哪个图案应该被填入哪个格中
-     */
     Wave wave;
 
     /**
@@ -53,14 +39,13 @@ private:
         return output_features;
     }
 
+
+
+
+
 public:
-    /**
-     * Basic constructor initializing the algorithm.
-     * 构造函数，初始化
-     */
-    WFC(Data<int, AbstractFeature> *data) noexcept
-            : data(data), wave(data), propagator(data) {
-    }
+
+    WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data), propagator(data) {}
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
@@ -70,65 +55,62 @@ public:
             // 检查算法是否结束
             if (result == success) {
                 data->showResult(wave_to_output());
+//                data->showResult2(wave);
                 return;
             }
 
             if (result == failure) {
                 data->showResult(wave_to_output());
                 std::cout << "failure!!!!!!!!!!!!!!" << std::endl;
+                break;
             }
             // 传递信息
             propagator.propagate(wave);
         }
     }
 
-    /**
-     * Define the value of the cell with lowest entropy.
-     * 定义具有最低熵的网格值
-     */
-
     ObserveStatus observe() noexcept {
-        // 得到具有最低熵的网格
-        int argmin = wave.get_min_entropy();
+        // 得到具有最低熵的wave_id
+        int wave_min_id = wave.get_min_entropy();
+
+
+
+
+//        if (argmin == -1) {
+//            observed = new int[FMX * FMY];
+//            for (int i = 0; i <wave_size ; i++)
+//                for (int j = 0; j < T; j++)
+////                    if ([i][t]) { observed[i] = t; break; }
+//                    if (this->get(i, j)) {
+//                        observed[i] = j;
+//                        break;
+//                    }
+//
+//            return true;
+//        }
 
         // 检查冲突，返回failure
-        if (argmin == failure || argmin == success) {
-            return static_cast<ObserveStatus>(argmin);
+        if (wave_min_id == failure || wave_min_id == success) {
+            return static_cast<ObserveStatus>(wave_min_id);
         }
+        unsigned sum = wave.get_wave_all_frequency(wave_min_id); //得到此wave 在所有feature中出现的次数的总合
 
-        // 遍历所有特征  根据分布结构选择一个元素
-        float s = 0;
+
+        unsigned chosen_value = wave.get_chosen_value_by_random(wave_min_id,sum);
+
+//      如果k对应的图案在argmin中 并且不是选择的元素
         for (unsigned k = 0; k < data->feature.size(); k++) {
-            // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
-            s += wave.get_features_frequency(argmin, k);
-        }
-
-        float random_value = unit::getRand(float(0), s);  //随机生成一个noise
-
-        unsigned chosen_value = data->feature.size() - 1;
-
-        //小于0时中断 将频率自减少  为什么原作者这里random_value 是double?
-        for (unsigned k = 0; k < data->feature.size(); k++) {
-            random_value -= wave.get_features_frequency(argmin, k);
-            if (random_value <= 0) {
-                chosen_value = k;
-                break;
+            if (wave.get(wave_min_id, k) && k != chosen_value) {
+                //添加到传播队列
+                propagator.add_to_propagator(wave_min_id, k);
+                //设置成已传播的状态
+                wave.set(wave_min_id, k, false);
+//                std::cout<<" wave_min_id "<< wave_min_id<<" k "<<k<<" chosen_value "<<chosen_value<<"   "<<data->feature.size()<<std::endl;
             }
+
         }
 
-        // 根据图案定义网格
-        for (unsigned k = 0; k < data->feature.size(); k++) {
-            /* 判定生效的情况：
-             如果k对应的图案在argmin中 并且不是选择的元素
-             如果k对应的团不在argmin中 并且是选择的元素
-             加上此判断主要是为了不选择自身
-             */
-            if (wave.get(argmin, k) != (k == chosen_value)) {
-                propagator.add_to_propagator(argmin, k);
-                wave.set(argmin, k, false);
-            }
-        }
-
+        //观察结束  继续进行计算
         return to_continue;
     }
 };

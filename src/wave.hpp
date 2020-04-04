@@ -1,9 +1,8 @@
-#ifndef FAST_WFC_WAVE_HPP_
+﻿#ifndef FAST_WFC_WAVE_HPP_
 #define FAST_WFC_WAVE_HPP_
 
 #include <iostream>
 #include <limits>
-#include <random>
 #include <vector>
 #include <unordered_map>
 
@@ -12,7 +11,7 @@
 class Wave {
 private:
 
-    const std::vector<float> plogp_features_frequency;
+    const std::vector<unsigned> plogp_features_frequency;
 
     const float half_min_plogp;
 
@@ -22,20 +21,20 @@ private:
 
     Data<int, AbstractFeature> *data;
 
-    std::vector<float> p_log_p_sum; // The sum of p'(pattern) * log(p'(pattern)).
-    std::vector<float> features_frequency_sum;       // The features_frequency_sum of p'(pattern).
+    std::vector<float> p_log_p_sum; // The sum of p'(fea) * log(p'(fea)).
+    std::vector<float> features_frequency_sum;       // The features_frequency_sum of p'(fea).
     std::vector<float> log_sum;   // The log of sum.
     std::vector<unsigned> features_number_vec; // The number of feature present
     std::vector<float> entropy_vec;       // The entropy of the cell.c
 
-    const unsigned _size;
+    const unsigned wave_size;
 
 public:
 
     void init_map() {
-        for (int i = 0; i < data->options.wave_size; i++) {
+        for (unsigned i = 0; i < data->options.wave_size; i++) {
 
-            for (int j = 0; j < data->feature.size(); j++) {
+            for (unsigned j = 0; j < data->feature.size(); j++) {
                 wave_map[data->getKey(i, j)] = true;
             }
         }
@@ -51,34 +50,34 @@ public:
         }
         float base_log_sum = log(base_sum);
 
-        p_log_p_sum = std::vector<float>(_size, base_entropy);
-        features_frequency_sum = std::vector<float>(_size, base_sum);
-        log_sum = std::vector<float>(_size, base_log_sum);
-        features_number_vec = std::vector<unsigned>(_size, data->feature.size());
-        entropy_vec = std::vector<float>(_size, base_log_sum - base_entropy / base_sum);
+        p_log_p_sum = std::vector<float>(wave_size, base_entropy);
+        features_frequency_sum = std::vector<float>(wave_size, base_sum);
+        log_sum = std::vector<float>(wave_size, base_log_sum);
+        features_number_vec = std::vector<unsigned>(wave_size, data->feature.size());
+        entropy_vec = std::vector<float>(wave_size, base_log_sum - base_entropy / base_sum);
     }
 
 
     /**
-    * Initialize the wave with every cell being able to have every pattern.
+    * Initialize the wave with every cell being able to have every fea.
     * 初始化wave中每个cell
     */
     Wave(Data<int, AbstractFeature> *data) noexcept
             : plogp_features_frequency(unit::get_plogp(data->features_frequency)),
               half_min_plogp(unit::get_half_min(plogp_features_frequency)),
-              _size(data->options.wave_size), data(data) {
+              wave_size(data->options.wave_size), data(data) {
         init_map();
         init_entropy();
         is_impossible = false;
     }
 
     /**
-    * Return true if pattern can be placed in cell index.
+    * Return true if fea can be placed in cell index.
     * 返回true如果图案能放入cell
     */
-    bool get(unsigned index, unsigned pattern) const {
+    const bool get(unsigned index, unsigned fea_id) const {
 
-        long long key = data->getKey(index, pattern);
+        long long key = data->getKey(index, fea_id);
         auto iter = wave_map.find(key);
         if (iter != wave_map.end()) {
             return iter->second;
@@ -87,9 +86,35 @@ public:
         }
     }
 
-    const float get_features_frequency(unsigned feature_id, unsigned i) const {
+    const unsigned get_features_frequency(unsigned feature_id, unsigned i) const {
         return this->get(feature_id, i) ? data->features_frequency[i] : 0;
     }
+
+    const unsigned get_wave_all_frequency(unsigned wave_id) const {
+        // 遍历所有特征  根据分布结构选择一个元素
+        unsigned s = 0;
+        for (unsigned k = 0; k < data->feature.size(); k++) {
+            // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
+            s += this->get_features_frequency(wave_id, k);
+        }
+        return  s;
+    }
+
+
+        // 随机数逐步减小 小于0时中断
+    const unsigned get_chosen_value_by_random(unsigned wave_id,unsigned sum) const {
+        unsigned chosen_value = 0;
+        float random_value = unit::getRand(0, sum);  //随机生成一个noise
+
+        while (chosen_value < data->feature.size() && random_value > 0) {
+            random_value -= this->get_features_frequency(wave_id, chosen_value);
+            chosen_value++;
+        }
+
+        if (chosen_value != 0) chosen_value--;
+        return chosen_value;
+    }
+
 
     void set(unsigned fea_1, unsigned fea_2, bool value) noexcept {
         bool old_value = this->get(fea_1, fea_2);
@@ -104,7 +129,10 @@ public:
         features_number_vec[fea_1]--;
         entropy_vec[fea_1] = log_sum[fea_1] - p_log_p_sum[fea_1] / features_frequency_sum[fea_1];
 
-        if (features_number_vec[fea_1] == 0) is_impossible = true;
+        // 判定终止条件
+        if (features_number_vec[fea_1] == 0){
+            is_impossible = true;
+        }
     }
 
     /**
@@ -112,26 +140,27 @@ public:
     * 如果中间有contradiction在wave中，则返回-2
     * 如果所有cell都被定义，返回-1
     */
-    int get_min_entropy() const noexcept {
+    // TODO 利用堆来实现
+    const int get_min_entropy() const noexcept {
         if (is_impossible) {
             return failure;
         }
 
-//        std::uniform_real_distribution<> dis(0, abs(half_min_plogp));  //随机生成一个该区间的随机数
+        float min = std::numeric_limits<float>::infinity();// float的最小值
 
-        float min = std::numeric_limits<float>::infinity();
-        int argmin = success;
+        int wave_min_id = success;
 
-        for (int i = 0; i < _size; i++) {
+        //遍历所有 wave  选取一个最小值 不过这里的最小值是加了噪声的
+        for (unsigned wave_id = 0; wave_id < wave_size; wave_id++) {
 
-            if (features_number_vec[i] == 1) {
+            if (features_number_vec[wave_id] == 1) {
                 // If the cell is decided, we do not compute the entropy (which is equal to 0).
                 // 如果cell被决定，我们不用再计算信息熵
                 continue;
             }
 
             //拿到当前的熵
-            float entropy = entropy_vec[i];
+            float entropy = entropy_vec[wave_id];
 
             // We first check if the entropy is less than the minimum.
             // This is important to reduce noise computation (which is not* negligible).
@@ -142,16 +171,16 @@ public:
                 // will always be chosen.
                 float noise = unit::getRand(float(0), abs(half_min_plogp));  //随机生成一个noise
                 if (entropy + noise < min) {
-                    min = std::min(entropy + noise, min);
-                    argmin = i;
+                    min = std::min(entropy + noise, min);  //注意 这里有加了噪点  min值可能没更新
+                    wave_min_id = wave_id;
                 }
             }
         }
 
-        return argmin;
+        return wave_min_id;
     }
 
-    inline int size() const noexcept { return _size; };
+    inline unsigned size() const noexcept { return wave_size; };
 
 };
 
