@@ -126,7 +126,7 @@ public:
     }
 
     std::vector<std::pair<int, int>>& getDirect(){
-        this->_direct;
+        return this->_direct;
     }
 
 

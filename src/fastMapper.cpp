@@ -32,6 +32,7 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
 int main(int argc, char *argv[]) {
 //    -h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./res/done.jpg  -t img
 //    -h 40 -w 40 -s 8  -N 2 -i ../samples/City.png -o ../res/done.jpg  -t svg
+// -h 20 -w 40 -s 8  -N 2 -i ../samples/o.png -o ../res/done.jpg  -t svg
 
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);
@@ -56,6 +57,7 @@ int main(int argc, char *argv[]) {
     string type = a.get<std::string>("type");
 
     single_run(height, width, symmetry, N, channels,log, input_data, output_data, type);
+//    cin.get();
     return 0;
 }
 
