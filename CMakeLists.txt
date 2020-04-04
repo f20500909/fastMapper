@@ -24,7 +24,6 @@ set(CPP_SRC_LIST ../src/data.hpp
         ../src/declare.hpp
         ../src/imageModel.hpp
 #        ../src/MyRtree.hpp
-        ../src/propagator.hpp
 #        ../src/svg.hpp
         ../src/unit.hpp
         ../src/wave.hpp

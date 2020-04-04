@@ -3,8 +3,11 @@
 
 #include <limits>
 #include <unordered_map>
+#include <stack>
 
-#include "propagator.hpp"
+#include "wave.hpp"
+#include "data.hpp"
+//#include "svg.hpp"
 
 /**
  * Class containing the generic WFC algorithm.
@@ -15,11 +18,8 @@ private:
 
     Wave wave;
 
-    /**
-     * The propagator, used to propagate the information in the wave.
-     * 传递器，用于传递wave中的信息
-     */
-    Propagator propagator;
+    std::stack<std::tuple<unsigned, unsigned>> propagating;
+    unordered_map<long long, int> compatible_feature_map;
 
     /**
      * Transform the wave to a valid output (a 2d array of feature that aren't in contradiction).
@@ -39,10 +39,71 @@ private:
         return output_features;
     }
 
+    void add_to_propagator(unsigned wave_id, unsigned fea_id) noexcept {
+        for (unsigned i = 0; i < data->_direction.getMaxNumber(); i++) {
+            compatible_feature_map[data->getKey(wave_id, fea_id, i)] = 0;
+        }
+        propagating.push({wave_id, fea_id});
+    }
+
+    //没找到 就初始化  那就不用在最初进行初始化了 省了很多事
+    int &getDirectionCount(const unsigned &wave_id, const unsigned &fea_id, const unsigned &direction) {
+        unordered_map<long long, int>::iterator iter = compatible_feature_map.find(data->getKey(wave_id, fea_id, direction));
+
+        if (iter == compatible_feature_map.end()) {
+            unsigned oppositeDirection = data->_direction.get_opposite_direction(direction);
+            //此方向上的值  等于 其反方向上的可传播大小
+            long long key = data->getKey(wave_id, fea_id, direction);
+
+            compatible_feature_map[key] = data->propagator[fea_id][oppositeDirection].size();
+            return compatible_feature_map[key];
+        }
+
+        return iter->second;
+    }
+
+    void propagate(Wave &wave) noexcept {
+        //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
+        unsigned wave_id, fea_id, wave_next;
+        while (!propagating.empty()) {
+            // The cell and fea_id that has been set to false.
+            std::tie(wave_id, fea_id) = propagating.top();
+            propagating.pop();
+
+            //对图案的各个方向进进行传播
+            for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
+                //跟具此fea的id 和一个方向id  确定下一个fea的id
+
+                wave_next = data->_direction.movePatternByDirection(wave_id, directionId, data->options.wave_width);
+
+                //只有有效的feature才传播
+                if (!data->isVaildPatternId(wave_next)) {
+                    continue;
+                }
+
+                const std::vector<unsigned> &feature = data->propagator[fea_id][directionId];
+
+                for (unsigned i = 0; i < feature.size(); i++) {
+
+
+                    int &directionCount = getDirectionCount(wave_next, feature[i], directionId);
+
+                    directionCount--;
+
+                    //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
+                    //并且将此wave的传播状态设置为不需要传播
+                    if (directionCount == 0) {
+                        add_to_propagator(wave_next, feature[i]);
+                        wave.set(wave_next, feature[i], false);
+                    }
+                }
+            }
+        }
+    }
 
 public:
 
-    WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data), propagator(data) {}
+    WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data) {}
 
 //     运行算法，成功的话并返回一个结果
     void run() noexcept {
@@ -52,7 +113,6 @@ public:
             // 检查算法是否结束
             if (result == success) {
                 data->showResult(wave_to_output());
-//                data->showResult2(wave);
                 return;
             }
 
@@ -62,16 +122,14 @@ public:
                 break;
             }
             // 传递信息
-            propagator.propagate(wave);
+            this->propagate(wave);
         }
     }
 
     ObserveStatus observe() noexcept {
         // 得到具有最低熵的wave_id
-
-        float min = std::numeric_limits<float>::infinity();// float的最小值
-
         int wave_min_id = success;
+        float min = std::numeric_limits<float>::infinity();// float的最小值
 
         for (unsigned wave_id = 0; wave_id < wave.wave_size; wave_id++) {
 
@@ -84,9 +142,9 @@ public:
 
             if (amount > 1 && entropy <= min) {
 
-                float noise = unit::getRand(float(0), abs(wave.half_min_plogp));  //随机生成一个noise
+                float noise = unit::getRand(0, 1);  //随机生成一个noise
                 if (entropy + noise < min) {
-                    min = std::min(entropy + noise, min);  //注意 这里有加了噪点  min值可能没更新
+                    min = entropy + noise;  //注意 这里有加了噪点  min值可能没更新
                     wave_min_id = wave_id;
                 }
             }
@@ -104,7 +162,7 @@ public:
         for (unsigned k = 0; k < data->feature.size(); k++) {
             if (wave.get(wave_min_id, k) && k != chosen_value) {
                 //添加到传播队列
-                propagator.add_to_propagator(wave_min_id, k);
+                add_to_propagator(wave_min_id, k);
                 //设置成已传播的状态
                 wave.set(wave_min_id, k, false);
 //                std::cout<<" wave_min_id "<< wave_min_id<<" k "<<k<<" chosen_value "<<chosen_value<<"   "<<data->feature.size()<<std::endl;

@@ -15,7 +15,6 @@ public:
 
     const float half_min_plogp;
 
-    bool is_impossible;
 
     unordered_map<long long, bool> wave_map;
 
@@ -67,7 +66,6 @@ public:
               wave_size(data->options.wave_size), data(data) {
         init_map();
         init_entropy();
-        is_impossible = false;
     }
 
     /**
@@ -133,7 +131,6 @@ public:
 
 
     inline unsigned size() const noexcept { return wave_size; };
-
 };
 
 #endif // FAST_WFC_WAVE_HPP_
