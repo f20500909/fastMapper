@@ -15,8 +15,8 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
 //    input_data = "../samples/ai/wh1.svg";
 //    type = "svg";
 
-    conf = new Config(out_height, out_width, symmetry, N, channels, log, input_data, output_data,
-                                       type);
+    conf = new Config(out_height, out_width, symmetry, N, channels,
+                      log, input_data, output_data, type);
 
 //    Data<int, AbstractFeature> *data = new Svg<int, AbstractFeature>(options);
     Data<int, AbstractFeature> *data = new Img<int, AbstractFeature>;
@@ -27,7 +27,6 @@ void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsi
 }
 
 int main(int argc, char *argv[]) {
-//    -h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./res/done.jpg  -t img
 //    -h 40 -w 40 -s 8  -N 2 -i ../samples/City.png -o ../res/done.jpg  -t svg
 // -h 20 -w 40 -s 8  -N 2 -i ../samples/o.png -o ../res/done.jpg  -t svg
 

@@ -40,8 +40,8 @@ namespace unit {
     }
 
     //获取 p * log(p)
-    std::vector<unsigned> get_plogp(const std::vector<unsigned> &distribution) noexcept {
-        std::vector<unsigned> plogp(distribution.size(), 0);
+    std::vector<float> get_plogp(const std::vector<unsigned> &distribution) noexcept {
+        std::vector<float> plogp(distribution.size(), 0);
         for (unsigned i = 0; i < distribution.size(); i++) {
             plogp[i] = distribution[i] * log(distribution[i]);
         }

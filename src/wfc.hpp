@@ -137,7 +137,7 @@ public:
 
         for (unsigned wave_id = 0; wave_id < conf->wave_size; wave_id++) {
 
-            int amount = wave.features_number_vec[wave_id];
+            int amount = wave.frequency_num_vec[wave_id];
 
             if (amount == 0){
                 data->status = amount_flag;

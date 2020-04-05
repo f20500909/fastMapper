@@ -13,16 +13,16 @@ public:
 
     const unsigned wave_size;
 
-    const std::vector<unsigned> plogp_features_frequency;
+    const std::vector<float> plogp_features_frequency;
 
     unordered_map<long long, bool> wave_map;
 
     Data<int, AbstractFeature> *data;
 
-    std::vector<float> p_log_p_sum; // The sum of p'(fea) * log(p'(fea)).
-    std::vector<float> features_frequency_sum;       // The features_frequency_sum of p'(fea).
-    std::vector<float> log_sum;   // The log of sum.
-    std::vector<unsigned> features_number_vec; // The number of feature present
+    std::vector<float> entropy_sum_vec; // The sum of p'(fea) * log(p'(fea)).
+    std::vector<float> frequency_sum_vec;       // The features_frequency_sum of p'(fea).
+    std::vector<float> log_frequency_sum_vec;   // The log of sum.
+    std::vector<unsigned> frequency_num_vec; // The number of feature present
     std::vector<float> entropy_vec;       // The entropy of the cell.c
 
     Wave(Data<int, AbstractFeature> *data)
@@ -33,20 +33,20 @@ public:
     }
 
     void init_entropy() {
-        float base_entropy = 0;
-        float base_sum = 0;
+        float entropy_sum = 0;
+        float frequency_sum = 0;
 
         for (unsigned i = 0; i < data->feature.size(); i++) {
-            base_entropy += plogp_features_frequency[i];// 累加所有  p log(p) 的和
-            base_sum += data->features_frequency[i];//     频率的和
+            entropy_sum += plogp_features_frequency[i];// 累加所有  p log(p) 的和
+            frequency_sum += data->features_frequency[i];//     频率的和
         }
-        float base_log_sum = log(base_sum);
+        float log_frequency_sum = log(frequency_sum);
 
-        p_log_p_sum = std::vector<float>(wave_size, base_entropy);
-        features_frequency_sum = std::vector<float>(wave_size, base_sum);
-        log_sum = std::vector<float>(wave_size, base_log_sum);
-        features_number_vec = std::vector<unsigned>(wave_size, data->feature.size());
-        entropy_vec = std::vector<float>(wave_size, base_log_sum - base_entropy / base_sum);
+        entropy_sum_vec = std::vector<float>(wave_size, entropy_sum);
+        frequency_sum_vec = std::vector<float>(wave_size, frequency_sum);
+        log_frequency_sum_vec = std::vector<float>(wave_size, log_frequency_sum);
+        frequency_num_vec = std::vector<unsigned>(wave_size, data->feature.size());
+        entropy_vec = std::vector<float>(wave_size, log_frequency_sum - entropy_sum / frequency_sum);
     }
 
 
@@ -56,11 +56,11 @@ public:
 
         wave_map[data->getKey(fea_1, fea_2)] = status;
 
-        p_log_p_sum[fea_1] -= plogp_features_frequency[fea_2];
-        features_frequency_sum[fea_1] -= data->features_frequency[fea_2];
-        log_sum[fea_1] = log(features_frequency_sum[fea_1]);
-        features_number_vec[fea_1]--;
-        entropy_vec[fea_1] = log_sum[fea_1] - p_log_p_sum[fea_1] / features_frequency_sum[fea_1];
+        entropy_sum_vec[fea_1] -= plogp_features_frequency[fea_2];
+        frequency_sum_vec[fea_1] -= data->features_frequency[fea_2];
+        log_frequency_sum_vec[fea_1] = log(frequency_sum_vec[fea_1]);
+        frequency_num_vec[fea_1]--;
+        entropy_vec[fea_1] = log_frequency_sum_vec[fea_1] - entropy_sum_vec[fea_1] / frequency_sum_vec[fea_1];
     }
 
     void init_map() {

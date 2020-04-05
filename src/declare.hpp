@@ -52,7 +52,7 @@ public:
     unsigned wave_size;   // The width of the output in pixels.
 
     Config(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, int log,
-            string input_data, std::string output_data, std::string type) :
+           string input_data, std::string output_data, std::string type) :
             out_height(out_height),
             out_width(out_width),
             symmetry(symmetry),
@@ -74,7 +74,8 @@ public:
 
     void showLog() {
 
-        cout << "height                   : " << this->out_height << endl
+        cout << "==============  conf  ================" << endl
+             << "height                   : " << this->out_height << endl
              << "width                    : " << this->out_width << endl
              << "symmetry                 : " << this->symmetry << endl
              << "N                        : " << this->N << endl
@@ -82,7 +83,8 @@ public:
              << "log                      : " << this->log << endl
              << "input_data               : " << this->input_data << endl
              << "output_data              : " << this->output_data << endl
-             << "type                     : " << this->type << endl;
+             << "type                     : " << this->type << endl
+             << "==================================" << endl;
     }
 
     static Config *op;
@@ -91,7 +93,8 @@ public:
 };
 
 
-Config* Config::op=new Config;
+Config *Config::op = new Config;
+
 Config *Config::getOp() { return op; };
 Config *conf = Config::getOp();
 
