@@ -238,7 +238,7 @@ bool operator==(SvgAbstractFeature left, SvgAbstractFeature right) {
 template<class T, class AbstractFeature>
 class Data;
 
-class Options;
+class Config;
 
 template<class T, class AbstractFeature>
 class Svg : public Data<T, AbstractFeature> {
@@ -262,7 +262,7 @@ public:
         return res;
     }
 
-    Svg(const Options &op) : Data<T, AbstractFeature>(op) {
+    Svg(const Config &op) : Data<T, AbstractFeature>(op) {
         initDirection();
         parseData();
         initfeatures();
@@ -297,7 +297,7 @@ public:
 //                symmetries[6] = symmetries[4].rotated();
 //                symmetries[7] = symmetries[6].reflected();
 
-                for (unsigned k = 0; k < this->options.symmetry; k++) {
+                for (unsigned k = 0; k < conf->symmetry; k++) {
                     auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));
                     if (!res.second) {
                         this->features_frequency[res.first->second] += 1;
@@ -382,7 +382,7 @@ public:
     }
 
     void parseData() {
-        std::vector<std::string> tmp = get_svg_data(this->options.input_data);
+        std::vector<std::string> tmp = get_svg_data(conf->input_data);
         parseDataMap(tmp);
     }
 

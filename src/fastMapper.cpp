@@ -1,28 +1,25 @@
 #ifndef SRC_FASTMAPPER_HPP
 #define SRC_FASTMAPPER_HPP
 
-#include <iostream>
-#include <string>
-#include <ctime>
-
-#include "include/cmdline.h"
 #include "wfc.hpp"
 #include "imageModel.hpp"
 //#include "svg.hpp"
 
 using namespace std;
 
-void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels,int log, string input_data,
+void single_run(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, int log,
+                string input_data,
                 string output_data, string type) {
     srand((unsigned) time(NULL));
 
 //    input_data = "../samples/ai/wh1.svg";
 //    type = "svg";
 
-    const Options options = {out_height, out_width, symmetry, N, channels,log, input_data, output_data, type};
+    conf = new Config(out_height, out_width, symmetry, N, channels, log, input_data, output_data,
+                                       type);
 
 //    Data<int, AbstractFeature> *data = new Svg<int, AbstractFeature>(options);
-    Data<int, AbstractFeature> *data = new Img<int, AbstractFeature>(options);
+    Data<int, AbstractFeature> *data = new Img<int, AbstractFeature>;
 
     WFC wfc(data);
     wfc.run();
@@ -56,7 +53,7 @@ int main(int argc, char *argv[]) {
     string output_data = a.get<std::string>("output_data");
     string type = a.get<std::string>("type");
 
-    single_run(height, width, symmetry, N, channels,log, input_data, output_data, type);
+    single_run(height, width, symmetry, N, channels, log, input_data, output_data, type);
 //    cin.get();
     return 0;
 }

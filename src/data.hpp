@@ -16,22 +16,20 @@ class Matrix;
 template<class T, class AbstractFeature>
 class Data {
 public:
-    Data(const Options &op) : options(op) {}
+    Data()  {}
 
     virtual void showResult(Matrix<unsigned> mat) {
         std::cout << "Data row func err res.." << std::endl;
     };
 
-    const Options options;
-
     bool isVaildPatternId(unsigned pId) {
-        unsigned y = pId / this->options.wave_width;
-        unsigned x = pId % this->options.wave_width;
+        unsigned y = pId / conf->wave_width;
+        unsigned x = pId % conf->wave_width;
 
-        if (x < 0 || x >= (int) this->options.wave_width) {
+        if (x < 0 || x >= (int) conf->wave_width) {
             return false;
         }
-        if (y < 0 || y >= (int) this->options.wave_height) {
+        if (y < 0 || y >= (int) conf->wave_height) {
             return false;
         }
         return true;
@@ -39,12 +37,12 @@ public:
 
 
     long long getKey(unsigned wave_id, unsigned fea_id) {
-        return wave_id * this->options.wave_size + fea_id;
+        return wave_id * conf->wave_size + fea_id;
     }
 
     template<class KEY>
     long long getKey(KEY wave_id, KEY fea_id, KEY direction_id) {
-        return wave_id * this->options.wave_size + fea_id * this->feature.size() + direction_id;
+        return wave_id * conf->wave_size + fea_id * this->feature.size() + direction_id;
     }
 
 
@@ -54,6 +52,8 @@ public:
     std::vector<std::vector<std::vector<unsigned>>> propagator;
     std::vector<AbstractFeature> feature;                             //图案数据
     std::vector<unsigned> features_frequency;                            //图案频率
+
+    int status=0;
 
 };
 

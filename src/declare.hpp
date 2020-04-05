@@ -5,12 +5,18 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <ctime>
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #include "include/stb_image.h"
+
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+
 #include "include/stb_image_write.h"
 
 #include "unit.hpp"
+#include "include/cmdline.h"
 
 using namespace std;
 
@@ -22,28 +28,30 @@ class SvgAbstractFeature;
 enum ObserveStatus {
     success = -10, // wfc完成并取得成功
     failure = -9, // wfc完成并失败
-    to_continue = -8 // wfc没有完成
+    to_continue = -8, // wfc没有完成
+
+    amount_flag,
 };
 
 
-class Options {
+class Config {
 public:
-    const unsigned out_height;
-    const unsigned out_width;
-    const unsigned symmetry; // The number of symmetries (the order is defined in wfc).
-    const unsigned N; // The width and height in pixel of the feature.
-    const unsigned channels; // The width and height in pixel of the feature.
-    const int log;
-    const std::string input_data; // The width and height in pixel of the feature.
-    const std::string output_data; // The width and height in pixel of the feature.
-    const std::string type;        // 模式
+    unsigned out_height;
+    unsigned out_width;
+    unsigned symmetry; // The number of symmetries (the order is defined in wfc).
+    unsigned N; // The width and height in pixel of the feature.
+    unsigned channels; // The width and height in pixel of the feature.
+    int log;
+    std::string input_data; // The width and height in pixel of the feature.
+    std::string output_data; // The width and height in pixel of the feature.
+    std::string type;        // 模式
 
-    const unsigned wave_height;  // The height of the output in pixels.
-    const unsigned wave_width;   // The width of the output in pixels.
+    unsigned wave_height;  // The height of the output in pixels.
+    unsigned wave_width;   // The width of the output in pixels.
 
-    const unsigned wave_size;   // The width of the output in pixels.
+    unsigned wave_size;   // The width of the output in pixels.
 
-    Options(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, int log,
+    Config(unsigned out_height, unsigned out_width, unsigned symmetry, unsigned N, int channels, int log,
             string input_data, std::string output_data, std::string type) :
             out_height(out_height),
             out_width(out_width),
@@ -58,23 +66,35 @@ public:
             wave_width(out_width - N + 1),
             wave_size(wave_height * wave_width) {
         showLog();
+    }
 
+    Config() {
 
     }
 
-    void showLog(){
+    void showLog() {
 
         cout << "height                   : " << this->out_height << endl
-             << "width                    : " <<  this->out_width << endl
-             << "symmetry                 : " <<  this->symmetry  << endl
-             << "N                        : " << this->N  << endl
-             << "channels                 : " <<  this->channels  << endl
-             << "log                      : " <<  this->log  << endl
-             << "input_data               : " <<  this->input_data << endl
-             << "output_data              : " <<  this->output_data  << endl
-             << "type                     : " <<  this->type << endl;
+             << "width                    : " << this->out_width << endl
+             << "symmetry                 : " << this->symmetry << endl
+             << "N                        : " << this->N << endl
+             << "channels                 : " << this->channels << endl
+             << "log                      : " << this->log << endl
+             << "input_data               : " << this->input_data << endl
+             << "output_data              : " << this->output_data << endl
+             << "type                     : " << this->type << endl;
     }
+
+    static Config *op;
+
+    static Config *getOp();
 };
+
+
+Config* Config::op=new Config;
+Config *Config::getOp() { return op; };
+Config *conf = Config::getOp();
+
 
 //需要弱化方向的概念 让方向与模型适配
 class DirectionSet {
@@ -125,7 +145,7 @@ public:
         return this->_direct[dId];
     }
 
-    std::vector<std::pair<int, int>>& getDirect(){
+    std::vector<std::pair<int, int>> &getDirect() {
         return this->_direct;
     }
 

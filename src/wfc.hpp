@@ -6,7 +6,6 @@
 #include <stack>
 
 #include "wave.hpp"
-#include "data.hpp"
 //#include "svg.hpp"
 
 /**
@@ -28,8 +27,8 @@ private:
      * 此函数只有当波的所有格子都被定义
      */
     Matrix<unsigned> wave_to_output() noexcept {
-        Matrix<unsigned> output_features(data->options.wave_height, data->options.wave_width);
-        for (unsigned i = 0; i < wave.size(); i++) {
+        Matrix<unsigned> output_features(conf->wave_height, conf->wave_width);
+        for (unsigned i = 0; i < conf->wave_size; i++) {
             for (unsigned k = 0; k < data->feature.size(); k++) {
                 if (wave.get(i, k)) {
                     output_features.get(i) = k;
@@ -39,16 +38,22 @@ private:
         return output_features;
     }
 
-    void add_to_propagator(unsigned wave_id, unsigned fea_id) noexcept {
+    void ban(unsigned wave_id, unsigned fea_id) {
         for (unsigned i = 0; i < data->_direction.getMaxNumber(); i++) {
             compatible_feature_map[data->getKey(wave_id, fea_id, i)] = 0;
         }
         propagating.push({wave_id, fea_id});
+
+        wave.set(wave_id, fea_id, false);
+
+//        std::cout << " wave_min_id " << wave_id << " fea_id " << fea_id << "   " << data->feature.size() << std::endl;
     }
+
 
     //没找到 就初始化  那就不用在最初进行初始化了 省了很多事
     int &getDirectionCount(const unsigned &wave_id, const unsigned &fea_id, const unsigned &direction) {
-        unordered_map<long long, int>::iterator iter = compatible_feature_map.find(data->getKey(wave_id, fea_id, direction));
+        unordered_map<long long, int>::iterator iter = compatible_feature_map.find(
+                data->getKey(wave_id, fea_id, direction));
 
         if (iter == compatible_feature_map.end()) {
             unsigned oppositeDirection = data->_direction.get_opposite_direction(direction);
@@ -74,7 +79,7 @@ private:
             for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
                 //跟具此fea的id 和一个方向id  确定下一个fea的id
 
-                wave_next = data->_direction.movePatternByDirection(wave_id, directionId, data->options.wave_width);
+                wave_next = data->_direction.movePatternByDirection(wave_id, directionId, conf->wave_width);
 
                 //只有有效的feature才传播
                 if (!data->isVaildPatternId(wave_next)) {
@@ -93,8 +98,7 @@ private:
                     //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
                     //并且将此wave的传播状态设置为不需要传播
                     if (directionCount == 0) {
-                        add_to_propagator(wave_next, feature[i]);
-                        wave.set(wave_next, feature[i], false);
+                        ban(wave_next, feature[i]);
                     }
                 }
             }
@@ -131,16 +135,20 @@ public:
         int wave_min_id = success;
         float min = std::numeric_limits<float>::infinity();// float的最小值
 
-        for (unsigned wave_id = 0; wave_id < wave.wave_size; wave_id++) {
+        for (unsigned wave_id = 0; wave_id < conf->wave_size; wave_id++) {
 
             int amount = wave.features_number_vec[wave_id];
 
-            if (amount == 0) return failure;
+            if (amount == 0){
+                data->status = amount_flag;
+            }
 
-            //拿到当前的熵
             float entropy = wave.entropy_vec[wave_id];
 
             if (amount > 1 && entropy <= min) {
+                if(amount_flag==data->status ){
+//                    cout << " wave_id " << wave_id << " amount " << amount << endl;
+                }
 
                 float noise = unit::getRand(0, 1);  //随机生成一个noise
                 if (entropy + noise < min) {
@@ -150,7 +158,6 @@ public:
             }
         }
 
-        // 检查冲突，返回failure
         if (wave_min_id == success) {
             return success;
         }
@@ -159,15 +166,10 @@ public:
         unsigned chosen_value = wave.get_chosen_value_by_random(wave_min_id, sum);
 
 //      如果k对应的图案在argmin中 并且不是选择的元素
-        for (unsigned k = 0; k < data->feature.size(); k++) {
-            if (wave.get(wave_min_id, k) && k != chosen_value) {
-                //添加到传播队列
-                add_to_propagator(wave_min_id, k);
-                //设置成已传播的状态
-                wave.set(wave_min_id, k, false);
-//                std::cout<<" wave_min_id "<< wave_min_id<<" k "<<k<<" chosen_value "<<chosen_value<<"   "<<data->feature.size()<<std::endl;
+        for (unsigned fea_id = 0; fea_id < data->feature.size(); fea_id++) {
+            if (wave.get(wave_min_id, fea_id) && fea_id != chosen_value) {
+                ban(wave_min_id, fea_id);
             }
-
         }
 
         //观察结束  继续进行计算

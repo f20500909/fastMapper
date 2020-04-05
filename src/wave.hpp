@@ -11,10 +11,9 @@
 class Wave {
 public:
 
+    const unsigned wave_size;
+
     const std::vector<unsigned> plogp_features_frequency;
-
-    const float half_min_plogp;
-
 
     unordered_map<long long, bool> wave_map;
 
@@ -26,16 +25,11 @@ public:
     std::vector<unsigned> features_number_vec; // The number of feature present
     std::vector<float> entropy_vec;       // The entropy of the cell.c
 
-    const unsigned wave_size;
-
-
-    void init_map() {
-        for (unsigned i = 0; i < data->options.wave_size; i++) {
-
-            for (unsigned j = 0; j < data->feature.size(); j++) {
-                wave_map[data->getKey(i, j)] = true;
-            }
-        }
+    Wave(Data<int, AbstractFeature> *data)
+            : plogp_features_frequency(unit::get_plogp(data->features_frequency)),
+              wave_size(conf->wave_size), data(data) {
+        init_map();
+        init_entropy();
     }
 
     void init_entropy() {
@@ -56,24 +50,28 @@ public:
     }
 
 
-    /**
-    * Initialize the wave with every cell being able to have every fea.
-    * 初始化wave中每个cell
-    */
-    Wave(Data<int, AbstractFeature> *data) noexcept
-            : plogp_features_frequency(unit::get_plogp(data->features_frequency)),
-              half_min_plogp(unit::get_half_min(plogp_features_frequency)),
-              wave_size(data->options.wave_size), data(data) {
-        init_map();
-        init_entropy();
+    void set(unsigned fea_1, unsigned fea_2, bool status) noexcept {
+        bool old_value = this->get(fea_1, fea_2);
+        if (old_value == status) return;
+
+        wave_map[data->getKey(fea_1, fea_2)] = status;
+
+        p_log_p_sum[fea_1] -= plogp_features_frequency[fea_2];
+        features_frequency_sum[fea_1] -= data->features_frequency[fea_2];
+        log_sum[fea_1] = log(features_frequency_sum[fea_1]);
+        features_number_vec[fea_1]--;
+        entropy_vec[fea_1] = log_sum[fea_1] - p_log_p_sum[fea_1] / features_frequency_sum[fea_1];
     }
 
-    /**
-    * Return true if fea can be placed in cell index.
-    * 返回true如果图案能放入cell
-    */
-    const bool get(unsigned index, unsigned fea_id) const {
+    void init_map() {
+        for (unsigned i = 0; i < conf->wave_size; i++) {
+            for (unsigned j = 0; j < data->feature.size(); j++) {
+                wave_map[data->getKey(i, j)] = true;
+            }
+        }
+    }
 
+    const bool get(unsigned index, unsigned fea_id) const {
         long long key = data->getKey(index, fea_id);
         auto iter = wave_map.find(key);
         if (iter != wave_map.end()) {
@@ -94,12 +92,12 @@ public:
             // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
             s += this->get_features_frequency(wave_id, k);
         }
-        return  s;
+        return s;
     }
 
 
     // 随机数逐步减小 小于0时中断
-    const unsigned get_chosen_value_by_random(unsigned wave_id,unsigned sum) const {
+    const unsigned get_chosen_value_by_random(unsigned wave_id, unsigned sum) const {
         unsigned chosen_value = 0;
         float random_value = unit::getRand(0, sum);  //随机生成一个noise
 
@@ -112,25 +110,6 @@ public:
         return chosen_value;
     }
 
-
-    void set(unsigned fea_1, unsigned fea_2, bool value) noexcept {
-        bool old_value = this->get(fea_1, fea_2);
-        if (old_value == value) return;
-
-        // Otherwise, the memoisation should be updated.
-        wave_map[data->getKey(fea_1, fea_2)] = value;
-
-        p_log_p_sum[fea_1] -= plogp_features_frequency[fea_2];
-        features_frequency_sum[fea_1] -= data->features_frequency[fea_2];
-        log_sum[fea_1] = log(features_frequency_sum[fea_1]);
-        features_number_vec[fea_1]--;
-        entropy_vec[fea_1] = log_sum[fea_1] - p_log_p_sum[fea_1] / features_frequency_sum[fea_1];
-
-    }
-
-
-
-    inline unsigned size() const noexcept { return wave_size; };
 };
 
 #endif // FAST_WFC_WAVE_HPP_

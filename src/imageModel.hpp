@@ -1,10 +1,6 @@
 ﻿#ifndef SRC_IMAGEMODEL_HPP
 #define SRC_IMAGEMODEL_HPP
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <algorithm>
 
 #include "declare.hpp"
 
@@ -32,7 +28,7 @@ public:
         };
     }
 
-    Img(const Options &op) : Data<T, ImgAbstractFeature>(op) {
+    Img() : Data<T, ImgAbstractFeature>() {
         this->init();
     }
 
@@ -40,8 +36,8 @@ public:
         int width;
         int height;
         int num_components;
-        unsigned char *data = stbi_load(this->options.input_data.c_str(), &width, &height, &num_components,
-                                        this->options.channels);
+        unsigned char *data = stbi_load(conf->input_data.c_str(), &width, &height, &num_components,
+                                        conf->channels);
 
         this->_data = ImgAbstractFeature(height, width);
         for (unsigned i = 0; i < (unsigned) height; i++) {
@@ -129,15 +125,15 @@ public:
 
     void initfeatures() noexcept {
         std::unordered_map<ImgAbstractFeature, unsigned> features_id;
-        std::vector<ImgAbstractFeature> symmetries(this->options.symmetry,
-                                                   ImgAbstractFeature(this->options.N, this->options.N));
+        std::vector<ImgAbstractFeature> symmetries(conf->symmetry,
+                                                   ImgAbstractFeature(conf->N, conf->N));
 
-        unsigned max_i = this->_data.getHeight() - this->options.N + 1;
-        unsigned max_j = this->_data.getWidth() - this->options.N + 1;
+        unsigned max_i = this->_data.getHeight() - conf->N + 1;
+        unsigned max_j = this->_data.getWidth() - conf->N + 1;
 
         for (unsigned i = 0; i < max_i; i++) {
             for (unsigned j = 0; j < max_j; j++) {
-                symmetries[0].data = this->_data.get_sub_array(i, j, this->options.N, this->options.N).data;
+                symmetries[0].data = this->_data.get_sub_array(i, j, conf->N, conf->N).data;
                 symmetries[1].data = symmetries[0].reflected().data;
                 symmetries[2].data = symmetries[0].rotated().data;
                 symmetries[3].data = symmetries[2].reflected().data;
@@ -146,7 +142,7 @@ public:
                 symmetries[6].data = symmetries[4].rotated().data;
                 symmetries[7].data = symmetries[6].reflected().data;
 
-                for (unsigned k = 0; k < this->options.symmetry; k++) {
+                for (unsigned k = 0; k < conf->symmetry; k++) {
                     auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));
                     if (!res.second) {
                         this->features_frequency[res.first->second] += 1;
@@ -167,38 +163,38 @@ public:
     * 将包含2d图案的id数组转换为像素数组
     */
     ImgAbstractFeature to_image(const Matrix<unsigned> &output_features) const noexcept {
-        ImgAbstractFeature res = ImgAbstractFeature(this->options.out_height, this->options.out_width);
+        ImgAbstractFeature res = ImgAbstractFeature(conf->out_height, conf->out_width);
 
         //写入主要区域的数据
-        for (unsigned y = 0; y < this->options.wave_height; y++) {
-            for (unsigned x = 0; x < this->options.wave_width; x++) {
+        for (unsigned y = 0; y < conf->wave_height; y++) {
+            for (unsigned x = 0; x < conf->wave_width; x++) {
                 res.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
             }
         }
         // 下面的三次写入是处理边缘条件
 
         //写入左边部分
-        for (unsigned y = 0; y < this->options.wave_height; y++) {
-            const ImgAbstractFeature &fea = this->feature[output_features.get(y, this->options.wave_width - 1)];
-            for (unsigned dx = 1; dx < this->options.N; dx++) {
-                res.get(y, this->options.wave_width - 1 + dx) = fea.get(0, dx);
+        for (unsigned y = 0; y < conf->wave_height; y++) {
+            const ImgAbstractFeature &fea = this->feature[output_features.get(y, conf->wave_width - 1)];
+            for (unsigned dx = 1; dx < conf->N; dx++) {
+                res.get(y, conf->wave_width - 1 + dx) = fea.get(0, dx);
             }
         }
 
         //写入下边部分
-        for (unsigned x = 0; x < this->options.wave_width; x++) {
-            const ImgAbstractFeature &fea = this->feature[output_features.get(this->options.wave_height - 1, x)];
-            for (unsigned dy = 1; dy < this->options.N; dy++) {
-                res.get(this->options.wave_height - 1 + dy, x) = fea.get(dy, 0);
+        for (unsigned x = 0; x < conf->wave_width; x++) {
+            const ImgAbstractFeature &fea = this->feature[output_features.get(conf->wave_height - 1, x)];
+            for (unsigned dy = 1; dy < conf->N; dy++) {
+                res.get(conf->wave_height - 1 + dy, x) = fea.get(dy, 0);
             }
         }
 
         //写入右下角的一小块
-        const ImgAbstractFeature &fea = this->feature[output_features.get(this->options.wave_height - 1,
-                                                                              this->options.wave_width - 1)];
-        for (unsigned dy = 1; dy < this->options.N; dy++) {
-            for (unsigned dx = 1; dx < this->options.N; dx++) {
-                res.get(this->options.wave_height - 1 + dy, this->options.wave_width - 1 + dx) = fea.get(dy, dx);
+        const ImgAbstractFeature &fea = this->feature[output_features.get(conf->wave_height - 1,
+                                                                              conf->wave_width - 1)];
+        for (unsigned dy = 1; dy < conf->N; dy++) {
+            for (unsigned dx = 1; dx < conf->N; dx++) {
+                res.get(conf->wave_height - 1 + dy, conf->wave_width - 1 + dx) = fea.get(dy, dx);
             }
         }
         return res;
@@ -206,11 +202,11 @@ public:
 
 
 //    ImgAbstractFeature to_image2(Wave& wave) const  {
-//        ImgAbstractFeature res = ImgAbstractFeature(this->options.out_height, this->options.out_width);
+//        ImgAbstractFeature res = ImgAbstractFeature(conf->out_height, conf->out_width);
 //
 //        //写入主要区域的数据
-//        for (unsigned y = 0; y < this->options.wave_height; y++) {
-//            for (unsigned x = 0; x < this->options.wave_width; x++) {
+//        for (unsigned y = 0; y < conf->wave_height; y++) {
+//            for (unsigned x = 0; x < conf->wave_width; x++) {
 //                if (wave.get(i, k)) {
 //                    output_features.get(i) = k;
 //                }
@@ -225,7 +221,7 @@ public:
     void showResult(Matrix<unsigned> mat) {
         ImgAbstractFeature res = to_image(mat);
         if (res.data.size() > 0) {
-            write_image_png(this->options.output_data, res);
+            write_image_png(conf->output_data, res);
             cout << " finished!" << endl;
         } else {
             cout << "failed!" << endl;
@@ -236,7 +232,7 @@ public:
 //    void showResult2(Wave& wave) {
 //        ImgAbstractFeature res = to_image2(wave);
 //        if (res.data.size() > 0) {
-//            write_image_png(this->options.output_data, res);
+//            write_image_png(conf->output_data, res);
 //            cout << " finished!" << endl;
 //        } else {
 //            cout << "failed!" << endl;
