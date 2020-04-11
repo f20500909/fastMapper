@@ -143,6 +143,7 @@ public:
                 if (6 < conf->symmetry) symmetries[6].data = symmetries[4].rotated().data;
                 if (7 < conf->symmetry) symmetries[7].data = symmetries[6].reflected().data;
 
+
                 for (unsigned k = 0; k < conf->symmetry; k++) {
                     auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));
                     if (!res.second) {

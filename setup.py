@@ -3,13 +3,32 @@ import sys
 import subprocess
 import pybind11
 
-
 from setuptools import setup, Extension
 
-__version__ = '0.2.3'
-SRC = "./src/data.hpp"
+version = '0.0.1'
+SRC = ["src","src/include"]
 module_name = "fastMapper"
 ext_module_name = "fastMapper_pybind"
+
+src_cpp = ['src\\fastMapper_pybind.cpp', ]
+
+
+def getSrc(SRC):
+    res = []
+    for k, _src in enumerate(SRC):
+        src_files = map(str, os.listdir(_src))
+        src_cpp = list(filter(lambda x: x.endswith('.hpp'), src_files))
+
+        src_cpp = list(
+            map(lambda x: str(os.path.join(_src, x)), src_cpp)
+        )
+        res.extend(src_cpp)
+    return res
+
+
+src_cpp = getSrc(SRC)
+src_cpp.append('src/glove/py_bind/glove_pybind.cpp')
+
 
 class get_pybind_include(object):
     """Helper class to determine the pybind11 include path
@@ -30,8 +49,6 @@ class get_pybind_include(object):
         return pybind11.get_include(self.user)
 
 
-
-
 ext_modules = [
     Extension(
         ext_module_name,
@@ -40,27 +57,23 @@ ext_modules = [
         include_dirs=[
             get_pybind_include(),
             get_pybind_include(user=True),
-            # Path to fasttext source code
-            SRC,
         ],
         language='c++',
-        extra_compile_args=["-std=c++11"],
+        extra_compile_args=["-std=c++11 -D_hypot=hypot"],
     ),
 ]
 
 setup(name=module_name,
-      version='0.0.1',
-      description='A print test for PyPI',
+      version=version,
+      description=' fastMapper',
       author='f20500909',
       author_email='me@lightgoing.com',
-      url='https://www.python.org/',
+      # url='https://www.python.org/',
       license='mei xiang hao ',
       keywords='map ',
       project_urls={
-          # 'Documentation': 'https://packaging.python.org/tutorials/distributing-packages/',
-          # 'Funding': 'https://donate.pypi.org',
+          'Documentation': 'https://github.com/f20500909/fastMapper',
           'Source': 'https://github.com/f20500909/fastMapper',
-          # 'Tracker': 'https://github.com/pypa/sampleproject/issues',
       },
       packages=[module_name],
       # package_dir表示一种映射关系,此处表示包的根目录为当前的python文件夹

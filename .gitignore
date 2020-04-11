@@ -2,6 +2,8 @@
 /other_pro/WaveFunctionCollapse
 /other_pro/wfc
 /other_pro/wfc1
+/build
+/build/*
 /reference
 /temp
 /results
@@ -16,6 +18,7 @@
 /.vs
 /test_temp
 /VS_PRO
+/src/lua
 **/cmake-build-debug/*
 *.exe
 **/.idea/*
@@ -26,3 +29,8 @@
 *.pyd
 **done.jpg
 **.exe
+**.ilk
+**.exp
+**.lib
+**.dll
+**.a
