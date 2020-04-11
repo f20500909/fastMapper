@@ -22,9 +22,9 @@ public:
     void initDirection() {
 
         this->_direction.getDirect() = {{0,  1},
-                                  {1,  0},
-                                  {0,  -1},
-                                  {-1, 0},
+                                        {1,  0},
+                                        {0,  -1},
+                                        {-1, 0},
         };
     }
 
@@ -103,7 +103,7 @@ public:
                 std::vector<std::vector<std::vector<unsigned>>>
                         (this->feature.size(),
                          std::vector<std::vector<unsigned>>(this->_direction.getMaxNumber())); //每个特征
-         long long cnt =0;
+        long long cnt = 0;
         for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
             //每个方向
             for (unsigned directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
@@ -118,8 +118,9 @@ public:
             }
         }
 
-        cout << "feature1 size  " << this->feature.size() << "  max direction number " << this->_direction.getMaxNumber()
-            <<" propagator count  "<<cnt
+        cout << "feature1 size  " << this->feature.size() << "  max direction number "
+             << this->_direction.getMaxNumber()
+             << " propagator count  " << cnt
              << endl;
     }
 
@@ -134,13 +135,13 @@ public:
         for (unsigned i = 0; i < max_i; i++) {
             for (unsigned j = 0; j < max_j; j++) {
                 symmetries[0].data = this->_data.get_sub_array(i, j, conf->N, conf->N).data;
-                symmetries[1].data = symmetries[0].reflected().data;
-                symmetries[2].data = symmetries[0].rotated().data;
-                symmetries[3].data = symmetries[2].reflected().data;
-                symmetries[4].data = symmetries[2].rotated().data;
-                symmetries[5].data = symmetries[4].reflected().data;
-                symmetries[6].data = symmetries[4].rotated().data;
-                symmetries[7].data = symmetries[6].reflected().data;
+                if (1 < conf->symmetry) symmetries[1].data = symmetries[0].reflected().data;
+                if (2 < conf->symmetry) symmetries[2].data = symmetries[0].rotated().data;
+                if (3 < conf->symmetry) symmetries[3].data = symmetries[2].reflected().data;
+                if (4 < conf->symmetry) symmetries[4].data = symmetries[2].rotated().data;
+                if (5 < conf->symmetry) symmetries[5].data = symmetries[4].reflected().data;
+                if (6 < conf->symmetry) symmetries[6].data = symmetries[4].rotated().data;
+                if (7 < conf->symmetry) symmetries[7].data = symmetries[6].reflected().data;
 
                 for (unsigned k = 0; k < conf->symmetry; k++) {
                     auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));
@@ -154,7 +155,8 @@ public:
             }
         }
 
-        cout << "features size  " << this->feature.size() << "  features_frequency size " << this->features_frequency.size()
+        cout << "features size  " << this->feature.size() << "  features_frequency size "
+             << this->features_frequency.size()
              << endl;
     }
 
@@ -191,7 +193,7 @@ public:
 
         //写入右下角的一小块
         const ImgAbstractFeature &fea = this->feature[output_features.get(conf->wave_height - 1,
-                                                                              conf->wave_width - 1)];
+                                                                          conf->wave_width - 1)];
         for (unsigned dy = 1; dy < conf->N; dy++) {
             for (unsigned dx = 1; dx < conf->N; dx++) {
                 res.get(conf->wave_height - 1 + dy, conf->wave_width - 1 + dx) = fea.get(dy, dx);

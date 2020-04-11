@@ -12,6 +12,32 @@
  * Class containing the generic WFC algorithm.
  */
 class WFC {
+
+public:
+
+    WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data) {}
+
+    void run() noexcept {
+        while (true) {
+            // 定义未定义的网格值
+            ObserveStatus result = observe();
+            // 检查算法是否结束
+            if (result == success) {
+                data->showResult(wave_to_output());
+                return;
+            }
+
+            if (result == failure) {
+                data->showResult(wave_to_output());
+                std::cout << "failure!!!!!!!!!!!!!!" << std::endl;
+                break;
+            }
+            // 传递信息
+            this->propagate(wave);
+        }
+    }
+
+
 private:
     Data<int, AbstractFeature> *data;
 
@@ -67,68 +93,6 @@ private:
         return iter->second;
     }
 
-    void propagate(Wave &wave) noexcept {
-        //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
-        unsigned wave_id, fea_id, wave_next;
-        while (!propagating.empty()) {
-            // The cell and fea_id that has been set to false.
-            std::tie(wave_id, fea_id) = propagating.top();
-            propagating.pop();
-
-            //对图案的各个方向进进行传播
-            for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
-                //跟具此fea的id 和一个方向id  确定下一个fea的id
-
-                wave_next = data->_direction.movePatternByDirection(wave_id, directionId, conf->wave_width);
-
-                //只有有效的feature才传播
-                if (!data->isVaildPatternId(wave_next)) {
-                    continue;
-                }
-
-                const std::vector<unsigned> &feature = data->propagator[fea_id][directionId];
-
-                for (unsigned i = 0; i < feature.size(); i++) {
-
-
-                    int &directionCount = getDirectionCount(wave_next, feature[i], directionId);
-
-                    directionCount--;
-
-                    //如果元素被设置为0，就移除此元素,并且将下一方向的元素添加到传播队列
-                    //并且将此wave的传播状态设置为不需要传播
-                    if (directionCount == 0) {
-                        ban(wave_next, feature[i]);
-                    }
-                }
-            }
-        }
-    }
-
-public:
-
-    WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data) {}
-
-//     运行算法，成功的话并返回一个结果
-    void run() noexcept {
-        while (true) {
-            // 定义未定义的网格值
-            ObserveStatus result = observe();
-            // 检查算法是否结束
-            if (result == success) {
-                data->showResult(wave_to_output());
-                return;
-            }
-
-            if (result == failure) {
-                data->showResult(wave_to_output());
-                std::cout << "failure!!!!!!!!!!!!!!" << std::endl;
-                break;
-            }
-            // 传递信息
-            this->propagate(wave);
-        }
-    }
 
     ObserveStatus observe() noexcept {
         // 得到具有最低熵的wave_id
@@ -175,6 +139,37 @@ public:
         //观察结束  继续进行计算
         return to_continue;
     }
+
+    void propagate(Wave &wave) noexcept {
+        //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
+        unsigned wave_id, fea_id, wave_next;
+        while (!propagating.empty()) {
+            // The cell and fea_id that has been set to false.
+            std::tie(wave_id, fea_id) = propagating.top();
+            propagating.pop();
+
+            //对图案的各个方向进进行传播
+            for (unsigned directionId = 0; directionId < data->_direction.getMaxNumber(); directionId++) {
+                //跟具此fea的id 和一个方向id  确定下一个fea的id
+                wave_next = data->_direction.movePatternByDirection(wave_id, directionId, conf->wave_width);
+
+                //只有有效的feature才传播
+                if (!data->isVaildPatternId(wave_next)) {
+                    continue;
+                }
+
+                const std::vector<unsigned> &feature = data->propagator[fea_id][directionId];
+                for (unsigned i = 0; i < feature.size(); i++) {
+                    int &directionCount = getDirectionCount(wave_next, feature[i], directionId);
+                    directionCount--;
+                    if (directionCount == 0) {
+                        ban(wave_next, feature[i]);
+                    }
+                }
+            }
+        }
+    }
+
 };
 
 #endif // FAST_WFC_WFC_HPP_
