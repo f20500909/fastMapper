@@ -15,7 +15,9 @@ class WFC {
 
 public:
 
-    WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data) {}
+    WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data) {
+//        data->_direction = DirectionSet(8);
+    }
 
     void run() noexcept {
         while (true) {
@@ -78,11 +80,12 @@ private:
 
     //没找到 就初始化  那就不用在最初进行初始化了 省了很多事
     int &getDirectionCount(const unsigned &wave_id, const unsigned &fea_id, const unsigned &direction) {
-        unordered_map<long long, int>::iterator iter = compatible_feature_map.find(
-                data->getKey(wave_id, fea_id, direction));
+        auto iter = compatible_feature_map.find(data->getKey(wave_id, fea_id, direction));
 
         if (iter == compatible_feature_map.end()) {
-            unsigned oppositeDirection = data->_direction.get_opposite_direction(direction);
+            //一个fea_id和一个direction唯一确定一个方向
+            unsigned oppositeDirection = data->_direction.get_opposite_direction(fea_id,direction);
+//            unsigned oppositeDirection = data
             //此方向上的值  等于 其反方向上的可传播大小
             long long key = data->getKey(wave_id, fea_id, direction);
 
@@ -93,7 +96,6 @@ private:
         return iter->second;
     }
 
-
     ObserveStatus observe() noexcept {
         // 得到具有最低熵的wave_id
         int wave_min_id = success;
@@ -103,17 +105,13 @@ private:
 
             int amount = wave.frequency_num_vec[wave_id];
 
-            if (amount == 0){
+            if (amount == 0) {
                 data->status = amount_flag;
             }
 
             float entropy = wave.entropy_vec[wave_id];
 
             if (amount > 1 && entropy <= min) {
-                if(amount_flag==data->status ){
-//                    cout << " wave_id " << wave_id << " amount " << amount << endl;
-                }
-
                 float noise = unit::getRand(0, 1);  //随机生成一个noise
                 if (entropy + noise < min) {
                     min = entropy + noise;  //注意 这里有加了噪点  min值可能没更新
