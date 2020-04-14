@@ -1,9 +1,7 @@
 ﻿#ifndef SRC_IMAGEMODEL_HPP
 #define SRC_IMAGEMODEL_HPP
 
-
 #include "declare.hpp"
-
 
 using namespace std;
 
@@ -99,10 +97,9 @@ public:
         //图案id  方向id   此图案此方向同图案的id
         // 是一个二维矩阵  居中中的每个元素为一个非定长数组
         //记录了一个特征在某一个方向上是否能进行传播
-        this->propagator =
-                std::vector<std::vector<std::vector<unsigned>>>
-                        (this->feature.size(),
-                         std::vector<std::vector<unsigned>>(this->_direction.getMaxNumber())); //每个特征
+        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
+                                                                           std::vector<std::vector<unsigned>>(
+                                                                                   this->_direction.getMaxNumber())); //每个特征
         long long cnt = 0;
         for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
             //每个方向
@@ -111,8 +108,12 @@ public:
                 for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
                     //判断是否相等  相等就压入图案到传播队列
                     if (isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
-                        this->propagator[feature1][directionId].push_back(feature2);
-                        cnt++;
+                        if (this->propagator[feature1][directionId].size() <= 100) {
+
+                            this->propagator[feature1][directionId].push_back(feature2);
+
+                            cnt++;
+                        }
                     }
                 }
             }

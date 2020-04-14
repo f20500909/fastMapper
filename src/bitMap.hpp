@@ -1,5 +1,5 @@
-#ifndef SRC_BITMAP_HPP
-#define SRC_BITMAP_HPP
+#ifndef BITMAP_HPP
+#define BITMAP_HPP
 #include <iostream>
 #include <cassert>
 #include <memory>
@@ -11,17 +11,16 @@ class BitMap {
 public:
     BitMap() {
         data = nullptr;
-        size = 0;
-    }
-
-    BitMap(int size) : size(size), charSize(size / 8) { // contractor, init the data
-        data = new uint8_t[charSize];
-        assert(data);
-        memset(data, 0x0, charSize * sizeof(uint8_t));
     }
 
     ~BitMap() {
-//        delete data;
+        delete data;
+    }
+
+    BitMap(int size) :  charSize((size / 8)+1) { // contractor, init the data
+        data = new uint8_t[charSize];
+        assert(data);
+        memset(data, 0x0, charSize * sizeof(uint8_t));
     }
 
     void set(int index, bool status) {
@@ -31,6 +30,8 @@ public:
             setFalse(index);
         }
     }
+
+private:
 
     void setTrue(int index) {
         int addr = index / 8;
@@ -70,13 +71,11 @@ public:
         return;
     }
 
-
     //把一个字符的8位设置为值
     void setNumber(int index, uint8_t number) {
         data[index] = number;
         return;
     }
-
 
     friend std::ostream &operator<<(std::ostream &os, const BitMap &map) {
         for (int i = 0; i < map.charSize; i++) {
@@ -86,12 +85,10 @@ public:
         return os;
     }
 
-
 private:
     uint8_t *data;
     int charSize;
-    int size;
 };
 
 
-#endif // SRC_BITMAP_HPP
+#endif // BITMAP_HPP

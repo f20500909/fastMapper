@@ -16,12 +16,16 @@
 #include "include/stb_image_write.h"
 
 #include "unit.hpp"
+#include "bitMap.hpp"
 #include "include/cmdline.h"
 
 using namespace std;
 
 template<typename T>
 class Matrix;
+
+template<class T, class AbstractFeature>
+class Data;
 
 class SvgAbstractFeature;
 
@@ -158,7 +162,6 @@ public:
 //    }
 
 private:
-
 
     std::vector<std::pair<int, int>> _direct = {{0,  -1},
                                                 {-1, 0},

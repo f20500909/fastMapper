@@ -8,6 +8,7 @@
 #include <functional>
 #include <cmath>
 #include <cassert>
+#include <unordered_map>
 
 namespace unit {
 #ifndef M_PI

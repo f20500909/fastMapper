@@ -12,7 +12,7 @@
 #include "declare.hpp"
 #include "MyRtree.hpp"
 #include "unit.hpp"
-#include "./include/bitMap.h"
+#include "bitMap.hpp"
 #include "./include/simple_svg.hpp"
 
 class MyRtree;

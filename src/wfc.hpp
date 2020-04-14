@@ -85,7 +85,7 @@ private:
         if (iter == compatible_feature_map.end()) {
             //一个fea_id和一个direction唯一确定一个方向
             unsigned oppositeDirection = data->_direction.get_opposite_direction(fea_id,direction);
-//            unsigned oppositeDirection = data
+
             //此方向上的值  等于 其反方向上的可传播大小
             long long key = data->getKey(wave_id, fea_id, direction);
 
@@ -96,18 +96,15 @@ private:
         return iter->second;
     }
 
+    int count1;
+
     ObserveStatus observe() noexcept {
         // 得到具有最低熵的wave_id
         int wave_min_id = success;
         float min = std::numeric_limits<float>::infinity();// float的最小值
-
         for (unsigned wave_id = 0; wave_id < conf->wave_size; wave_id++) {
-
+            count1++;
             int amount = wave.frequency_num_vec[wave_id];
-
-            if (amount == 0) {
-                data->status = amount_flag;
-            }
 
             float entropy = wave.entropy_vec[wave_id];
 
@@ -137,6 +134,7 @@ private:
         //观察结束  继续进行计算
         return to_continue;
     }
+
 
     void propagate(Wave &wave) noexcept {
         //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
@@ -169,5 +167,6 @@ private:
     }
 
 };
+
 
 #endif // FAST_WFC_WFC_HPP_
