@@ -87,9 +87,12 @@ private:
             unsigned oppositeDirection = data->_direction.get_opposite_direction(fea_id,direction);
 
             //此方向上的值  等于 其反方向上的可传播大小
-            long long key = data->getKey(wave_id, fea_id, direction);
+//            long long key = data->getKey(wave_id, fea_id, direction);
+//
+//            compatible_feature_map[key] = data->propagator[fea_id][oppositeDirection].size();
 
-            compatible_feature_map[key] = data->propagator[fea_id][oppositeDirection].size();
+            long long key = data->getKey(wave_id, fea_id, direction);
+            compatible_feature_map[key] = data->propagator2[fea_id][oppositeDirection].markSize();
             return compatible_feature_map[key];
         }
 
@@ -154,12 +157,23 @@ private:
                     continue;
                 }
 
-                const std::vector<unsigned> &feature = data->propagator[fea_id][directionId];
-                for (unsigned i = 0; i < feature.size(); i++) {
-                    int &directionCount = getDirectionCount(wave_next, feature[i], directionId);
+//                const std::vector<unsigned> &feature = data->propagator[fea_id][directionId];
+//                for (unsigned i = 0; i < feature.size(); i++) {
+//                    int &directionCount = getDirectionCount(wave_next, feature[i], directionId);
+//                    directionCount--;
+//                    if (directionCount == 0) {
+//                        ban(wave_next, feature[i]);
+//                    }
+//                }
+
+                const BitMap &temp = data->propagator2[fea_id][directionId];
+                for (unsigned i = 0; i < temp.size(); i++) {
+                    if(!temp.get(i)) continue;
+
+                    int &directionCount = getDirectionCount(wave_next, i, directionId);
                     directionCount--;
                     if (directionCount == 0) {
-                        ban(wave_next, feature[i]);
+                        ban(wave_next, i);
                     }
                 }
             }

@@ -1,5 +1,6 @@
 #ifndef BITMAP_HPP
 #define BITMAP_HPP
+
 #include <iostream>
 #include <cassert>
 #include <memory>
@@ -14,13 +15,14 @@ public:
     }
 
     ~BitMap() {
-        delete data;
+//        delete data;
     }
 
-    BitMap(int size) :  charSize((size / 8)+1) { // contractor, init the data
+    BitMap(int _size) : charSize((_size / 8) + 1),_size(_size) { // contractor, init the data
         data = new uint8_t[charSize];
         assert(data);
         memset(data, 0x0, charSize * sizeof(uint8_t));
+        this->_markSize = 0;
     }
 
     void set(int index, bool status) {
@@ -31,14 +33,33 @@ public:
         }
     }
 
+    bool get(int index) const {
+        int addr = index / 8;
+        int addroffset = index % 8;
+        uint8_t temp = 0x1 << (7 - addroffset);
+        assert(addr <= charSize);
+        return (data[addr] & temp) > 0 ? 1 : 0;
+    }
+
+    inline int size() const{
+        return this->_size;
+    }
+    inline int markSize() const{
+        return this->_markSize;
+    }
+
 private:
 
     void setTrue(int index) {
+        if (get(index)) {
+            return;
+        }
         int addr = index / 8;
         int addroffset = index % 8;
         uint8_t temp = 0x1 << (7 - addroffset);
         assert (addr <= charSize + 1);
         data[addr] |= temp;
+        _markSize++;
     }
 
     void set(int charId, int bitId, bool status) {
@@ -51,16 +72,10 @@ private:
         return get(index);
     }
 
-    bool get(int index) {
-        int addr = index / 8;
-        int addroffset = index % 8;
-        uint8_t temp = 0x1 << (7 - addroffset);
-        assert(addr <= charSize);
-        return (data[addr] & temp) > 0 ? 1 : 0;
-    }
+
 
     void setFalse(int index) {
-        if (get(index) == 0) {
+        if (!get(index)) {
             return;
         }
         int addr = index / 8;
@@ -68,7 +83,8 @@ private:
         uint8_t temp = 0x1 << (7 - addroffset);
         assert(addr <= charSize);
         data[addr] ^= temp;
-        return;
+        assert(_markSize>=0);
+        _markSize--;
     }
 
     //把一个字符的8位设置为值
@@ -88,6 +104,8 @@ private:
 private:
     uint8_t *data;
     int charSize;
+    int _size;
+    int _markSize;
 };
 
 

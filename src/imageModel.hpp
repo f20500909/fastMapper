@@ -100,6 +100,10 @@ public:
         this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
                                                                            std::vector<std::vector<unsigned>>(
                                                                                    this->_direction.getMaxNumber())); //每个特征
+        this->propagator2 =
+                std::vector<std::vector<BitMap>>
+                        (this->feature.size(), std::vector<BitMap>(this->_direction.getMaxNumber(),BitMap(this->feature.size())));
+
         long long cnt = 0;
         for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
             //每个方向
@@ -108,12 +112,10 @@ public:
                 for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
                     //判断是否相等  相等就压入图案到传播队列
                     if (isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
-                        if (this->propagator[feature1][directionId].size() <= 100) {
 
-                            this->propagator[feature1][directionId].push_back(feature2);
-
-                            cnt++;
-                        }
+                        this->propagator[feature1][directionId].push_back(feature2);
+                        BitMap& temp =  this->propagator2[feature1][directionId];
+                        temp.set(feature2,true);
                     }
                 }
             }
