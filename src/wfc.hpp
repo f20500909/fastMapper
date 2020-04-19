@@ -21,7 +21,7 @@ public:
 
     void run() noexcept {
         while (true) {
-            // 定义未定义的网格值
+            // 定义未定义的网格值  只是观察 返回的是状态
             ObserveStatus result = observe();
             // 检查算法是否结束
             if (result == success) {
@@ -35,7 +35,7 @@ public:
                 break;
             }
             // 传递信息
-            this->propagate(wave);
+            this->propagate();
         }
     }
 
@@ -70,10 +70,9 @@ private:
         for (unsigned i = 0; i < data->_direction.getMaxNumber(); i++) {
             compatible_feature_map[data->getKey(wave_id, fea_id, i)] = 0;
         }
-        propagating.push({wave_id, fea_id});
+        propagating.push(std::tuple<unsigned int, unsigned int>(wave_id, fea_id));
 
         wave.set(wave_id, fea_id, false);
-
 //        std::cout << " wave_min_id " << wave_id << " fea_id " << fea_id << "   " << data->feature.size() << std::endl;
     }
 
@@ -87,10 +86,6 @@ private:
             unsigned oppositeDirection = data->_direction.get_opposite_direction(fea_id,direction);
 
             //此方向上的值  等于 其反方向上的可传播大小
-//            long long key = data->getKey(wave_id, fea_id, direction);
-//
-//            compatible_feature_map[key] = data->propagator[fea_id][oppositeDirection].size();
-
             long long key = data->getKey(wave_id, fea_id, direction);
             compatible_feature_map[key] = data->propagator2[fea_id][oppositeDirection].markSize();
             return compatible_feature_map[key];
@@ -99,22 +94,19 @@ private:
         return iter->second;
     }
 
-    int count1;
 
     ObserveStatus observe() noexcept {
         // 得到具有最低熵的wave_id
         int wave_min_id = success;
         float min = std::numeric_limits<float>::infinity();// float的最小值
         for (unsigned wave_id = 0; wave_id < conf->wave_size; wave_id++) {
-            count1++;
-            int amount = wave.frequency_num_vec[wave_id];
+            int amount = wave.get_wave_frequency(wave_id);
 
-            float entropy = wave.entropy_vec[wave_id];
+            float entropy = wave.get_entropy(wave_id);
 
             if (amount > 1 && entropy <= min) {
-                float noise = unit::getRand(0, 1);  //随机生成一个noise
-                if (entropy + noise < min) {
-                    min = entropy + noise;  //注意 这里有加了噪点  min值可能没更新
+                if (entropy  < min) {
+                    min = entropy  ;
                     wave_min_id = wave_id;
                 }
             }
@@ -127,8 +119,9 @@ private:
         unsigned sum = wave.get_wave_all_frequency(wave_min_id); //得到此wave 在所有feature中出现的次数的总合
         unsigned chosen_value = wave.get_chosen_value_by_random(wave_min_id, sum);
 
-//      如果k对应的图案在argmin中 并且不是选择的元素
         for (unsigned fea_id = 0; fea_id < data->feature.size(); fea_id++) {
+//            如果wave_min_id对应的图案在argmin中 并且不是选择的元素,就ban了
+//            只要不是所选的，都ban了
             if (wave.get(wave_min_id, fea_id) && fea_id != chosen_value) {
                 ban(wave_min_id, fea_id);
             }
@@ -139,7 +132,7 @@ private:
     }
 
 
-    void propagate(Wave &wave) noexcept {
+    void propagate() noexcept {
         //从最后一个传播状态开始传播,每传播成功一次，就移除一次，直到传播列表为空
         unsigned wave_id, fea_id, wave_next;
         while (!propagating.empty()) {
@@ -157,16 +150,7 @@ private:
                     continue;
                 }
 
-//                const std::vector<unsigned> &feature = data->propagator[fea_id][directionId];
-//                for (unsigned i = 0; i < feature.size(); i++) {
-//                    int &directionCount = getDirectionCount(wave_next, feature[i], directionId);
-//                    directionCount--;
-//                    if (directionCount == 0) {
-//                        ban(wave_next, feature[i]);
-//                    }
-//                }
-
-                const BitMap &temp = data->propagator2[fea_id][directionId];
+                const auto &temp = data->propagator2[fea_id][directionId];
                 for (unsigned i = 0; i < temp.size(); i++) {
                     if(!temp.get(i)) continue;
 

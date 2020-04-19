@@ -4,9 +4,7 @@ project(fastMapper)
 set(CMAKE_CXX_STANDARD 11)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
-# 设置警告级别
-
-# 设置警告级别结束
+add_subdirectory(./src/include/)
 
 add_compile_options("-D_hypot=hypot")
 

@@ -10,18 +10,19 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    BitMap bitMap(8);
-//    bitMap.set(0,true);
-    bitMap.set(1,true);
-    bitMap.set(2,true);
-    bitMap.set(3,true);
-    bitMap.set(4,true);
-    bitMap.set(5,true);
-    bitMap.set(6,true);
-    bitMap.set(7,true);
+    BitMap bitMap(32);
+    bitMap.set(0,true);
+
+    bitMap.set(6,false);
+
+    bitMap.set(15,false);
+    bitMap.set(16,true);
     cout<<bitMap<<endl;
 
+    BitMap b2(32);
+    b2.set(0,true);
 
+    cout<<b2<<endl;
 
     return 0;
 }

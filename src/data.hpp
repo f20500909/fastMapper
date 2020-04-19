@@ -49,12 +49,10 @@ public:
     DirectionSet _direction = DirectionSet(8);
 
 //    std::vector<std::vector<svgPoint *>> data;      //原始的数据
-    std::vector<std::vector<std::vector<unsigned>>> propagator;
     std::vector<std::vector<BitMap>> propagator2;
     std::vector<AbstractFeature> feature;                             //图案数据
     std::vector<unsigned> features_frequency;                            //图案频率
 
-    int status=0;
 
 };
 

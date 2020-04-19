@@ -2,6 +2,7 @@
 #define SRC_IMAGEMODEL_HPP
 
 #include "declare.hpp"
+#include <bitset>
 
 using namespace std;
 
@@ -75,7 +76,6 @@ public:
         unsigned ymin = max(dy, 0);
         unsigned ymax = min(feature2.getHeight() + dy, feature1.getWidth());
 
-        // Iterate on every pixel contained in the intersection of the two fea.
         // 以第一个特征为比较对象 比较每个重叠的元素
         for (unsigned y = ymin; y < ymax; y++) {
             for (unsigned x = xmin; x < xmax; x++) {
@@ -97,12 +97,9 @@ public:
         //图案id  方向id   此图案此方向同图案的id
         // 是一个二维矩阵  居中中的每个元素为一个非定长数组
         //记录了一个特征在某一个方向上是否能进行传播
-        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
-                                                                           std::vector<std::vector<unsigned>>(
-                                                                                   this->_direction.getMaxNumber())); //每个特征
         this->propagator2 =
                 std::vector<std::vector<BitMap>>
-                        (this->feature.size(), std::vector<BitMap>(this->_direction.getMaxNumber(),BitMap(this->feature.size())));
+                        (this->feature.size(),vector<BitMap>(this->_direction.getMaxNumber(),BitMap(this->feature.size())) );
 
         long long cnt = 0;
         for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
@@ -110,12 +107,14 @@ public:
             for (unsigned directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
                 //每个方向的所有特征 注意  需要遍历所有特征 这里的特征已经不包含位置信息了
                 for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
+
+                    BitMap& temp2 =  this->propagator2[feature1][directionId];
+
                     //判断是否相等  相等就压入图案到传播队列
                     if (isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
 
-                        this->propagator[feature1][directionId].push_back(feature2);
-                        BitMap& temp =  this->propagator2[feature1][directionId];
-                        temp.set(feature2,true);
+                        temp2.set(feature2,true);
+                        cnt++;
                     }
                 }
             }
@@ -206,23 +205,6 @@ public:
         return res;
     }
 
-
-//    ImgAbstractFeature to_image2(Wave& wave) const  {
-//        ImgAbstractFeature res = ImgAbstractFeature(conf->out_height, conf->out_width);
-//
-//        //写入主要区域的数据
-//        for (unsigned y = 0; y < conf->wave_height; y++) {
-//            for (unsigned x = 0; x < conf->wave_width; x++) {
-//                if (wave.get(i, k)) {
-//                    output_features.get(i) = k;
-//                }
-////                res.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
-//                res.get(y, x) = this->feature[wave.get(y, x)].get(0, 0);
-//            }
-//        }
-//
-//        return res;
-//    }
 
     void showResult(Matrix<unsigned> mat) {
         ImgAbstractFeature res = to_image(mat);
