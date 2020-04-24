@@ -45,7 +45,6 @@ public:
         return wave_id * conf->wave_size + fea_id * this->feature.size() + direction_id;
     }
 
-
     DirectionSet _direction = DirectionSet(8);
 
 //    std::vector<std::vector<svgPoint *>> data;      //原始的数据

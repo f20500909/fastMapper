@@ -104,11 +104,9 @@ private:
 
             float entropy = wave.get_entropy(wave_id);
 
-            if (amount > 1 && entropy <= min) {
-                if (entropy  < min) {
+            if (amount > 1 && entropy < min) {
                     min = entropy  ;
                     wave_min_id = wave_id;
-                }
             }
         }
 

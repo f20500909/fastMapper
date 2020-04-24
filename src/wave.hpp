@@ -11,7 +11,7 @@
 class Wave {
 public:
     Wave(Data<int, AbstractFeature> *data)
-            : plogp_features_frequency(unit::get_plogp(data->features_frequency)),
+            : plogp(unit::get_plogp(data->features_frequency)),
               wave_size(conf->wave_size), data(data) {
         init_map();
         init_entropy();
@@ -34,7 +34,7 @@ public:
 
         wave_map[data->getKey(wave_id, fea_id)] = status;
 
-        entropy_sum_vec[wave_id] -= plogp_features_frequency[fea_id];
+        entropy_sum_vec[wave_id] -= plogp[fea_id];
         float& x= frequency_sum_vec[wave_id];
 
         x -= data->features_frequency[fea_id];
@@ -85,7 +85,7 @@ public:
 private:
     const unsigned wave_size;
 
-    const std::vector<float> plogp_features_frequency;
+    const std::vector<float> plogp;
 
     unordered_map<long long, bool> wave_map;
 
@@ -103,17 +103,16 @@ private:
         float frequency_sum = 0;
 
         for (unsigned i = 0; i < data->feature.size(); i++) {
-            entropy_sum += plogp_features_frequency[i];// 累加所有  p log(p) 的和
-            frequency_sum += data->features_frequency[i];//     频率的和
+            entropy_sum += plogp[i];        // 所有熵的和
+            frequency_sum += data->features_frequency[i];      //频率和
         }
-        float log_frequency_sum = log(frequency_sum);
+        float log_sum = log(frequency_sum);
 
         entropy_sum_vec = std::vector<float>(wave_size, entropy_sum);
         frequency_sum_vec = std::vector<float>(wave_size, frequency_sum);
         frequency_num_vec = std::vector<unsigned>(wave_size, data->feature.size());
-        entropy_vec = std::vector<float>(wave_size, log_frequency_sum - entropy_sum / frequency_sum);
+        entropy_vec = std::vector<float>(wave_size, log_sum - entropy_sum / frequency_sum);
     }
-
 
     void init_map() {
         for (unsigned i = 0; i < conf->wave_size; i++) {

@@ -20,8 +20,7 @@ bool single_run(unsigned out_height,
 //    input_data = "../samples/ai/wh1.svg";
 //    type = "svg";
 
-    conf = new Config(out_height, out_width, symmetry, N, channels, log, input_data, output_data,
-                      type);
+    conf = new Config(out_height, out_width, symmetry, N, channels, log, input_data, output_data, type);
 
 //    Data<int, AbstractFeature> *data = new Svg<int, AbstractFeature>(options);
     Data<int, AbstractFeature> *data = new Img<int, AbstractFeature>;
