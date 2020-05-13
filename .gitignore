@@ -13,7 +13,9 @@
 **/fastMapper.egg-info/*
 /out
 /res/*
-/samples
+/samples/*
+/samples/
+/samples/ai/*
 /.idea
 /.vs
 /test_temp

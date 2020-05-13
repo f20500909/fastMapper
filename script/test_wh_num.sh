@@ -1,1 +1,0 @@
-../single -h 20 -w 100 -s 2  -N 2 -n num_2

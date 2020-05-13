@@ -27,7 +27,7 @@ set(CPP_SRC_LIST ../src/data.hpp
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/output)
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/output)
 
-add_executable(main ${CPP_SRC_LIST} ../src/main.cpp)
+add_executable(fastMapper ${CPP_SRC_LIST} ../src/main.cpp)
 
 
 #pybind11相关
