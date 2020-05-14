@@ -42,7 +42,7 @@ public:
         //减少该wave  熵的总合
         entropy_sum_vec[wave_id] -= plogp[fea_id];
 
-        // 改wave的频率总和
+        // 该wave的频率总和
         float& x= frequency_sum_vec[wave_id];
 
         //自减少对应的featture频率
@@ -80,18 +80,18 @@ public:
     }
 
 
-    // 随机数逐步减小 小于0时中断
+    // 随机数逐步减小 小于0时中断,即随机选取，选中的概率和元素频率一致
     const unsigned get_chosen_value_by_random(unsigned wave_id, unsigned sum) const {
-        unsigned chosen_value = 0;
+        unsigned chosen_fea_id = 0;
         float random_value = unit::getRand(0, sum);  //随机生成一个noise
 
-        while (chosen_value < data->feature.size() && random_value > 0) {
-            random_value -= this->get_features_frequency(wave_id, chosen_value);
-            chosen_value++;
+        while (chosen_fea_id < data->feature.size() && random_value > 0) {
+            random_value -= this->get_features_frequency(wave_id, chosen_fea_id);
+            chosen_fea_id++;
         }
 
-        if (chosen_value != 0) chosen_value--;
-        return chosen_value;
+        if (chosen_fea_id != 0) chosen_fea_id--;
+        return chosen_fea_id;
     }
 
 private:
@@ -118,12 +118,12 @@ private:
             entropy_sum += plogp[i];        // 所有熵的和
             frequency_sum += data->features_frequency[i];      //频率和
         }
-        float log_sum = log(frequency_sum);
 
         entropy_sum_vec = std::vector<float>(wave_size, entropy_sum);
         frequency_sum_vec = std::vector<float>(wave_size, frequency_sum);
         frequency_num_vec = std::vector<unsigned>(wave_size, data->feature.size());
-        entropy_vec = std::vector<float>(wave_size, log_sum - entropy_sum / frequency_sum);
+        //最核心的数据   记录每个wave对应的熵
+        entropy_vec = std::vector<float>(wave_size, log(frequency_sum) - entropy_sum / frequency_sum);
     }
 
     void init_map() {

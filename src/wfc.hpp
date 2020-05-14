@@ -115,12 +115,12 @@ private:
         }
 
         unsigned sum = wave.get_wave_all_frequency(wave_min_id); //得到此wave 在所有feature中出现的次数的总合
-        unsigned chosen_value = wave.get_chosen_value_by_random(wave_min_id, sum);
+        unsigned chosen_fea_id = wave.get_chosen_value_by_random(wave_min_id, sum);
 
         for (unsigned fea_id = 0; fea_id < data->feature.size(); fea_id++) {
 //            如果wave_min_id对应的图案在argmin中 并且不是选择的元素,就ban了
 //            只要不是所选的，都ban了
-            if (wave.get(wave_min_id, fea_id) && fea_id != chosen_value) {
+            if (wave.get(wave_min_id, fea_id) && fea_id != chosen_fea_id) {
                 ban(wave_min_id, fea_id);
             }
         }

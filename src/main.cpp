@@ -4,7 +4,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-//    -h 50 -w 60 -s 1 -N 2 -c 3 -l 1 -i ../samples/City.png -o ../output/done.jpg  -t img
+//    -h 50 -w 60 -s 1 -N 2 -c 3 -l 1 -i ../samples/City.png -o ../output/done.png  -t img
 
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);
