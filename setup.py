@@ -17,7 +17,7 @@ def getSrc(SRC):
     res = []
     for k, _src in enumerate(SRC):
         src_files = map(str, os.listdir(_src))
-        src_cpp = list(filter(lambda x: x.endswith('.hpp'), src_files))
+        src_cpp = list(filter(lambda x: x.endswith('.cpp'), src_files))
 
         src_cpp = list(
             map(lambda x: str(os.path.join(_src, x)), src_cpp)
@@ -27,6 +27,9 @@ def getSrc(SRC):
 
 
 src_cpp = getSrc(SRC)
+src_cpp.remove("src/fastMapper_to_lua.cpp")
+src_cpp.remove("src/include/test_rtree.cpp")
+src_cpp.remove("src/include/test_bitmap.cpp")
 src_cpp.append('src/glove/py_bind/glove_pybind.cpp')
 
 
@@ -59,7 +62,7 @@ ext_modules = [
             get_pybind_include(user=True),
         ],
         language='c++',
-        extra_compile_args=["-std=c++11 -D_hypot=hypot"],
+        extra_compile_args=["-std=c++11" ,"-D_hypot=hypot"],
     ),
 ]
 

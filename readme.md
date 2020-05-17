@@ -16,12 +16,13 @@
    
  with python
 
-     python setup.py install
+     python3 setup.py install
+     python3 ./script demo.py
 
  with cpp
  
      cd script
-     ./shell.
+     ./demo.sh
  
     
  with lua
