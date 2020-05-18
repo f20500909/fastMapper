@@ -32,7 +32,7 @@
 
 ## What to do next ?
 
- it not only support biamap . it will support vector map like svg  i am doing this!
+ it not only support bitmap . it will support vector map like svg . i am doing this!
 
 
 ## How it work ?

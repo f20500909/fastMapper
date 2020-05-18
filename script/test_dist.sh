@@ -6,4 +6,4 @@ cd ..
 python3 setup.py sdist
 
 cd dist
-pip3  install fastMapper-0.0.1.tar.gSRCz
+pip3  install fastMapper-0.0.1.tar.gz

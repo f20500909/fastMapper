@@ -30,8 +30,8 @@ src_cpp = getSrc(SRC)
 src_cpp.remove("src/fastMapper_to_lua.cpp")
 src_cpp.remove("src/include/test_rtree.cpp")
 src_cpp.remove("src/include/test_bitmap.cpp")
-src_cpp.append('src/glove/py_bind/glove_pybind.cpp')
 
+print(src_cpp)
 
 class get_pybind_include(object):
     """Helper class to determine the pybind11 include path
