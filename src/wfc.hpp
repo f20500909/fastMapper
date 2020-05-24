@@ -72,7 +72,7 @@ private:
         }
         propagating.push(std::tuple<unsigned int, unsigned int>(wave_id, fea_id));
 
-        wave.set(wave_id, fea_id, false);
+        wave.ban(wave_id, fea_id, false);
 //        std::cout << " wave_min_id " << wave_id << " fea_id " << fea_id << "   " << data->feature.size() << std::endl;
     }
 

@@ -27,19 +27,33 @@ public:
         }
     }
 
-
-    void set(unsigned wave_id, unsigned fea_id, bool status) noexcept {
+    /*
+     * 最重要的一个函数 用于更新wave的熵
+     * 调用时 即将一个wave 对应的 feature 设置为false
+     */
+    void ban(unsigned wave_id, unsigned fea_id, bool status) noexcept {
+        //如果已经相等 就不用设置了 直接返回
         bool old_value = this->get(wave_id, fea_id);
         if (old_value == status) return;
 
+        //设置状态
         wave_map[data->getKey(wave_id, fea_id)] = status;
 
+        //减少该wave  熵的总合
         entropy_sum_vec[wave_id] -= plogp[fea_id];
+
+        // 改wave的频率总和
         float& x= frequency_sum_vec[wave_id];
 
+        //自减少对应的featture频率
         x -= data->features_frequency[fea_id];
 
         frequency_num_vec[wave_id]--;
+
+        /*
+         * entropy_vec[wave_id] = log(该位置所有图案的频率) - (该位置wave的熵 也是该位置所有可能feature的熵之和) / 该位置所有图案的频率 ;
+         *
+         */
         entropy_vec[wave_id] = log(x) - entropy_sum_vec[wave_id] / x;
     }
 
@@ -49,7 +63,6 @@ public:
 
     inline unsigned get_entropy(unsigned  wave_id){
         return entropy_vec[wave_id];
-
     }
 
     const unsigned get_features_frequency(unsigned wave_id, unsigned i) const {
@@ -80,7 +93,6 @@ public:
         if (chosen_value != 0) chosen_value--;
         return chosen_value;
     }
-
 
 private:
     const unsigned wave_size;
