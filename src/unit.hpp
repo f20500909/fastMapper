@@ -1,4 +1,4 @@
-#ifndef SRC_UNTI_HPP
+﻿#ifndef SRC_UNTI_HPP
 #define SRC_UNTI_HPP
 
 #include <iostream>
@@ -10,6 +10,10 @@
 #include <cassert>
 
 namespace unit {
+#ifndef M_PI
+#define M_PI		3.14159265358979323846
+#endif //M_PI
+
 
     std::vector<std::string> split_str(std::string str, std::string pattern) {
         std::string::size_type pos;

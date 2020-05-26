@@ -16,6 +16,7 @@
 /.vs
 /test_temp
 /VS_PRO
+/src/lua
 **/cmake-build-debug/*
 *.exe
 **/.idea/*
@@ -26,3 +27,8 @@
 *.pyd
 **done.jpg
 **.exe
+**.ilk
+**.exp
+**.lib
+**.dll
+**.a

@@ -4,14 +4,14 @@ import fastMapper_pybind as fp_pybind
 class fastMapper:
     # -h 40 -w 40 -s 8  -N 2 -i ../samples/City.png -o ../res/done.jpg  -t svg
 
-    def __init__(self, high=40, width=40, s=8, N=2, input="null", output="null", type="null"):
-        self.high = high
-        self.width = width
-        self.s = s
-        self.N = N
-        self.input = input
-        self.output = output
-        self.type = type
+    def __init__(self):
+        self.high = 40
+        self.width = 40
+        self.s = 8
+        self.N = 2
+        self.input = "../../samples/City.png"
+        self.output = "../../res/done.png"
+        self.type = "svg"
         print("init....")
 
     def test(self):

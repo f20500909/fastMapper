@@ -134,13 +134,13 @@ public:
         for (unsigned i = 0; i < max_i; i++) {
             for (unsigned j = 0; j < max_j; j++) {
                 symmetries[0].data = this->_data.get_sub_array(i, j, conf->N, conf->N).data;
-                symmetries[1].data = symmetries[0].reflected().data;
-                symmetries[2].data = symmetries[0].rotated().data;
-                symmetries[3].data = symmetries[2].reflected().data;
-                symmetries[4].data = symmetries[2].rotated().data;
-                symmetries[5].data = symmetries[4].reflected().data;
-                symmetries[6].data = symmetries[4].rotated().data;
-                symmetries[7].data = symmetries[6].reflected().data;
+//                symmetries[1].data = symmetries[0].reflected().data;
+//                symmetries[2].data = symmetries[0].rotated().data;
+//                symmetries[3].data = symmetries[2].reflected().data;
+//                symmetries[4].data = symmetries[2].rotated().data;
+//                symmetries[5].data = symmetries[4].reflected().data;
+//                symmetries[6].data = symmetries[4].rotated().data;
+//                symmetries[7].data = symmetries[6].reflected().data;
 
                 for (unsigned k = 0; k < conf->symmetry; k++) {
                     auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));

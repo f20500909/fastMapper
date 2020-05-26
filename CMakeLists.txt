@@ -4,7 +4,6 @@ project(fastMapper)
 set(CMAKE_CXX_STANDARD 11)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
-ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
 
 
 
@@ -30,13 +29,27 @@ set(CPP_SRC_LIST ../src/data.hpp
         ../src/wfc.hpp
         )
 
-SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/python)
-SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/output)
+SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/script/lib)
+#SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/output)
 
-add_executable(main ${CPP_SRC_LIST} ../src/fastMapper.cpp)
+#add_executable(main ${CPP_SRC_LIST} ../src/main.cpp)
 
+# lua导出接口
+
+include_directories("./src/lua/include/")
+
+file(GLOB LUA_SOURCE_FILES ./src/lua/include/*)
+
+message(STATUS ${LUA_SOURCE_FILES})
+
+add_library(fastmapper_dll SHARED ${PROJECT_SOURCE_DIR}/src/fastMapper_to_lua.cpp  ${LUA_SOURCE_FILES})
+
+
+add_executable(fastmapper_to_lua_ex ${PROJECT_SOURCE_DIR}/src/fastMapper_to_lua.cpp  ${LUA_SOURCE_FILES})
 
 #导入pybind包
 #find_package(pybind11)
 #链接pybind文件
 #pybind11_add_module(fastMapper_pybind ./src/fastMapper_pybind.cpp)
+
+
