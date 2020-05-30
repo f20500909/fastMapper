@@ -87,7 +87,7 @@ private:
 
             //此方向上的值  等于 其反方向上的可传播大小
             long long key = data->getKey(wave_id, fea_id, direction);
-            compatible_feature_map[key] = data->propagator2[fea_id][oppositeDirection].markSize();
+            compatible_feature_map[key] = data->propagator[fea_id][oppositeDirection].markSize();
             return compatible_feature_map[key];
         }
 
@@ -115,7 +115,7 @@ private:
         }
 
         unsigned sum = wave.get_wave_all_frequency(wave_min_id); //得到此wave 在所有feature中出现的次数的总合
-        unsigned chosen_fea_id = wave.get_chosen_value_by_random(wave_min_id, sum);
+        unsigned chosen_fea_id = wave.get_chosen_value_by_random(wave_min_id, sum);//取wave中的一个fea_id，频率越大，则越有可能被选到
 
         for (unsigned fea_id = 0; fea_id < data->feature.size(); fea_id++) {
 //            如果wave_min_id对应的图案在argmin中 并且不是选择的元素,就ban了
@@ -148,7 +148,7 @@ private:
                     continue;
                 }
 
-                const auto &temp = data->propagator2[fea_id][directionId];
+                const auto &temp = data->propagator[fea_id][directionId];
                 for (unsigned i = 0; i < temp.size(); i++) {
                     if(!temp.get(i)) continue;
 

@@ -97,7 +97,7 @@ public:
         //图案id  方向id   此图案此方向同图案的id
         // 是一个二维矩阵  居中中的每个元素为一个非定长数组
         //记录了一个特征在某一个方向上是否能进行传播
-        this->propagator2 =
+        this->propagator =
                 std::vector<std::vector<BitMap>>
                         (this->feature.size(),vector<BitMap>(this->_direction.getMaxNumber(),BitMap(this->feature.size())) );
 
@@ -108,7 +108,7 @@ public:
                 //每个方向的所有特征 注意  需要遍历所有特征 这里的特征已经不包含位置信息了
                 for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
 
-                    BitMap& temp2 =  this->propagator2[feature1][directionId];
+                    BitMap& temp2 =  this->propagator[feature1][directionId];
 
                     //判断是否相等  相等就压入图案到传播队列
                     if (isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
