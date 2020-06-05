@@ -149,13 +149,13 @@ private:
                 }
 
                 const auto &temp = data->propagator[fea_id][directionId];
-                for (unsigned i = 0; i < temp.size(); i++) {
-                    if(!temp.get(i)) continue;
+                for (unsigned fea_id_2 = 0; fea_id_2 < temp.size(); fea_id_2++) {
+                    if(!temp.get(fea_id_2)) continue;
 
-                    int &directionCount = getDirectionCount(wave_next, i, directionId);
+                    int &directionCount = getDirectionCount(wave_next, fea_id_2, directionId);
                     directionCount--;
                     if (directionCount == 0) {
-                        ban(wave_next, i);
+                        ban(wave_next, fea_id_2);
                     }
                 }
             }

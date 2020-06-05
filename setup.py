@@ -3,10 +3,14 @@ import sys
 import subprocess
 import pybind11
 
+from os import path as os_path
+
 from setuptools import setup, Extension
 
+this_directory = os_path.abspath(os_path.dirname(__file__))
+
 version = '0.0.1'
-SRC = ["src","src/include"]
+SRC = ["src", "src/include"]
 module_name = "fastMapper"
 ext_module_name = "fastMapper_pybind"
 
@@ -27,11 +31,17 @@ def getSrc(SRC):
 
 
 src_cpp = getSrc(SRC)
-src_cpp.remove("src/fastMapper_to_lua.cpp")
-src_cpp.remove("src/include/test_rtree.cpp")
-src_cpp.remove("src/include/test_bitmap.cpp")
+src_remove = ["main.cpp", "fastMapper_to_lua.cpp", "test_rtree.cpp", "test_bitmap.cpp"]
 
 print(src_cpp)
+
+for file in src_cpp[:]:
+    for r_k in src_remove:
+        if r_k in file:
+            src_cpp.remove(file)
+
+print(src_cpp)
+
 
 class get_pybind_include(object):
     """Helper class to determine the pybind11 include path
@@ -62,26 +72,37 @@ ext_modules = [
             get_pybind_include(user=True),
         ],
         language='c++',
-        extra_compile_args=["-std=c++11" ,"-D_hypot=hypot"],
+        extra_compile_args=["-std=c++11", "-D_hypot=hypot"],
     ),
 ]
 
-setup(name=module_name,
-      version=version,
-      description=' fastMapper',
-      author='f20500909',
-      author_email='me@lightgoing.com',
-      # url='https://www.python.org/',
-      license='mei xiang hao ',
-      keywords='map ',
-      project_urls={
-          'Documentation': 'https://github.com/f20500909/fastMapper',
-          'Source': 'https://github.com/f20500909/fastMapper',
-      },
-      packages=[module_name],
-      # package_dir表示一种映射关系,此处表示包的根目录为当前的python文件夹
-      package_dir={'': 'python'},
-      install_requires=[],
-      python_requires='>=3',
-      ext_modules=ext_modules,
-      )
+
+# 读取文件内容
+def read_file(filename):
+    with open(os_path.join(this_directory, filename), encoding='utf-8') as f:
+        long_description = f.read()
+    return long_description
+
+
+setup(
+    name=module_name,
+    version=version,
+    description=' fastMapper',
+    long_description=read_file('readme.md'),  # 读取的Readme文档内容
+    long_description_content_type="text/markdown",  # 指定包文档格式为markdown
+    author='f20500909',
+    author_email='me@lightgoing.com',
+    # url='https://www.python.org/',
+    license='... ',
+    keywords='map ',
+    project_urls={
+        'Documentation': 'https://github.com/f20500909/fastMapper',
+        'Source': 'https://github.com/f20500909/fastMapper',
+    },
+    packages=[module_name],
+    # package_dir表示一种映射关系,此处表示包的根目录为当前的python文件夹
+    package_dir={'': 'python'},
+    install_requires=[],
+    python_requires='>=3',
+    ext_modules=ext_modules,
+)

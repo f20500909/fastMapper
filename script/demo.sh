@@ -1,5 +1,6 @@
 cd ..
-mkdir build
+mkdir -p build
+mkdir -p output
 cd build
 cmake ..
 make
