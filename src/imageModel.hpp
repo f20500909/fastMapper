@@ -27,7 +27,7 @@ public:
         };
     }
 
-    Img() : Data<T, ImgAbstractFeature>() {
+    Img()  {
         this->init();
     }
 
@@ -217,15 +217,6 @@ public:
     };
 
 
-//    void showResult2(Wave& wave) {
-//        ImgAbstractFeature res = to_image2(wave);
-//        if (res.data.size() > 0) {
-//            write_image_png(conf->output_data, res);
-//            cout << " finished!" << endl;
-//        } else {
-//            cout << "failed!" << endl;
-//        }
-//    };
 
 };
 

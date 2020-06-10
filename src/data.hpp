@@ -16,11 +16,8 @@ class Matrix;
 template<class T, class AbstractFeature>
 class Data {
 public:
-    Data()  {}
 
-    virtual void showResult(Matrix<unsigned> mat) {
-        std::cout << "Data row func err res.." << std::endl;
-    };
+    virtual void showResult(Matrix<unsigned> mat) = 0;
 
     bool isVaildPatternId(unsigned pId) {
         unsigned y = pId / conf->wave_width;
@@ -51,7 +48,6 @@ public:
     std::vector<std::vector<BitMap>> propagator;
     std::vector<AbstractFeature> feature;                             //图案数据
     std::vector<unsigned> features_frequency;                            //图案频率
-
 
 };
 
