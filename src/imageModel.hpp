@@ -22,7 +22,7 @@ public:
 
     void initDirection() {
 
-//        this->_direction._direct = {{0,  1},
+//        _direction._direct = {{0,  1},
 //                                    {1,  0},
 //                                    {0,  -1},
 //                                    {-1, 0},
@@ -69,9 +69,9 @@ public:
 
     bool
     isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
-//        std::pair<int, int> direction = this->_direction._data[directionId];
-        int dx = this->_direction.getX(directionId);
-        int dy = this->_direction.getY(directionId);
+//        std::pair<int, int> direction = _direction._data[directionId];
+        int dx = _direction.getX(directionId);
+        int dy = _direction.getY(directionId);
 
         unsigned xmin = max(dx, 0);
         unsigned xmax = min(feature2.getWidth() + dx, feature1.getWidth());
@@ -99,22 +99,22 @@ public:
         //图案id  方向id   此图案此方向同图案的id
         // 是一个二维矩阵  居中中的每个元素为一个非定长数组
         //记录了一个特征在某一个方向上是否能进行传播
-        this->propagator =
+        propagator =
                 std::vector<std::vector<BitMap>>
-                        (this->feature.size(),
-                         vector<BitMap>(this->_direction.getMaxNumber(), BitMap(this->feature.size())));
+                        (feature.size(),
+                         vector<BitMap>(_direction.getMaxNumber(), BitMap(feature.size())));
 
         long long cnt = 0;
-        for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
+        for (unsigned feature1 = 0; feature1 < feature.size(); feature1++) {
             //每个方向
-            for (unsigned directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
+            for (unsigned directionId = 0; directionId < _direction.getMaxNumber(); directionId++) {
                 //每个方向的所有特征 注意  需要遍历所有特征 这里的特征已经不包含位置信息了
-                for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
+                for (unsigned feature2 = 0; feature2 < feature.size(); feature2++) {
 
-                    BitMap &temp2 = this->propagator[feature1][directionId];
+                    BitMap &temp2 = propagator[feature1][directionId];
 
                     //判断是否相等  相等就压入图案到传播队列
-                    if (isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
+                    if (isIntersect(feature[feature1], feature[feature2], directionId)) {
 
                         temp2.set(feature2, true);
                         cnt++;
@@ -123,8 +123,8 @@ public:
             }
         }
 
-        cout << "feature1 size  " << this->feature.size() << "  max direction number "
-             << this->_direction.getMaxNumber()
+        cout << "feature1 size  " << feature.size() << "  max direction number "
+             << _direction.getMaxNumber()
              << " propagator count  " << cnt
              << endl;
     }
@@ -150,19 +150,19 @@ public:
                 if (7 < conf->symmetry) symmetries[7].data = symmetries[6].reflected().data;
 
                 for (unsigned k = 0; k < conf->symmetry; k++) {
-                    auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));
+                    auto res = features_id.insert(std::make_pair(symmetries[k], feature.size()));
                     if (!res.second) {
-                        this->features_frequency[res.first->second] += 1;
+                        features_frequency[res.first->second] += 1;
                     } else {
-                        this->feature.push_back(symmetries[k]);
-                        this->features_frequency.push_back(1);
+                        feature.push_back(symmetries[k]);
+                        features_frequency.push_back(1);
                     }
                 }
             }
         }
 
-        cout << "features size  " << this->feature.size() << "  features_frequency size "
-             << this->features_frequency.size()
+        cout << "features size  " << feature.size() << "  features_frequency size "
+             << features_frequency.size()
              << endl;
     }
 
@@ -176,14 +176,14 @@ public:
         //写入主要区域的数据
         for (unsigned y = 0; y < conf->wave_height; y++) {
             for (unsigned x = 0; x < conf->wave_width; x++) {
-                res.get(y, x) = this->feature[output_features.get(y, x)].get(0, 0);
+                res.get(y, x) = feature[output_features.get(y, x)].get(0, 0);
             }
         }
         // 下面的三次写入是处理边缘条件
 
         //写入左边部分
         for (unsigned y = 0; y < conf->wave_height; y++) {
-            const ImgAbstractFeature &fea = this->feature[output_features.get(y, conf->wave_width - 1)];
+            const ImgAbstractFeature &fea = feature[output_features.get(y, conf->wave_width - 1)];
             for (unsigned dx = 1; dx < conf->N; dx++) {
                 res.get(y, conf->wave_width - 1 + dx) = fea.get(0, dx);
             }
@@ -191,14 +191,14 @@ public:
 
         //写入下边部分
         for (unsigned x = 0; x < conf->wave_width; x++) {
-            const ImgAbstractFeature &fea = this->feature[output_features.get(conf->wave_height - 1, x)];
+            const ImgAbstractFeature &fea = feature[output_features.get(conf->wave_height - 1, x)];
             for (unsigned dy = 1; dy < conf->N; dy++) {
                 res.get(conf->wave_height - 1 + dy, x) = fea.get(dy, 0);
             }
         }
 
         //写入右下角的一小块
-        const ImgAbstractFeature &fea = this->feature[output_features.get(conf->wave_height - 1,
+        const ImgAbstractFeature &fea = feature[output_features.get(conf->wave_height - 1,
                                                                           conf->wave_width - 1)];
         for (unsigned dy = 1; dy < conf->N; dy++) {
             for (unsigned dx = 1; dx < conf->N; dx++) {

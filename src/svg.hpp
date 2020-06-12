@@ -252,7 +252,7 @@ public:
         for (unsigned i = 0; i < nearPoints.size(); i++) {
             point2D po = nearPoints[i]->point;
             float _angle = (*point).point.get_azimuth(po);
-            int directionn_id = this->_direction.get_angle_direction_id(_angle, false);
+            int directionn_id = _direction.get_angle_direction_id(_angle, false);
             direction_fea_id_vec[directionn_id] = nearPoints[i]->id;
         }
 
@@ -298,12 +298,12 @@ public:
 //                symmetries[7] = symmetries[6].reflected();
 
                 for (unsigned k = 0; k < conf->symmetry; k++) {
-                    auto res = features_id.insert(std::make_pair(symmetries[k], this->feature.size()));
+                    auto res = features_id.insert(std::make_pair(symmetries[k], feature.size()));
                     if (!res.second) {
-                        this->features_frequency[res.first->second] += 1;
+                        features_frequency[res.first->second] += 1;
                     } else {
-                        this->feature.push_back(symmetries[k]);
-                        this->features_frequency.push_back(1);
+                        feature.push_back(symmetries[k]);
+                        features_frequency.push_back(1);
                     }
                 }
             }
@@ -321,7 +321,7 @@ public:
             point2D po = feature1.data[i]->point;
             float _angle = feature1.basePoint.point.get_azimuth(po);
 
-            if (this->_direction.get_angle_direction_id(_angle, false) == directionId) {
+            if (_direction.get_angle_direction_id(_angle, false) == directionId) {
                 svgPoints_1.push_back(feature1.data[i]);
             }
         }
@@ -332,7 +332,7 @@ public:
             point2D po = feature2.data[i]->point;
             float _angle = feature2.basePoint.point.get_azimuth(po);
 
-            if (this->_direction.get_angle_direction_id(_angle, true) == directionId) {
+            if (_direction.get_angle_direction_id(_angle, true) == directionId) {
                 svgPoints_2.push_back(feature2.data[i]);
             }
         }
@@ -360,21 +360,21 @@ public:
     }
 
     void generateCompatible() noexcept {
-        this->propagator = std::vector<std::vector<std::vector<unsigned>>>(this->feature.size(),
-                                                                           std::vector<std::vector<unsigned>>(this->_direction.getMaxNumber()));
+        propagator = std::vector<std::vector<std::vector<unsigned>>>(feature.size(),
+                                                                           std::vector<std::vector<unsigned>>(_direction.getMaxNumber()));
 
         //对每个特征元素
-        for (unsigned feature1 = 0; feature1 < this->feature.size(); feature1++) {
+        for (unsigned feature1 = 0; feature1 < feature.size(); feature1++) {
             // 应查询此点的
 
             //对每个特征元素  的 每个邻居
-            for (unsigned directionId = 0; directionId < this->_direction.getMaxNumber(); directionId++) {
+            for (unsigned directionId = 0; directionId < _direction.getMaxNumber(); directionId++) {
 
                 //对每个特征元素  的 每个邻居  的每个特征元素
-                for (unsigned feature2 = 0; feature2 < this->feature.size(); feature2++) {
+                for (unsigned feature2 = 0; feature2 < feature.size(); feature2++) {
                     // 判断在此方向上是否有重叠部分
-                    if (this->isIntersect(this->feature[feature1], this->feature[feature2], directionId)) {
-                        this->propagator[feature1][directionId].push_back(feature2);
+                    if (this->isIntersect(feature[feature1], feature[feature2], directionId)) {
+                        propagator[feature1][directionId].push_back(feature2);
                     }
                 }
             }
@@ -449,7 +449,7 @@ public:
 
             for (unsigned y = 0; y < mat.height; y++) {
 
-                AbstractFeature fea = this->feature[mat.get(y, x)];
+                AbstractFeature fea = feature[mat.get(y, x)];
 
                 curPoint.shiftFormPoint(fea.shiftLeft);
 

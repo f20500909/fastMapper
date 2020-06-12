@@ -12,7 +12,7 @@ class Wave {
 public:
     void init_wave(Data<int, AbstractFeature> *data){
         wave_size = conf->wave_size;
-        plogp = unit::get_plogp(data->features_frequency);
+        plogp = unit::get_plogp(features_frequency);
         this->data= data;
         init_map();
         init_entropy();
@@ -47,7 +47,7 @@ public:
         float &x = frequency_sum_vec[wave_id];
 
         //自减少对应的featture频率
-        x -= data->features_frequency[fea_id];
+        x -= features_frequency[fea_id];
 
         frequency_num_vec[wave_id]--;
 
@@ -67,13 +67,13 @@ public:
     }
 
     const unsigned get_features_frequency(unsigned wave_id, unsigned i) const {
-        return this->get(wave_id, i) ? data->features_frequency[i] : 0;
+        return this->get(wave_id, i) ? features_frequency[i] : 0;
     }
 
     const unsigned get_wave_all_frequency(unsigned wave_id) const {
         // 遍历所有特征  根据分布结构选择一个元素
         unsigned s = 0;
-        for (unsigned k = 0; k < data->feature.size(); k++) {
+        for (unsigned k = 0; k < feature.size(); k++) {
             // 如果图案存在 就取频次 否则就是0  注意 这里是取频次 不是频率
             s += this->get_features_frequency(wave_id, k);
         }
@@ -86,7 +86,7 @@ public:
         unsigned chosen_fea_id = 0;
         float random_value = unit::getRand(0, sum);  //随机生成一个noise
 
-        while (chosen_fea_id < data->feature.size() && random_value > 0) {
+        while (chosen_fea_id < feature.size() && random_value > 0) {
             random_value -= this->get_features_frequency(wave_id, chosen_fea_id);
             chosen_fea_id++;
         }
@@ -115,21 +115,21 @@ private:
         float entropy_sum = 0;
         float frequency_sum = 0;
 
-        for (unsigned i = 0; i < data->feature.size(); i++) {
+        for (unsigned i = 0; i < feature.size(); i++) {
             entropy_sum += plogp[i];        // 所有熵的和
-            frequency_sum += data->features_frequency[i];      //频率和
+            frequency_sum += features_frequency[i];      //频率和
         }
 
         entropy_sum_vec = std::vector<float>(wave_size, entropy_sum);
         frequency_sum_vec = std::vector<float>(wave_size, frequency_sum);
-        frequency_num_vec = std::vector<unsigned>(wave_size, data->feature.size());
+        frequency_num_vec = std::vector<unsigned>(wave_size, feature.size());
         //最核心的数据   记录每个wave对应的熵
         entropy_vec = std::vector<float>(wave_size, log(frequency_sum) - entropy_sum / frequency_sum);
     }
 
     void init_map() {
         for (unsigned i = 0; i < conf->wave_size; i++) {
-            for (unsigned j = 0; j < data->feature.size(); j++) {
+            for (unsigned j = 0; j < feature.size(); j++) {
                 wave_map[data->getKey(i, j)] = true;
             }
         }

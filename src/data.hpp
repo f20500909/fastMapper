@@ -39,15 +39,12 @@ public:
 
     template<class KEY>
     long long getKey(KEY wave_id, KEY fea_id, KEY direction_id) {
-        return wave_id * conf->wave_size + fea_id * this->feature.size() + direction_id;
+        return wave_id * conf->wave_size + fea_id * feature.size() + direction_id;
     }
 
-    DirectionSet _direction = DirectionSet(8);
 
-//    std::vector<std::vector<svgPoint *>> data;      //原始的数据
-    std::vector<std::vector<BitMap>> propagator;
-    std::vector<AbstractFeature> feature;                             //图案数据
-    std::vector<unsigned> features_frequency;                            //图案频率
+
+
 
 };
 
