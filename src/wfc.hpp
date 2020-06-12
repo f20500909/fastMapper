@@ -16,7 +16,6 @@ class WFC {
 public:
 
     WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data) {
-//        data->_direction = DirectionSet(8);
     }
 
     void run() noexcept {
@@ -83,7 +82,7 @@ private:
 
         if (iter == compatible_feature_map.end()) {
             //一个fea_id和一个direction唯一确定一个方向
-            unsigned oppositeDirection = data->_direction.get_opposite_direction(fea_id,direction);
+            unsigned oppositeDirection = data->_direction.get_opposite_direction(fea_id, direction);
 
             //此方向上的值  等于 其反方向上的可传播大小
             long long key = data->getKey(wave_id, fea_id, direction);
@@ -105,8 +104,8 @@ private:
             float entropy = wave.get_entropy(wave_id);
 
             if (amount > 1 && entropy < min) {
-                    min = entropy  ;
-                    wave_min_id = wave_id;
+                min = entropy;
+                wave_min_id = wave_id;
             }
         }
 
@@ -150,7 +149,7 @@ private:
 
                 const auto &temp = data->propagator[fea_id][directionId];
                 for (unsigned fea_id_2 = 0; fea_id_2 < temp.size(); fea_id_2++) {
-                    if(!temp.get(fea_id_2)) continue;
+                    if (!temp.get(fea_id_2)) continue;
 
                     int &directionCount = getDirectionCount(wave_next, fea_id_2, directionId);
                     directionCount--;

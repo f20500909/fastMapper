@@ -135,7 +135,7 @@ public:
         return this->getDirect(directionId).second;
     }
 
-    unsigned get_opposite_direction(unsigned fea_id,unsigned id) noexcept {
+    unsigned get_opposite_direction(unsigned fea_id, unsigned id) noexcept {
         return ((_direct.size() >> 1) + id) % _direct.size();
     }
 

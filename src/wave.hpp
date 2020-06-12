@@ -43,7 +43,7 @@ public:
         entropy_sum_vec[wave_id] -= plogp[fea_id];
 
         // 该wave的频率总和
-        float& x= frequency_sum_vec[wave_id];
+        float &x = frequency_sum_vec[wave_id];
 
         //自减少对应的featture频率
         x -= data->features_frequency[fea_id];
@@ -57,11 +57,11 @@ public:
         entropy_vec[wave_id] = log(x) - entropy_sum_vec[wave_id] / x;
     }
 
-    inline unsigned get_wave_frequency(unsigned  wave_id){
+    inline unsigned get_wave_frequency(unsigned wave_id) {
         return frequency_num_vec[wave_id];
     }
 
-    inline unsigned get_entropy(unsigned  wave_id){
+    inline unsigned get_entropy(unsigned wave_id) {
         return entropy_vec[wave_id];
     }
 

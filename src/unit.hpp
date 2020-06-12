@@ -40,7 +40,7 @@ namespace unit {
         if (theta < -M_PI)
             theta += 2 * M_PI;
 
-        theta = std::abs(theta *float(180.0) / M_PI);
+        theta = std::abs(theta * float(180.0) / M_PI);
         return theta;
     }
 
@@ -62,9 +62,9 @@ namespace unit {
         return half_min;
     }
 
-    template<class T1,class T2>
+    template<class T1, class T2>
     float getRand(T1 min, T2 max) {
-        assert(min<=max);
+        assert(min <= max);
         float _min(min);
         float _max(max);
 
