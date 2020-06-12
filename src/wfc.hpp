@@ -44,7 +44,7 @@ public:
     }
 
 
-private:
+//private:
     Data<int, AbstractFeature> *data;
 
     Wave wave;

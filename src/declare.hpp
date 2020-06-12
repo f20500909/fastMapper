@@ -161,12 +161,13 @@ public:
 //        return std::min(angle / increment_angle, static_cast<float>(_direct.size() - 1));
 //    }
 
-private:
+//private:
 
-    std::vector<std::pair<int, int>> _direct = {{0,  -1},
-                                                {-1, 0},
-                                                {1,  0},
-                                                {0,  1}};
+    std::vector<std::pair<int, int>> _direct = {{0,  1},
+                                              {1,  0},
+                                              {0,  -1},
+                                              {-1, 0},
+    };
 
     std::vector<std::pair<float, float>> _data_angle; // 角度方向数组   <角度上限，角度下限>  依次规律递增
 

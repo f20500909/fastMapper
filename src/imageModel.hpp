@@ -22,11 +22,11 @@ public:
 
     void initDirection() {
 
-        this->_direction.getDirect() = {{0,  1},
-                                        {1,  0},
-                                        {0,  -1},
-                                        {-1, 0},
-        };
+//        this->_direction._direct = {{0,  1},
+//                                    {1,  0},
+//                                    {0,  -1},
+//                                    {-1, 0},
+//        };
     }
 
     Img() {
