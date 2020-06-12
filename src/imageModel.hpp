@@ -6,12 +6,14 @@
 
 using namespace std;
 
+class WFC;
+
 template<class T, class ImgAbstractFeature>
-class Img : public Data<T, ImgAbstractFeature> {
+class Img : public Data<T, ImgAbstractFeature>, public WFC {
 public:
     ImgAbstractFeature _data;
 
-    void init() {
+    void initImg() {
         initDirection();
         initDataWithImg();
         initfeatures();
@@ -28,7 +30,7 @@ public:
     }
 
     Img() {
-        this->init();
+        this->initImg();
     }
 
     void initDataWithImg() {

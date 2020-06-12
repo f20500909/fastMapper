@@ -6,6 +6,7 @@
 //#include "svg.hpp"
 
 using namespace std;
+
 bool single_run(unsigned out_height,
                 unsigned out_width,
                 unsigned symmetry,
@@ -25,13 +26,12 @@ bool single_run(unsigned out_height,
 //    Data<int, AbstractFeature> *data = new Svg<int, AbstractFeature>(options);
     Img<int, AbstractFeature> *data = new Img<int, AbstractFeature>;
 
-    WFC wfc(data);
-    wfc.run();
+//    data->in
+    data->init_wfc(data);
+    data->run();
     delete data;
     return true;
 }
-
-
 
 
 #endif // SRC_FASTMAPPER_HPP

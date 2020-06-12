@@ -10,9 +10,10 @@
 
 class Wave {
 public:
-    Wave(Data<int, AbstractFeature> *data)
-            : plogp(unit::get_plogp(data->features_frequency)),
-              wave_size(conf->wave_size), data(data) {
+    void init_wave(Data<int, AbstractFeature> *data){
+        wave_size = conf->wave_size;
+        plogp = unit::get_plogp(data->features_frequency);
+        this->data= data;
         init_map();
         init_entropy();
     }
@@ -95,9 +96,9 @@ public:
     }
 
 private:
-    const unsigned wave_size;
+    unsigned wave_size;
 
-    const std::vector<float> plogp;
+    std::vector<float> plogp;
 
     unordered_map<long long, bool> wave_map;
 

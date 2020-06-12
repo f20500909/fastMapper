@@ -14,8 +14,13 @@
 class WFC {
 
 public:
+    WFC() {
 
-    WFC(Data<int, AbstractFeature> *data) noexcept : data(data), wave(data) {
+    }
+
+    void init_wfc(Data<int, AbstractFeature> *data) {
+        this->data = data;
+        wave.init_wave(data);
     }
 
     void run() noexcept {
