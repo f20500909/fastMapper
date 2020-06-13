@@ -23,15 +23,11 @@ bool single_run(unsigned out_height,
 
     conf = new Config(out_height, out_width, symmetry, N, channels, log, input_data, output_data, type);
 
-//    Data<int, AbstractFeature> *data = new Svg<int, AbstractFeature>(options);
-    Img<int, AbstractFeature> *data = new Img<int, AbstractFeature>;
+    Img<int, AbstractFeature> data ;
 
-//    data->in
-    data->init_wfc(data);
-    data->run();
-    delete data;
+    data.run();
     return true;
 }
 
 
-#endif // SRC_FASTMAPPER_HPP
+#endif

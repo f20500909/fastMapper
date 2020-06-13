@@ -1,6 +1,7 @@
 ﻿#ifndef SRC_DECLARE_HPP
 #define SRC_DECLARE_HPP
 
+#include <stack>
 #include <string>
 #include <utility>
 #include <vector>
@@ -157,17 +158,13 @@ public:
     }
 
 
-//    int get_angle_direction_id(float angle, bool is_opp) {
-//        return std::min(angle / increment_angle, static_cast<float>(_direct.size() - 1));
-//    }
+    int get_angle_direction_id(float angle, bool is_opp) {
+        return std::min(angle / increment_angle, static_cast<float>(_direct.size() - 1));
+    }
 
-//private:
+    std::vector<std::pair<int, int>> _direct;
+private:
 
-    std::vector<std::pair<int, int>> _direct = {{0,  1},
-                                              {1,  0},
-                                              {0,  -1},
-                                              {-1, 0},
-    };
 
     std::vector<std::pair<float, float>> _data_angle; // 角度方向数组   <角度上限，角度下限>  依次规律递增
 
@@ -306,4 +303,7 @@ std::vector<std::vector<BitMap>> propagator;
 std::vector<AbstractFeature> feature;                             //图案数据
 std::vector<unsigned> features_frequency;                            //图案频率
 
+
+std::stack<std::tuple<unsigned, unsigned>> propagating;
+unordered_map<long long, int> compatible_feature_map;
 #endif

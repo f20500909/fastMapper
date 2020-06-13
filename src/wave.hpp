@@ -10,16 +10,19 @@
 
 class Wave {
 public:
-    void init_wave(Data<int, AbstractFeature> *data){
+    void init_wave(){
         wave_size = conf->wave_size;
         plogp = unit::get_plogp(features_frequency);
-        this->data= data;
         init_map();
         init_entropy();
     }
 
-    const bool get(unsigned wave_id, unsigned fea_id) const {
-        long long key = data->getKey(wave_id, fea_id);
+    long long getKey(unsigned wave_id, unsigned fea_id) const  {
+        return wave_id * conf->wave_size + fea_id;
+    }
+
+     bool get(unsigned wave_id, unsigned fea_id) const {
+       auto key = getKey(wave_id, fea_id);
         auto iter = wave_map.find(key);
         if (iter != wave_map.end()) {
             return iter->second;
@@ -38,7 +41,7 @@ public:
         if (old_value == status) return;
 
         //设置状态
-        wave_map[data->getKey(wave_id, fea_id)] = status;
+        wave_map[getKey(wave_id, fea_id)] = status;
 
         //减少该wave  熵的总合
         entropy_sum_vec[wave_id] -= plogp[fea_id];
@@ -95,6 +98,8 @@ public:
         return chosen_fea_id;
     }
 
+
+
 private:
     unsigned wave_size;
 
@@ -102,14 +107,10 @@ private:
 
     unordered_map<long long, bool> wave_map;
 
-    Data<int, AbstractFeature> *data;
-
     std::vector<float> entropy_sum_vec; // The sum of p'(fea) * log(p'(fea)).
     std::vector<float> frequency_sum_vec;       // The features_frequency_sum of p'(fea).
     std::vector<unsigned> frequency_num_vec; // The number of feature present
     std::vector<float> entropy_vec;       // The entropy of the cell
-
-
 
     void init_entropy() {
         float entropy_sum = 0;
@@ -130,12 +131,12 @@ private:
     void init_map() {
         for (unsigned i = 0; i < conf->wave_size; i++) {
             for (unsigned j = 0; j < feature.size(); j++) {
-                wave_map[data->getKey(i, j)] = true;
+                wave_map[getKey(i, j)] = true;
             }
         }
     }
 
 };
 
-#endif // FAST_WFC_WAVE_HPP_
+#endif
 

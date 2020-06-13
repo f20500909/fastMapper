@@ -2,38 +2,34 @@
 #define SRC_IMAGEMODEL_HPP
 
 #include "declare.hpp"
+#include "wfc.hpp"
 #include <bitset>
 
 using namespace std;
 
-class WFC;
 
 template<class T, class ImgAbstractFeature>
-class Img : public Data<T, ImgAbstractFeature>, public WFC {
+class Img : public WFC {
 public:
     ImgAbstractFeature _data;
 
-    void initImg() {
-        initDirection();
-        initDataWithImg();
-        initfeatures();
-        generateCompatible();
+    void init_input_data() {
+        init_direction();
+        init_row_data();
+        init_features();
+        init_compatible();
     }
 
-    void initDirection() {
+    void init_direction() {
 
-//        _direction._direct = {{0,  1},
-//                                    {1,  0},
-//                                    {0,  -1},
-//                                    {-1, 0},
-//        };
+        _direction._direct = {{0,  1},
+                              {1,  0},
+                              {0,  -1},
+                              {-1, 0},
+        };
     }
 
-    Img() {
-        this->initImg();
-    }
-
-    void initDataWithImg() {
+    void init_row_data() {
         int width;
         int height;
         int num_components;
@@ -52,23 +48,9 @@ public:
         cout << "input img width  " << width << "  height  " << width << "  num_components  " << num_components << endl;
     }
 
-    void write_image_png(const std::string &file_path, const ImgAbstractFeature &m) noexcept {
-
-        unsigned char *imgData = new unsigned char[m.getHeight() * m.getWidth() * 3];
-        for (unsigned i = 0; i < m.getWidth() * m.getHeight(); i++) {
-            unsigned t = m.data[i];
-            imgData[i * 3 + 0] = (unsigned char) (t & 0xFF);// 0-7位
-            imgData[i * 3 + 1] = (unsigned char) ((t & 0xFF00) >> 8);// 8-15位
-            imgData[i * 3 + 2] = (unsigned char) ((t & 0xFF0000) >> 16);// 16-23位
-        };
-        stbi_write_png(file_path.c_str(), m.getWidth(), m.getHeight(), 3, imgData, 0);
-    }
-
     // 此函数用于判断两个特征 在某个方向上的重叠部分 是否完全相等
     // 重叠部分 全都都相等 才返回true
-
-    bool
-    isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
+    bool isIntersect(const ImgAbstractFeature &feature1, const ImgAbstractFeature &feature2, unsigned directionId) noexcept {
 //        std::pair<int, int> direction = _direction._data[directionId];
         int dx = _direction.getX(directionId);
         int dy = _direction.getY(directionId);
@@ -95,7 +77,7 @@ public:
         return true;
     }
 
-    void generateCompatible() noexcept {
+    void init_compatible() noexcept {
         //图案id  方向id   此图案此方向同图案的id
         // 是一个二维矩阵  居中中的每个元素为一个非定长数组
         //记录了一个特征在某一个方向上是否能进行传播
@@ -129,7 +111,7 @@ public:
              << endl;
     }
 
-    void initfeatures() noexcept {
+    void init_features() noexcept {
         std::unordered_map<ImgAbstractFeature, unsigned> features_id;
         std::vector<ImgAbstractFeature> symmetries(conf->symmetry,
                                                    ImgAbstractFeature(conf->N, conf->N));
@@ -166,58 +148,29 @@ public:
              << endl;
     }
 
-    /**
-    * Transform a 2D array containing the feature id to a 2D array containing the pixels.
-    * 将包含2d图案的id数组转换为像素数组
-    */
-    ImgAbstractFeature to_image(const Matrix<unsigned> &output_features) const noexcept {
-        ImgAbstractFeature res = ImgAbstractFeature(conf->out_height, conf->out_width);
-
-        //写入主要区域的数据
-        for (unsigned y = 0; y < conf->wave_height; y++) {
-            for (unsigned x = 0; x < conf->wave_width; x++) {
-                res.get(y, x) = feature[output_features.get(y, x)].get(0, 0);
-            }
-        }
-        // 下面的三次写入是处理边缘条件
-
-        //写入左边部分
-        for (unsigned y = 0; y < conf->wave_height; y++) {
-            const ImgAbstractFeature &fea = feature[output_features.get(y, conf->wave_width - 1)];
-            for (unsigned dx = 1; dx < conf->N; dx++) {
-                res.get(y, conf->wave_width - 1 + dx) = fea.get(0, dx);
-            }
-        }
-
-        //写入下边部分
-        for (unsigned x = 0; x < conf->wave_width; x++) {
-            const ImgAbstractFeature &fea = feature[output_features.get(conf->wave_height - 1, x)];
-            for (unsigned dy = 1; dy < conf->N; dy++) {
-                res.get(conf->wave_height - 1 + dy, x) = fea.get(dy, 0);
-            }
-        }
-
-        //写入右下角的一小块
-        const ImgAbstractFeature &fea = feature[output_features.get(conf->wave_height - 1,
-                                                                          conf->wave_width - 1)];
-        for (unsigned dy = 1; dy < conf->N; dy++) {
-            for (unsigned dx = 1; dx < conf->N; dx++) {
-                res.get(conf->wave_height - 1 + dy, conf->wave_width - 1 + dx) = fea.get(dy, dx);
-            }
-        }
-        return res;
-    }
-
-
-    void showResult(Matrix<unsigned> mat) {
-        ImgAbstractFeature res = to_image(mat);
+    void show_result(const Matrix<unsigned>& mat) {
+        ImgAbstractFeature res = data.to_image(mat);
         if (res.data.size() > 0) {
-            write_image_png(conf->output_data, res);
+            this->data.write_image_png(conf->output_data, res);
             cout << " finished!" << endl;
         } else {
             cout << "failed!" << endl;
         }
     };
+
+
+    bool isVaildPatternId(unsigned pId) {
+        unsigned y = pId / conf->wave_width;
+        unsigned x = pId % conf->wave_width;
+
+        if (x < 0 || x >= (int) conf->wave_width) {
+            return false;
+        }
+        if (y < 0 || y >= (int) conf->wave_height) {
+            return false;
+        }
+        return true;
+    }
 
 
 };
