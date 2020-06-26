@@ -9,14 +9,14 @@
    
  - with python
 
-
+```shell
      python3 setup.py install
      python3 ./script demo.py
-     
+```
      
   - python example
       
-      
+```shell
     from fastMapper import fastMapper
     module = fastMapper()
     module.out_height = 50
@@ -29,17 +29,23 @@
     module.output_data = "../output/done.png"
     module.type = "img"
     module.run() 
+```
 
- with cpp
+
+ - with shell
  
+ 
+```shell
      cd script
      ./demo.sh
- 
+```
     
  with lua
       
-     ./script/to_lua.lua
    
+```shell
+     ./script/to_lua.lua
+```
 
 
 ## How it work ?
