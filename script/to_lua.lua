@@ -6,8 +6,6 @@ require "fastmapper_dll" --引入包
 
 --在调用时，必须是package.function
 
-print(fastmapper_dll.average(1.0, 2.0, 3.0, 4));
-print(fastmapper_dll.Communicate("Zack"));
 
 -- -h 20 -w 40 -s 8  -N 2 -i ../samples/o.png -o ../res/done.jpg  -t svg
 

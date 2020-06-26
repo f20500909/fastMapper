@@ -58,7 +58,7 @@ public:
          * entropy_vec[wave_id] = log(该位置所有图案的频率) - (该位置wave的熵 也是该位置所有可能feature的熵之和) / 该位置所有图案的频率 ;
          *
          */
-        entropy_vec[wave_id] = log(x) - entropy_sum_vec[wave_id] / x;
+        entropy_vec[wave_id] = 1*log(x) - entropy_sum_vec[wave_id] / x;
     }
 
     inline unsigned get_wave_frequency(unsigned wave_id) {

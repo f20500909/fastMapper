@@ -63,7 +63,7 @@ private:
     ObserveStatus observe() noexcept {
         // 得到具有最低熵的wave_id
         int wave_min_id = success;
-        float min = std::numeric_limits<float>::infinity();// float的最小值
+        float min = std::numeric_limits<float>::infinity();// float的最大值
         for (unsigned wave_id = 0; wave_id < conf->wave_size; wave_id++) {
             int amount = wave.get_wave_frequency(wave_id);
 
