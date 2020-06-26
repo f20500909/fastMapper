@@ -12,7 +12,11 @@
 
      python3 setup.py install
      python3 ./script demo.py
-      - example
+     
+     
+  - python example
+      
+      
     from fastMapper import fastMapper
     module = fastMapper()
     module.out_height = 50
