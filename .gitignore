@@ -2,6 +2,8 @@
 /other_pro/WaveFunctionCollapse
 /other_pro/wfc
 /other_pro/wfc1
+/build
+/build/*
 /reference
 /temp
 /results

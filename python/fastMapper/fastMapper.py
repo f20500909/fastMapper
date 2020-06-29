@@ -1,27 +1,37 @@
 import fastMapper_pybind as fp_pybind
 
-
 class fastMapper:
-    # -h 40 -w 40 -s 8  -N 2 -i ../samples/City.png -o ../res/done.jpg  -t svg
+    # single_run(out_height, out_width, symmetry, N, channels, log, input_data, output_data, type);
 
-    def __init__(self, high=40, width=40, s=8, N=2, input="null", output="null", type="null"):
-        self.high = high
-        self.width = width
-        self.s = s
+    def __init__(self,
+                 out_height=40,
+                 out_width=40,
+                 symmetry=8,
+                 N=2,
+                 channels=3,
+                 log=1,
+                 input_data="null",
+                 output_data="null",
+                 type="null"):
+        self.out_height = out_height
+        self.out_width = out_width
+        self.symmetry = symmetry
         self.N = N
-        self.input = input
-        self.output = output
+        self.channels = channels
+        self.log = log
+        self.input_data = input_data
+        self.output_data = output_data
         self.type = type
-        print("init....")
+        print("init succes ....")
 
-    def test(self):
-        print(fp_pybind.foo())
+    # single_run(out_height, out_width, symmetry, N, channels, log, input_data, output_data, type);
 
     def run(self):
-        fp_pybind.run(self.high, self.width, self.s, self.N, self.input, self.output, self.type)
+        fp_pybind.run(self.out_height, self.out_width, self.symmetry, self.N, self.channels, self.log,self.input_data, self.output_data, self.type)
 
 
 if __name__ == "__main__":
-    module = fastMapper()
-    module.test()
-    fp_pybind.run(40, 40, 8, 2, "../../samples/City.png", "../../res/done.png", "svg")
+    print()
+    # module = fastMapper()
+    # module.test()
+    # fp_pybind.run(40, 40, 8, 2, "../../samples/City.png", "../../res/done.png", "svg")

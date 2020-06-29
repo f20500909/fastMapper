@@ -1,13 +1,10 @@
 #include "fastMapper.hpp"
 #include "include/cmdline.h"
 
-
 using namespace std;
 
 int main(int argc, char *argv[]) {
-//    -h 40 -w 40 -s 8  -N 2 -i ./samples/City.png -o ./res/done.jpg  -t img
-//    -h 40 -w 40 -s 8  -N 2 -i ../samples/City.png -o ../res/done.jpg  -t svg
-// -h 20 -w 40 -s 8  -N 2 -i ../samples/o.png -o ../res/done.jpg  -t svg
+//    -h 50 -w 60 -s 1 -N 2 -c 3 -l 1 -i ../samples/City.png -o ../res/done.jpg  -t img
 
     cmdline::parser a;
     a.add<unsigned>("height", 'h', "height", true);

@@ -3,27 +3,32 @@ import sys
 import subprocess
 import pybind11
 
-
 from setuptools import setup, Extension
 
 version = '0.0.1'
-SRC_INCLUDE = ["./src/include","./src"]
+SRC = ["src","src/include"]
 module_name = "fastMapper"
 ext_module_name = "fastMapper_pybind"
 
-# src_cpp = ['./src/data.hpp',
-#            'src\\declare.hpp',
-#            'src\\fastMapper_pybind.cpp',
-#            'src\\imageModel.hpp',
-#            'src\\MyRtree.hpp',
-#            'src\\svg.hpp',
-#            'src\\unit.hpp',
-#            'src\\wave.hpp',
-#            'src\\wfc.hpp'
-#            ]
+src_cpp = ['src\\fastMapper_pybind.cpp', ]
 
-src_cpp = ['src\\fastMapper_pybind.cpp']
-print(src_cpp)
+
+def getSrc(SRC):
+    res = []
+    for k, _src in enumerate(SRC):
+        src_files = map(str, os.listdir(_src))
+        src_cpp = list(filter(lambda x: x.endswith('.hpp'), src_files))
+
+        src_cpp = list(
+            map(lambda x: str(os.path.join(_src, x)), src_cpp)
+        )
+        res.extend(src_cpp)
+    return res
+
+
+src_cpp = getSrc(SRC)
+src_cpp.append('src/glove/py_bind/glove_pybind.cpp')
+
 
 class get_pybind_include(object):
     """Helper class to determine the pybind11 include path
@@ -52,8 +57,6 @@ ext_modules = [
         include_dirs=[
             get_pybind_include(),
             get_pybind_include(user=True),
-            # Path to fasttext source code
-            SRC_INCLUDE,
         ],
         language='c++',
         extra_compile_args=["-std=c++11 -D_hypot=hypot"],

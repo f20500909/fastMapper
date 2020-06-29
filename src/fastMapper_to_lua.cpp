@@ -42,7 +42,6 @@ extern "C" int run(lua_State *L) {
 
 
 static luaL_Reg cMethods[] = {
-
         {"run", run},
         {NULL, NULL}
 };
